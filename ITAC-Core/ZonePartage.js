@@ -1,0 +1,392 @@
+/**
+ * Cette classe permet de créer une Zone de Partage qui est associé à une Zone collaborative . Un objet Server est associé 
+ * à cette zone de partage afin de gérer l'échange de flux par socket
+ * 
+ * 
+ * @requires ZoneCollaborative
+ * @requires ZoneEchange
+ * @requires Artifact
+ * @requires Serveur
+ * @requires Constantes
+ * 
+ * @author philippe pernelle
+ * 
+ */
+
+var ZC = require('./ZoneCollaborative');
+var ZoneEchange = require('./ZoneEchange');
+var Art = require('./Artifact');
+var Serveur = require('./Serveur');
+
+
+var fs = require("fs");
+
+
+//création des constantes
+var Constantes=require('./Constante');
+var CONSTANTE = new Constantes();
+
+
+/**
+ * constructeur de ZonePartage
+ *
+ * @param  {string} idZP - identifiant de la ZP à créée
+ * @param  {integer} ZEmin - nombre minimun de ZoneEchange
+ * @param  {integer} ZEmax - nombre maximum de ZoneEchange
+ */
+var ZonePartage = function(ZC, idZP, nbZEmin, nbZEmax, urlWebSocket, portWebSocket)
+{
+
+	console.log('      ===========================');
+
+	this.ZC = ZC;
+	this.idZP = idZP;
+	
+	/**
+	 * nombre minimum de Zone d'Echange que l'on doit créer sur la Zone de partage
+	 * 
+	 * @private
+	 */
+	this.nbZEmin = nbZEmin;
+
+	/**
+	 * nombre maximun de Zone d'Echange que l'on peut créer sur la Zone de partage
+	 * 
+	 * @private
+	 */
+	this.nbZEmax = nbZEmax;
+	this.urlWebSocket = urlWebSocket;
+	this.portWebSocket = portWebSocket;
+
+	this.IdZEcurrent = 0;
+	this.nbIdZEPconnected = 0;
+	
+	/**
+	 * liste des "ZoneEchanges" associées à la zone de partage
+	 * 
+	 * @private
+	 */
+	this.listeZE = [];
+
+	
+	console.log('      === ZonePartage | ZC parent = ' + this.ZC.getId()+ ' | IdZP = ' + this.idZP+ ' | nbZEMin = ' + this.nbZEmin+ ' | nbZEMax = ' + this.nbZEmax+ ' | port = ' + this.portWebSocket);
+	console.log('      === ZonePartage : Creation serveur socket ');
+
+    this.server = new Serveur(this,portWebSocket);
+    
+	console.log('      ===========================');
+
+};
+
+
+module.exports = ZonePartage;
+
+
+/**
+ * Retourne 
+ *
+ */
+ZonePartage.prototype.getNbZEmax = function()
+{
+	return this.nbZEmax;
+};
+
+/**
+ * Retourne 
+ *
+ */
+ZonePartage.prototype.getNbIdZEPconnected = function()
+{
+	return this.nbIdZEPconnected;
+};
+
+/**
+ * Retourne 
+ *
+ */
+ZonePartage.prototype.getIdZEdispo = function()
+{
+	var ret=null;
+	var trouve_i =false ;
+	var j=0;
+	var i=0;
+	
+	var max = this.listeZE.length;
+	
+	
+	while (! trouve_i && i< max)
+	{		
+	    j=0;
+		while (! trouve_j && j< max)
+			{
+			if (this.listeZE[l].getId()===('ZE'+i)) trouve = true
+			else j++;
+			}
+		if (trouve_j) i++
+		else trouve_i = true;
+	}
+	if (trouve_i) ret= this.listeZE[i]	
+	else {
+		i++;
+		ret= 'ZE'+i;
+	} 
+		
+	
+
+	return ret;
+};
+
+ZonePartage.prototype.addIdZE = function()
+{
+	this.IdZEcurrent++ ;
+};
+
+/**
+ * Retourne d'ID de la zone de partage
+ *
+ */
+ZonePartage.prototype.getId = function()
+{
+	return this.idZP;
+};
+
+
+/**
+ * Retourne d'ID de la zone de partage
+ *
+ * @author philippe pernelle
+ */
+ZonePartage.prototype.getALLArtifacts = function()
+{
+	return listArtifacts ;
+};
+
+
+/**
+ * retourne le nombre de Zone d'echange associé à la Zone de Partage
+ * 
+ * @public
+ * @returns {Number} Nb de ZE
+ * @author philippe pernelle
+ */
+
+ZonePartage.prototype.getNbZE = function() {
+	return this.listeZE.length;
+};
+
+
+/**
+ * creation d'une Zone d'Echange (ZE) associée à une ZEP (tablette)
+ * 
+ * @param {string} idZEP identifiant de la tablette
+ * @autor philippe pernelle
+ */
+
+ZonePartage.prototype.createZE = function(idZEP) {
+
+var ret= null;	
+
+if (this.getNbZE() < this.nbZEmax)
+	{
+	console.log('      === ZonePartage (' + this.idZP+') : demande de creation de ZE - [ok]');
+	
+	
+	//calcul de l'ID de la ZE crée
+	//var idze = 'ZE'+this.getIdZEcurrent();
+	var idze = this.getIdZEdispo();
+	
+	// création de la ZE et mise dans la liste
+	this.listeZE.push( new ZoneEchange(this, idze, idZEP, true));
+
+	console.log('      === ZonePartage (' + this.idZP+') : ZE créée = '+idze +' pour la ZEP = '+idZEP);
+	ret=idze;
+	}
+else
+	{
+	console.log('      === ZonePartage (' + this.idZP+') : demande de creation de ZE - [NOK]');
+	}
+
+console.log('      === ZonePartage : le nombre total de ZE est = ' + this.listeZE.length);
+
+return ret;
+
+};
+
+
+/**
+ * Retourne une Zone d'Echange spécifique de la ZP
+ * 
+ * @public
+ * @param {String} idZE Identifiant de la ZE
+ * @return {ZE} Zone echange
+ * @autor philippe pernelle
+ */
+
+ZonePartage.prototype.getZE = function(idZE) {
+
+	var ret=null;
+
+	//console.log(' recherche ZE parmis '+this.getNbZE());
+	for (var i=0; i  <this.listeZE.length ; i ++)
+		{
+
+		if (this.listeZE[i].getId()===idZE)
+			{
+			ret= this.listeZE[i];
+			}
+		}
+	return ret;
+};
+
+/**
+ * Retourne une Zone d'Echange spécifique de la ZP
+ * 
+ * @public
+ * @param {String} idZEP Identifiant de la ZEP associé
+ * @return {ZE} Zone echange
+ * @autor philippe pernelle
+ */
+
+ZonePartage.prototype.getZEbyZEP = function(idZEP) {
+
+	var ret=null;
+
+	for (var i=0; i  <this.listeZE.length ; i ++)
+		{
+
+		if (this.listeZE[i].getIdZEP()===idZEP)
+			{
+			ret= this.listeZE[i];
+			}
+		}
+	return ret;
+};
+
+
+/**
+ * Retourne la liste de toutes les Zones d'échanges de la ZP
+ * 
+ * @public
+ * @return {ZE[]} liste des ZE
+ */
+
+ZonePartage.prototype.getAllZE =  function() 
+{
+	return this.listeZE;
+};
+
+/**
+ * envoi d'un Artefact depuis le ZP vers une ZE
+ * 
+ * @public
+ * @param {} idZEP
+ * @return {ZE} Zone echange
+ */
+ZonePartage.prototype.sendArFromZPtoZE = function(idAr, idZE) 
+{
+	this.ZC.setArtifactIntoZE(idAr,idZE);
+
+};
+
+
+/**
+ * envoi d'un Artefact depuis une ZE vers une ZP
+ * 
+ * @public
+ * @param {} idZEP
+ * @return {ZE} Zone echange
+ */
+ZonePartage.prototype.sendArFromZEtoZP = function(idAr, idZP) 
+{
+	this.ZC.setArtifactIntoZP(idAr,idZP);
+};
+
+
+/**
+ * tr une Zone d'échange spécifique de la ZP
+ * 
+ * @public
+ * @param {} idZEP
+ * @return {ZE} Zone echange
+ */
+ZonePartage.prototype.addArtifactFromZEPtoZE = function(pseudo, idZEP, idZE, artefactenjson) {
+
+	
+	// vérification que la ZEP est bien connecté avec la ZE
+	var IdArtefact =0;
+	
+	var maZE = this.getZE(idZE);
+	if (maZE.getIdZEP() === idZEP )
+		// cas ou elle est bien en lien avec la ZEP
+		{
+		
+		// conversion json en objet
+		IdArtefact= this.ZC.addArtifactFromJSON(artefactenjson);
+
+		// affectation de l'artifact à la zone ZE
+		this.ZC.setArtifactIntoZE(IdArtefact,idZE);
+		
+		
+		}
+	// renvoie l'id de l'artifcat créé
+	return IdArtefact;
+
+};
+
+
+/**
+
+ * envoi d'un Artefact depuis une ZEP (ZE) vers une EP
+
+ * 
+
+ * @public
+
+ * @param {} idZE
+
+ * @return {ZE} Zone echange
+
+ */
+ZonePartage.prototype.sendArFromZEPtoEP = function(idAr, idZE,idZEP) 
+
+{
+
+	this.ZC.setArtifactIntoEP(idAr,idZE,idZEP);
+
+};
+
+
+
+
+/**
+ * tr une Zone d'échange spécifique de la ZP
+ * 
+ * @public
+ * @param {} idZEP
+ * @return {ZE} Zone echange
+ */
+
+ZonePartage.prototype.addArtifactFromZEPtoZP = function(pseudo, idZEP, idZE, artefactenjson) {
+
+	
+	// vérification que la ZEP est bien connecté avec la ZE
+	var IdArtefact =0;
+	
+	var maZE = this.getZE(idZE);
+	if (maZE.getIdZEP() === idZEP )
+		// cas ou elle est bien en lien avec la ZEP
+		{
+		
+		// conversion json en objet
+		IdArtefact= this.ZC.addArtifactFromJSON(artefactenjson);
+
+		// affectation de l'artifact à la zone ZP
+		this.ZC.setArtifactIntoZP(IdArtefact,this.getId());
+		
+		
+		}
+	// renvoie l'id de l'artifcat créé
+	return IdArtefact;
+
+};
+

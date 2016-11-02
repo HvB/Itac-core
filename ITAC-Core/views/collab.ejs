@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  
+    <title><%= title %></title>
+
+	<% include entete %>.
+
+
+	
+	
+</head>
+
+<body >
+  
+ 
+
+	<script>
+
+		var ipserv = '<%= ipserver %>';		
+		var nomZC = '<%= zonecollab.idZC %>';
+
+	
+	</script>
+	
+		<div class="infoZP">
+ 		  adresse IP du Serveur ITAC = <%= ipserver %> </br>
+ 		  nom de votre zone collaborative ITAC = <%= zonecollab.idZC %>  </br>
+ 		  nombre d'espace de travail de votre zone = <%= zonecollab.nbZP %>
+ 
+ 		 <ul>
+    		<%  nb= parseInt(zonecollab.nbZP);
+    		    console.log('PAGE : collab.ejs -> zonecollab ='+zonecollab);
+    			for(var i=0; i<nb; i++) { 
+    				minmax=zonecollab.ZP[i].nbZEmin+'-'+zonecollab.ZP[i].nbZEmax;
+    				console.log('PAGE : collab.ejs -> minmax = '+ minmax);
+    			%>
+        	<li>
+        	    Type d'espace de travail : <%= zonecollab.ZP[i].typeZP %>  Lien URL : 
+            	<a target='_blank' href='/collab/<%= zonecollab.idZC %>/espacetravail/<%= i %>/<%= zonecollab.ZP[i].idZP %>/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>'>
+                /collab/<%= zonecollab.idZC %>/espacetravail/<%= zonecollab.ZP[i].idZP %>/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>
+            	</a>
+        	</li>
+    		<% } %>
+		 </ul>
+ 		<div>
+
+</body>
+  
+  
+  
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <title><%= title %></title>
+   <% include entete %>
+   <script language="JavaScript" type="text/javascript" src="/javascripts/formITAC.js"></script>
+</head>
+<body>
+    <form action="" method="post" >
+    	<input type="submit" value="Lancement ITAC" />
+        <br />
+         <fieldset>
+            <label for="idZC">Identifiant de votre Zone Collaborative : </label>
+            <input type="text" id="idZC" name="idZC" placeholder="Entrez un identifiant" />
+            <br />          
+            <label for="email">Votre Email:</label>
+            <input type="email" id="email" name="email" placeholder="Entrez votre adresse email" />
+            <br />
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" placeholder="donner une breve description de votre activite collaborative"></textarea>
+            <br />
+           
+         </fieldset>
+    
+      <input type="button" value="Ajouter un espace de travail" onclick="ajouterElement();" />
+      <div id="conteneur">
+        <div id="element1">
+       		<label for="input1">Espace de travail : </label>
+          	<input type="text" value="" id="input1" name="input1" />
+          	<label for="type1">Type : </label>
+          	<select type="select"  id="type1" name="type1" >
+          		<option value="Table">Table</option>
+  				<option value="Ecran">Ecran</option>
+          	</select>
+          	<label for="min1">Nb de connexion MIN : </label>
+          	<input type="number" value="" id="min1" name="min1" />
+          	<label for="max1">Nb de connexion MAX : </label>
+          	<input type="number" value="" id="max1" name="max1" />
+          	<label for="port1">Port : </label>
+          	<input type="number" value="" id="port1" name="port1" />
+          	<input type="button" value="Supprimer" id="delete1" />
+        </div>
+       
+    </form>
+
+
+</body>
+</html>
+  

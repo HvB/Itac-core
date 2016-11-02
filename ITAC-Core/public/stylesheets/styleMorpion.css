@@ -1,0 +1,82 @@
+/*
+body {
+margin: 0;
+background-image:url('background.jpg');
+background-size:cover;
+	width: auto;
+	background-repeat: repeat-y;
+}
+*/
+
+table.morpion{
+
+margin:auto;
+
+}
+
+table.morpion td{
+	width:230px;
+	height:230px;
+	background-size:100% 100%;
+	text-align: center;
+
+
+
+}
+
+table.morpion {
+	margin-top: 2%;
+	border-collapse: collapse;
+}
+
+
+
+
+
+
+#info{
+	
+	margin-top: -500px;
+	margin-right: 100px;
+	border:2px dotted white;
+	width:200px;
+	color: white;
+	font-family: Impact;
+	font-size: 1.25em;
+
+}
+
+.clr {
+
+	clear: both;
+}
+
+#gain{
+
+	color:white;
+	font-size:80px;
+	font-family:Impact;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: -15%;
+	width: 690px;
+	text-align: center;
+	background-color:rgba(0,116,132,0.7);
+}
+
+#menu{
+  font-family: impact;
+  font-size: 22px;
+  color: white;
+  margin-right: 5%;
+  text-decoration: none;
+  padding-top: 30px;
+}
+
+#menu a{
+  text-decoration: none;
+}
+
+#menu a:visited{
+  text-decoration: none;
+}
