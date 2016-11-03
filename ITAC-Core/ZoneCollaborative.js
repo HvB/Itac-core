@@ -501,10 +501,11 @@ ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string)
 	};
 
 /**
- * ajoute un nouveau artefact à la zone collaborative à partir d'un JSON
+ * Change le conteneur d'un artefact pour le mettre dans une ZE
  * 
  * @public
- * @param {JSON } 
+ * @param {idArtifact} 
+ * @param {IdZE} 
  * 
  * @author philippe pernelle
  */
@@ -512,12 +513,23 @@ ZoneCollaborative.prototype.setArtifactIntoZE = function(idArtifact, IdZE) {
 	
 	var monArtifact= this.getArtifact(idArtifact);
 	monArtifact.setIntoZone(IdZE,CONSTANTE.typeConteneur_ZE);
-	
+	console.log('    *** ZC : deplacement artifact ='+monArtifact.idAr+' vers ZE ='+IdZE);
 }
+
+/**
+ * Change le conteneur d'un artefact pour le mettre dans une ZP
+ * 
+ * @public
+ * @param {idArtifact} 
+ * @param {IdZP} 
+ * 
+ * @author philippe pernelle
+ */
 ZoneCollaborative.prototype.setArtifactIntoZP = function(idArtifact, IdZP) {
 	
 	var monArtifact= this.getArtifact(idArtifact);
 	monArtifact.setIntoZone(IdZP,CONSTANTE.typeConteneur_ZP);
+	console.log('    *** ZC : deplacement artifact ='+monArtifact.idAr+' vers ZP ='+idZP);
 	
 }
 

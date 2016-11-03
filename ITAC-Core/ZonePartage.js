@@ -214,6 +214,25 @@ return ret;
 
 };
 
+/**
+ * suppresion  d'une Zone d'Echange (ZE) associée à une ZEP (tablette)
+ * 
+ * @param {string} idZEP identifiant de la tablette
+ * @autor philippe pernelle
+ */
+
+ZonePartage.prototype.destroyZE = function(idZE) {
+	
+	for (var i=0; i  <this.listeZE.length ; i ++)
+	{
+
+	if (this.listeZE[i].getId()===idZE)
+		{
+		this.listeZE[i].splice(i,1);
+		}
+	}
+}
+
 
 /**
  * Retourne une Zone d'Echange spécifique de la ZP
@@ -278,11 +297,12 @@ ZonePartage.prototype.getAllZE =  function()
 };
 
 /**
- * envoi d'un Artefact depuis le ZP vers une ZE
+ * envoi d'un Artefact depuis une ZP vers une ZE .
+ * en fait l'envoi est un simple changement de conteneur , c'est la ZC qui s'en charge
  * 
  * @public
- * @param {} idZEP
- * @return {ZE} Zone echange
+ * @param {idAr} 	identifant de l'artefact à deplacer
+ * @param {idZE} 	Zone d'Echange cible
  */
 ZonePartage.prototype.sendArFromZPtoZE = function(idAr, idZE) 
 {
@@ -292,11 +312,12 @@ ZonePartage.prototype.sendArFromZPtoZE = function(idAr, idZE)
 
 
 /**
- * envoi d'un Artefact depuis une ZE vers une ZP
+ * envoi d'un Artefact depuis une ZE vers une ZP .
+ * en fait l'envoi est un simple changement de conteneur , c'est la ZC qui s'en charge
  * 
  * @public
- * @param {} idZEP
- * @return {ZE} Zone echange
+ * @param {idAr} 	identifant de l'artefact à deplacer
+ * @param {idZP} 	Zone de Partage cible
  */
 ZonePartage.prototype.sendArFromZEtoZP = function(idAr, idZP) 
 {

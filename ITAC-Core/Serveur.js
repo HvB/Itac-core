@@ -228,60 +228,86 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 	//var tt= util.inspect(socket.handshake);
 	//console.log(tt);
 
-	// 0 - demande de connexion d'une ZA
+	/* 
+	 * 0 - Demande de connexion d'une ZA
+	 *     Cet evenement est normalement émis par une Zone d'Affichage associé à une Zone de partage
+	 *     un acquitement est envoyé en retour     
+	 */
 	socket.on(CONSTANTE.EVT_DemandeConnexionZA,  (function(urldemande,zpdemande ) {
 	   	console.log('******** '+CONSTANTE.EVT_DemandeConnexionZA+' ***** ---- Demande de connexion d une ZA ( ' +urldemande +' ) avec IP= ' + clientIp +' et ZP demande= '+zpdemande);
 	    this.demandeConnexionZA(socket,urldemande,zpdemande);  		
 	 }).bind(this));
 	
-	// 1 - demande de connexion d'une ZEP --> demande de création d'une ZE associé
+	/* 
+	 * 1 - demande de connexion d'une ZEP --> demande de création d'une ZE associé
+	 *     Cet evenement est envoye par une ZEP (tablette)
+	 *     un acquitement est envoyé en retour à la ZEP ainsi qu'a la ZA pour declancher son affichage 
+	 */ 
 	socket.on(CONSTANTE.EVT_DemandeConnexionZEP  , (function(pseudo,posAvatar ) {
 	   	console.log('******** '+CONSTANTE.EVT_DemandeConnexionZEP+' ***** --- Demande de connexion de la ZEP avec IP= ' + clientIp +' et pseudo= '+pseudo);
 	    this.demandeConnexionZE(socket,clientIp,pseudo,posAvatar); 
 	 }).bind(this));
 		
-	// 2 - reception d'un artefact d'une ZEP --> ZE
+	/*
+	 * 2 - reception d'un artefact d'une ZEP --> ZE
+	 *     cet evenement est envoye par une ZEp (tablette) lorsque qu'un utilisateur deplace un artefact vers sa zone d echange
+	 *     un acquitement est envoye à la ZEP et a la ZA pour signaler la reception de cet artifact
+	 */ 
 	socket.on(CONSTANTE.EVT_NewArtefactInZE, (function(pseudo, idZEP, idZE, artefactenjson) {
 	 	console.log('******** '+CONSTANTE.EVT_NewArtefactInZE+' ***** ---- Reception Artifact d une ZEP (' +idZEP+ ' ) vers la ZE ='+ idZE);
 	   	this.receptionArtefactIntoZE(socket,pseudo, idZEP, idZE, artefactenjson);	 
 	 }).bind(this));
 	
-	// 3 - reception d'un artefact d'une ZEP --> ZP
+	/*
+	 * 3 - reception d'un artefact d'une ZEP --> ZP
+	 *     cet evenement est envoye par une ZEp (tablette) lorsque qu'un utilisateur deplace un artefact directement vers la  zone de partage
+	 *     un acquitement est envoye à la ZEP et a la ZA pour signaler la reception de cet artifact	 * 
+	 */ 
 	socket.on(CONSTANTE.EVT_NewArtefactInZP, (function(pseudo, idZEP, idZE, artefactenjson) {
 	 	console.log('******** '+CONSTANTE.EVT_NewArtefactInZP+' ***** ---- Reception Artifact d une ZEP (' +idZEP+ ')  pousser vers la ZP ('+this.ZP.getId()+')');
 	   	this.receptionArtefactIntoZP(socket,pseudo, idZEP, idZE, artefactenjson);	 
 	 }).bind(this));
 	
-	//4-envoie d'un artefact d'une ZE ---> ZP 
+	/*
+	 * 4 - envoie d'un artefact d'une ZE ---> ZP 
+	 *     cet evenement est emis par une zone d'affichage (ZA) lorsqu 'un utilisateur deplace un artefact d'une ZE vers la zone commune de partage (ZP)
+	 *     le traitement consite a demander a la ZC de changer le conteneur de l'artifact
+	 *     un evenement est ensuite emis pour informer la tablette qu'elle doit supprimer l'artifact
+	 */
 	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZEversZP, (function (idAr,idZE, idZP) {
-		console.log(' --- Envoie artefact '+idAr+ ' vers la zone de partage '+this.ZP.getId());
+		console.log('******** '+CONSTANTE.EVT_EnvoieArtefactdeZEversZP+' ***** --- Envoie artefact '+idAr+ ' vers la zone de partage '+this.ZP.getId());
 		this.envoiArtefacttoZP(socket,idAr,idZE, idZP);
 	}).bind(this));
 	
-	//4-envoie d'un artefact d'une ZP ---> ZE 
+	/* 
+	 * 5 - envoie d'un artefact d'une ZP ---> ZE 
+	 *     cet evenement est emis par une zone d'affichage (ZA) lorsqu 'un utilisateur deplace un artefact la zone commune de partage (ZP)  vers  une ZE
+	 *     le traitement consite a demander a la ZC de changer le conteneur de l'artifact
+	 *     un evenement est ensuite emis pour informer la tablette qu'elle receptionner l'artifact
+	 */
 	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZPversZE, (function (idAr, idZE) {
-		console.log(' --- Envoie artefact '+idAr+ ' vers la zone dechange '+idZE);
+		console.log('******** '+CONSTANTE.EVT_EnvoieArtefactdeZPversZE+' ***** --- Envoie artefact '+idAr+ ' vers la zone dechange '+idZE);
 		this.envoiArtefacttoZE(socket,idAr, idZE);
 	}).bind(this));
  	 
 
-	//5-envoie d'un artefact d'une ZE ----> EP
-	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZEversEP, (function(idAr, idZE, idZEP){
-		
+	/*
+	 * 6 - envoie d'un artefact d'une ZE ----> EP
+	 *     cet evenement est envoye par une ZEp (tablette) lorsque qu'un utilisateur deplace un artefact de  sa zone d echange vers son EP
+	 */
+	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZEversEP, (function(idAr, idZE, idZEP){		
 		console.log('******** '+CONSTANTE.EVT_EnvoieArtefactdeZEversEP+' ***** ---- deplace Artifact('+idAr+') d une ZE (' +idZE+ ')   vers la EP ('+idZEP+')');		
-		this.envoiArtefacttoEP(socket, idAr, idZE,idZEP);
-		
+		this.envoiArtefacttoEP(socket, idAr, idZE,idZEP);		
 	}).bind(this));
 	
  	
-
-	//6- demande de deconnexion
+	/*
+	 * 7 - demande de deconnexion
+	 */
 
 	socket.on("EVT_Deconnexion", (function (pseudo, idZE) {
-		console.log('-- Déconnexion de ' +pseudo + ' suppression de la zone echange ' +idZE)
+		console.log('******** '+CONSTANTE.EVT_Deconnexion+' ***** ---- deconnexion d une ZE (' +idZE+ ')'  );
 		this.deconnexion(socket, pseudo, idZE);
-	    idZEP--;
-	    console.log("idezep="+idZEP);
 	}).bind(this));
 	
 };
@@ -403,26 +429,30 @@ Serveur.prototype.demandeConnexionZA = function(socket, urldemande, idZPdemande)
  */
 Serveur.prototype.envoiArtefacttoZE = function (socket,idAr, idZE)
 {
-	
+	// cette fonction traite un changement de conteneur d'une ZP vers une ZE 
 	this.ZP.sendArFromZPtoZE(idAr, idZE);
 	
-	// il faut informer la ZEP qui doit l ajouter de son ZEP
+	// il faut informer aussi la ZEP qui doit ajouter cet Artifact a sa zone
+	
+	// on recupere la socket de associe a la ZE
 	var id= this.getZESocketId(idZE);
 	var artifactenjson= JSON.stringify(this.ZP.ZC.getArtifact(idAr));
 	this._io.sockets.to(id).emit(CONSTANTE.EVT_EnvoieArtefactdeZPversZE, artifactenjson );
 	
 };
 /**
- * cette fonction traite l'envoie d'un artefact de la Zone d'e partage vers la zone d'echange  
+ * cette fonction traite l'envoie d'un artefact d'une Zone d'Echange (ZE) vers la zone de partage (ZP)  
+ * en fait l'artéfact reste dans sa zone collaborative mais change de conteneur
+ * 
  * @param {socket} socket
  * @param {number} idAr
- * @param {string} IdZP
- * @param {string} artefact
+ * @param {string} idZE
+ * @param {string} idZP
  * @author philippe pernelle 
  */
 Serveur.prototype.envoiArtefacttoZP = function (socket,idAr,idZE,idZP)
 {
-	// transferer de ZE à ZP
+	// cette fonction traite un changement de conteneur d'une ZE vers la ZP 
 	this.ZP.sendArFromZEtoZP(idAr,  idZP);
 	
 	// il faut informer la ZEP qui doit le suprimer de son ZEP
@@ -545,11 +575,14 @@ Serveur.prototype.envoiArtefacttoEP = function (socket,idAr, idZE, idZEP)
 Serveur.prototype.deconnexion = function (socket,pseudo, idZE)
 
 {
-
+	// il faut liberer la zone echange 
 	
+	//je récupere la socket de la ZE recherché
+	var idsock= getZESocketId(idZE);
+	
+	console.log("    ---- socket : suppresion de la liste des ZE de la ZP ZE=" +idZE);
+	this.ZP.destroyZE(idZE);
 
-
-	console.log('idZE en cours de suppression')
 	// envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
 
 	if (this.isZAConnected())
