@@ -230,7 +230,7 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 
 	// 0 - demande de connexion d'une ZA
 	socket.on(CONSTANTE.EVT_DemandeConnexionZA,  (function(urldemande,zpdemande ) {
-	   	console.log('    ***** '+CONSTANTE.EVT_DemandeConnexionZA+' ***** ---- Demande de connexion d une ZA ( ' +urldemande +' ) avec IP= ' + clientIp +' et ZP demande= '+zpdemande);
+	   	console.log('******** '+CONSTANTE.EVT_DemandeConnexionZA+' ***** ---- Demande de connexion d une ZA ( ' +urldemande +' ) avec IP= ' + clientIp +' et ZP demande= '+zpdemande);
 	    this.demandeConnexionZA(socket,urldemande,zpdemande);  		
 	 }).bind(this));
 	
@@ -255,20 +255,20 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 	//4-envoie d'un artefact d'une ZE ---> ZP 
 	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZEversZP, (function (idAr,idZE, idZP) {
 		console.log(' --- Envoie artefact '+idAr+ ' vers la zone de partage '+this.ZP.getId());
-		//this.envoiArtefacttoZP(socket,idAr,idZE, idZP);
+		this.envoiArtefacttoZP(socket,idAr,idZE, idZP);
 	}).bind(this));
 	
 	//4-envoie d'un artefact d'une ZP ---> ZE 
-	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZPversZE, (function (idAr, idZEP) {
-		console.log(' --- Envoie artefact '+idAr+ ' vers la zone dechange '+idZEP);
-		//this.envoiArtefacttoZE(socket,idAr, idZE);
+	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZPversZE, (function (idAr, idZE) {
+		console.log(' --- Envoie artefact '+idAr+ ' vers la zone dechange '+idZE);
+		this.envoiArtefacttoZE(socket,idAr, idZE);
 	}).bind(this));
  	 
 
-	//5-envoie d'un artefact d'une ZEP ----> EP
-	socket.on(CONSTANTE.EVT_Envoie_ArtefactdeZEversEP, (function(idAr, idZE, idZEP){
+	//5-envoie d'un artefact d'une ZE ----> EP
+	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZEversEP, (function(idAr, idZE, idZEP){
 		
-		console.log('******** '+CONSTANTE.EVT_Envoie_ArtefactdeZEversEP+' ***** ---- deplace Artifact('+idAr+') d une ZE (' +idZE+ ')   vers la EP ('+idZEP+')');		
+		console.log('******** '+CONSTANTE.EVT_EnvoieArtefactdeZEversEP+' ***** ---- deplace Artifact('+idAr+') d une ZE (' +idZE+ ')   vers la EP ('+idZEP+')');		
 		this.envoiArtefacttoEP(socket, idAr, idZE,idZEP);
 		
 	}).bind(this));
@@ -409,7 +409,7 @@ Serveur.prototype.envoiArtefacttoZE = function (socket,idAr, idZE)
 	// il faut informer la ZEP qui doit l ajouter de son ZEP
 	var id= this.getZESocketId(idZE);
 	var artifactenjson= JSON.stringify(this.ZP.ZC.getArtifact(idAr));
-	this._io.sockets.to(id).emit(CONSTANTE.EVT_EnvoieArtefactdeZEversZP, artifactenjson );
+	this._io.sockets.to(id).emit(CONSTANTE.EVT_EnvoieArtefactdeZPversZE, artifactenjson );
 	
 };
 /**

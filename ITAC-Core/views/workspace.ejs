@@ -56,7 +56,7 @@ else {
     			
 		socket.on('EVT_ReponseOKConnexionZA',function(ZC) {
 	  	
-			// on récupère tout le paramatrage de la Zone Collaborative
+			// on rï¿½cupï¿½re tout le paramatrage de la Zone Collaborative
 			myZC = ZC;
 			
     		alert('Zone collaborative active : '+ ZC.idZC+'\n\nBienvenue sur l\'Espace de Partage :'+ZC.ZP[rang].idZP+'\n\n');
@@ -186,7 +186,7 @@ else {
     		art=JSON.parse(chaineJSON)
 
     		if (art.typeArtefact == "image") {
-           		art.contenu=(art.contenu).replace(/(\r\n|\n|\r)/gm, ""); //supprimer les caractére spéciaux
+           		art.contenu=(art.contenu).replace(/(\r\n|\n|\r)/gm, ""); //supprimer les caractï¿½re spï¿½ciaux
 
     	
              	var target = $("<div id="+art.idAr+" class='draggable artefact img dropped-image' style='background-image: url(data:image/png;base64,"+art.contenu+")'> </div>");
@@ -346,10 +346,10 @@ var target = event.target,
 
 
     // Update scale
-   scale = scale * (1 + event.ds); //mise à jour de la zoom 
+   scale = scale * (1 + event.ds); //mise ï¿½ jour de la zoom 
 
     // Update angle, movement, and scale
-    angle += event.da; //mise à jour de l'angle 
+    angle += event.da; //mise ï¿½ jour de l'angle 
     target.style.webkitTransform = target.style.transform =   'translate(' + x + 'px, ' + y + 'px)' + ' ' + 'rotate(' + angle + 'deg)' + ' ' + 'scale(' + scale + ')' ;//modification de la forme de l'artefact 
 
 },
@@ -457,7 +457,7 @@ interact('.img')
      
 
  // });
-    //aprés le double click on crée les points par simple click
+    //aprï¿½s le double click on crï¿½e les points par simple click
 /*interact('.selected')*/.on('tap' , function (event) { 
   var ID=event.currentTarget.id;
   //alert(ID);
@@ -478,7 +478,7 @@ $("<div  id= 'notate' class='draggable point' >  </div>").appendTo("#"+ID+"");
     target.style.transform =
       'translate(' + x + 'px, ' + y + 'px)';
 
-    // mis à jour de la position 
+    // mis ï¿½ jour de la position 
     target.setAttribute('data-x', x);
     target.setAttribute('data-y', y);
   }
@@ -519,14 +519,14 @@ x: dropRect.left+dropRect.width / 2 ,
 y: dropRect.top+dropRect.height /2
 };
 
-//la possibilité de drop  
+//la possibilitï¿½ de drop  
  zoneEchangeElement.classList.add('drop-target');
  draggableElement.classList.add('can-drop');
 
 },
 
 ondragleave: function (event) {
-//supprimer les classes ajoutées aprés le drop 
+//supprimer les classes ajoutï¿½es aprï¿½s le drop 
  event.target.classList.remove('drop-target');
  event.relatedTarget.classList.remove('can-drop');
  event.relatedTarget.classList.remove('dropped-image');
@@ -538,16 +538,16 @@ ondragleave: function (event) {
  var idZE=event.target.id;
  //alert("artefact numero " +idAr +" de " +idZE)
 
- socket.emit('EVT_EnvoieArtefactdeZEversZP', idAr, idZE , 'test');
+ socket.emit('EVT_Envoie_ArtefactdeZEversZP', idAr, idZE , 'test');
  
  
-//revenir à la classe initialle 
+//revenir ï¿½ la classe initialle 
  //event.relatedTarget.classList.add('artefact');
  $(event.relatedTarget).find("p").show();
  //affichage du contenu
 },
 ondrop: function (event) {
-//les evenements aprés le drop
+//les evenements aprï¿½s le drop
 var idAr = event.relatedTarget.id;
 var idZE=event.target.id;
 
@@ -566,7 +566,7 @@ var idAr = event.relatedTarget.id;
 var idZE=event.target.id;
 
 //alert("envoie art " +idAr+" vers " +idZE)
-socket.emit('EVT_EnvoieArtefactdeZPversZE', idAr, idZE);
+socket.emit('EVT_Envoie_ArtefactdeZPversZE', idAr, idZE);
 
 }
 
@@ -716,7 +716,7 @@ ondropdeactivate: function (event) {
 </script>
 
 
-<!-- pas utilisé pour le moment  
+<!-- pas utilisï¿½ pour le moment  
 
 <script type="text/javascript">
 
@@ -739,7 +739,7 @@ ondragenter: function (event) {
  var draggableElement = event.relatedTarget,
      zoneEchangeElement = event.target;
 
-//la possibilité de drop 
+//la possibilitï¿½ de drop 
  zoneEchangeElement.classList.add('drop-target');
  draggableElement.classList.add('can-drop');
 
@@ -754,7 +754,7 @@ ondragleave: function (event) {
 
 },
 ondrop: function (event) {
-//les evenements aprés le drop
+//les evenements aprï¿½s le drop
 // event.relatedTarget.classList.add('dropped');
  event.relatedTarget.classList.remove('can-drop');
  event.relatedTarget.classList.add('artefact');
@@ -897,7 +897,7 @@ interact('.zoneEchange')
     	
     	
     	    
-		/* --- cas ou une tablette a été autorisé à se connecter à l'espace de travail --*/
+		/* --- cas ou une tablette a ï¿½tï¿½ autorisï¿½ ï¿½ se connecter ï¿½ l'espace de travail --*/
 	    socket.on('EVT_NewZEinZP', function(pseudo, idZE ,idZP,posAvatar)
 	  	{
 	    	//alert('Creation de ZE ='+idZE+' Pour '+pseudo)
@@ -923,7 +923,7 @@ interact('.zoneEchange')
     		art=JSON.parse(chaineJSON)
 
     		if (art.typeArtefact == "image") {
-           		art.contenu=(art.contenu).replace(/(\r\n|\n|\r)/gm, ""); //supprimer les caractére spéciaux
+           		art.contenu=(art.contenu).replace(/(\r\n|\n|\r)/gm, ""); //supprimer les caractï¿½re spï¿½ciaux
 
     			//var target = $("<div id="+art.idAr+" class='draggable artefact img dropped-image' style='background-image: url(data:image/png;base64,"+art.contenu+")'> </div>");
 	            //var target = $("<div  id= "+art.idAr+" class='draggable artefact img dropped-image' >	<img src='data:image/png;base64,"+art.contenu+"'/>  <br> </div>");

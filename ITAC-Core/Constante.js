@@ -72,7 +72,7 @@ var Constante = function()
 	/**
 	 * evenement envoye par ZEP quand une on remet une 
 	 */
-	this.EVT_Envoie_ArtefactdeZEversEP='EVT_Envoie_ArtefactdeZEversEP';
+	this.EVT_EnvoieArtefactdeZEversEP='EVT_Envoie_ArtefactdeZEversEP';
 	
 	/**
 	 * 

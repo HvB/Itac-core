@@ -304,7 +304,7 @@ ZoneCollaborative.prototype.getArtifact = function(idAr) {
 
 	for (var i = 0; i < this.getNbArtifact(); i++) 
 	{ 
-		if (this.artifacts[i].getId()===idAr) 
+		if (this.artifacts[i].getId()==idAr) 
 		{
 			ret = this.artifacts[i];
 			console.log('    *** ZC : recherche arifact dans la ZC [OK] idArtefact trouve='+ret.getId());			
