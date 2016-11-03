@@ -29,9 +29,9 @@
 var Constante = function()
 
 {
-
-	this.typeConteneur_ZE = 1;
-	this.typeConteneur_ZP = 0;
+	this.typeConteneur_EP = 'EP';
+	this.typeConteneur_ZE = 'ZE';
+	this.typeConteneur_ZP = 'ZP';
 	
 	this.typeArtefact_Message = 'message';
 	this.typeArtefact_Image = 'image';
@@ -69,6 +69,15 @@ var Constante = function()
 	this.EVT_ReceptionArtefactImage ='EVT_ReceptionArtefactImage';
 	this.EVT_EnvoieArtefactdeZEversZP='EVT_Envoie_ArtefactdeZEversZP';
 	this.EVT_EnvoieArtefactdeZPversZE='EVT_Envoie_ArtefactdeZPversZE';
+	/**
+	 * evenement envoye par ZEP quand une on remet une 
+	 */
+	this.EVT_Envoie_ArtefactdeZEversEP='EVT_Envoie_ArtefactdeZEversEP';
+	
+	/**
+	 * 
+	 */
+	this.EVT_ArtefactDeletedFromZE='EVT_ArtefactDeletedFromZE';
 
 	this.EVT_ReceptionArtefactIntoZE ='EVT_ReceptionArtefactIntoZE';
 	

@@ -223,6 +223,8 @@ Artifact.prototype.setMessage = function(message) {
 
 Artifact.prototype.setIntoZone=function(idConteneur,typeConteneur)
 {
+	console.log('    ---- changement de zone pour  Artefact ('+this.getId()+') conteneur de type source = '+this.getTypeConteneur()+ ' idconteneur source ='+this.getIdConteneur());
+	console.log('    ---- changement de zone pour  Artefact ('+this.getId()+') conteneur de type cible = '+typeConteneur+ ' idconteneur cible ='+idConteneur);
 	this.idConteneur=idConteneur;
 	this.typeConteneur=typeConteneur;
 };

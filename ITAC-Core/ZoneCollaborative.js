@@ -1,28 +1,17 @@
 /**
-
  * Cette classe permet de créer une Zone Collaborative dans laquelle il sera
-
  * possible de définir des Zones de Partages
-
  * 
-
  * @requires ZonePartage
-
  * @requires artifact
-
  * 
-
  * @author philippe pernelle
-
  */
 
 
 var Artifact = require('./Artifact');
-
 var ZonePartage = require('./ZonePartage');
-
 var Constantes=require('./Constante');
-
 var ZoneEchange = require ('./ZoneEchange');
 var fs = require("fs");
 
@@ -33,19 +22,12 @@ var CONSTANTE = new Constantes();
 
 
 /**
-
  * constructeur de la classe ZoneCollaborative
-
  * 
-
  * @constructor
-
  * @param {json}
-
- *            parametreZC - parametre de configuration de la ZC
-
+ * parametreZC - parametre de configuration de la ZC
  * @author philippe pernelle
-
  */
 
 var ZoneCollaborative = function(parametreZC) {
@@ -62,14 +44,12 @@ var ZoneCollaborative = function(parametreZC) {
 	this.artifacts = [];
 
 
-	// artifacs qui seront envoyé vers ZP
-
+	// artifacs qui seront envoyé vers ZZ
 	this.artifactsInZP = [];
 
 	
 
 	// artifacs qui seront envoyé vers ZE
-
 	this.artifactsInZE = [];
 
 
@@ -180,19 +160,12 @@ ZoneCollaborative.prototype.getJSON = function() {
 
 
 /**
-
  * retourne l'identifiant de la zone collaborative
-
  * 
-
  * @public
-
  * @returns {String} identifiant ZC
-
  * @author philippe pernelle
-
  */
-
 ZoneCollaborative.prototype.getId = function() {
 
 	return this.idZC;
@@ -334,8 +307,10 @@ ZoneCollaborative.prototype.getArtifact = function(idAr) {
 		if (this.artifacts[i].getId()===idAr) 
 		{
 			ret = this.artifacts[i];
+			console.log('    *** ZC : recherche arifact dans la ZC [OK] idArtefact trouve='+ret.getId());			
 		}
 	}
+	if (ret==null) console.log('    *** ZC : recherche arifact dans la ZC [NOK] idArtefact('+idAr+') nontrouve');
 	return ret;
 };
 
@@ -402,17 +377,11 @@ ZoneCollaborative.prototype.getNbZP = function() {
 
 
 /**
-
  * retourne un nouveau numero d'artefact
-
  * 
-
  * @public
-
  * @returns {Number} IdArtefact
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.setIdAr = function() {
@@ -463,7 +432,10 @@ ZoneCollaborative.prototype.addArtifact = function(creator, typeArtifact,idConte
 
 	};
 
-	
+ZoneCollaborative.prototype.delArtifact = function(id)
+	{
+	// afaire	
+	};
 	
 /**
  * ajoute un nouveau artefact à la zone collaborative à partir d'un JSON
@@ -475,14 +447,28 @@ ZoneCollaborative.prototype.addArtifact = function(creator, typeArtifact,idConte
  */
 ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string) {
 	
-	// calcul d'un nouvel identifiant
-	var id = this.setIdAr();
-	console.log('    *** ZC : calcul nouveau IdArtifact = '+id);
-
-	// création de l'artifact
 	
-	var monArtifact = Artifact.fromJSON(artifact_json_string,id);
-	console.log('    *** ZC : creation artifact depuis un json'+monArtifact.getId() );
+	var temp = JSON.parse(artifact_json_string);
+	if (temp.idAr!=null) {
+		var id = parseint(temp.idAr);
+		console.log('    *** ZC : reprise  IdArtifact = '+id);
+		this.delArtifact(id);
+		console.log('    *** ZC : suppresion ancien  IdArtifact = '+id);
+	} 	
+	else
+	{
+		// calcul d'un nouvel identifiant
+		var id = this.setIdAr();
+		console.log('    *** ZC : calcul nouveau IdArtifact = '+id);
+
+	}
+		// création de l'artifact
+		
+		var monArtifact = Artifact.fromJSON(artifact_json_string,id);
+		console.log('    *** ZC : creation artifact depuis un json'+monArtifact.getId() );
+
+	
+	
 
 	// ajout à la liste
 	this.artifacts.push(monArtifact);
@@ -740,32 +726,21 @@ ZoneCollaborative.prototype.addArtifactFromZEtoZEP = function(idZEP, idAr) {
 
 
 /**
-
  * supprimer artefact de la zone ZE à partir d'un JSON
-
  * 
-
  * @public
-
  * @param {JSON } 
-
  * 
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.setArtifactIntoEP = function(idAr, idZE, idZEP) {
-
 	
-	
+	console.log('    *** ZC : recherche art avec Id=' +idAr+ '  idZE= '+idZE + '  idZEP='+idZEP);
 	var monArtifact= this.getArtifact(idAr);
-	console.log(idAr)
-	console.log(idZEP)
-	//this.artifacts.pop(monArtifact);
-	console.log("artefact supprimé")
-	//console.log(this.artifacts)
+	
 
+	
 	monArtifact.setIntoZone(idZEP,CONSTANTE.typeConteneur_EP);
 
 

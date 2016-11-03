@@ -236,19 +236,19 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 	
 	// 1 - demande de connexion d'une ZEP --> demande de création d'une ZE associé
 	socket.on(CONSTANTE.EVT_DemandeConnexionZEP  , (function(pseudo,posAvatar ) {
-	   	console.log('    ***** '+CONSTANTE.EVT_DemandeConnexionZEP+' ***** --- Demande de connexion de la ZEP avec IP= ' + clientIp +' et pseudo= '+pseudo);
+	   	console.log('******** '+CONSTANTE.EVT_DemandeConnexionZEP+' ***** --- Demande de connexion de la ZEP avec IP= ' + clientIp +' et pseudo= '+pseudo);
 	    this.demandeConnexionZE(socket,clientIp,pseudo,posAvatar); 
 	 }).bind(this));
 		
 	// 2 - reception d'un artefact d'une ZEP --> ZE
 	socket.on(CONSTANTE.EVT_NewArtefactInZE, (function(pseudo, idZEP, idZE, artefactenjson) {
-	 	console.log('    ***** '+CONSTANTE.EVT_NewArtefactInZE+' ***** ---- Reception Artifact d une ZEP (' +idZEP+ ' ) vers la ZE ='+ idZE);
+	 	console.log('******** '+CONSTANTE.EVT_NewArtefactInZE+' ***** ---- Reception Artifact d une ZEP (' +idZEP+ ' ) vers la ZE ='+ idZE);
 	   	this.receptionArtefactIntoZE(socket,pseudo, idZEP, idZE, artefactenjson);	 
 	 }).bind(this));
 	
 	// 3 - reception d'un artefact d'une ZEP --> ZP
 	socket.on(CONSTANTE.EVT_NewArtefactInZP, (function(pseudo, idZEP, idZE, artefactenjson) {
-	 	console.log('    ***** '+CONSTANTE.EVT_NewArtefactInZP+' ***** ---- Reception Artifact d une ZEP (' +idZEP+ ')  pousser vers la ZP ('+this.ZP.getId()+')');
+	 	console.log('******** '+CONSTANTE.EVT_NewArtefactInZP+' ***** ---- Reception Artifact d une ZEP (' +idZEP+ ')  pousser vers la ZP ('+this.ZP.getId()+')');
 	   	this.receptionArtefactIntoZP(socket,pseudo, idZEP, idZE, artefactenjson);	 
 	 }).bind(this));
 	
@@ -266,10 +266,9 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
  	 
 
 	//5-envoie d'un artefact d'une ZEP ----> EP
-	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZEPversEP, (function(idAr, idZE, idZEP){
+	socket.on(CONSTANTE.EVT_Envoie_ArtefactdeZEversEP, (function(idAr, idZE, idZEP){
 		
-		console.log(' --- Supprission artefact '+idAr + ' de la zone dechange ' +idZE);
-		
+		console.log('******** '+CONSTANTE.EVT_Envoie_ArtefactdeZEversEP+' ***** ---- deplace Artifact('+idAr+') d une ZE (' +idZE+ ')   vers la EP ('+idZEP+')');		
 		this.envoiArtefacttoEP(socket, idAr, idZE,idZEP);
 		
 	}).bind(this));
@@ -490,8 +489,8 @@ Serveur.prototype.receptionArtefactIntoZP = function(socket, pseudo, idZEP, idZE
 		{
 		// retour à la ZEP pour mettre à jour les données de l'artefact
 		var chaineJSON= JSON.stringify(this.ZP.ZC.getArtifact(newidAr));
-		socket.emit(CONSTANTE.EVT_ReceptionArtefactIntoZP, pseudo, this.ZP.getId() );
-		console.log('    ---- socket : envoi à ZEP [EVT_ReceptionArtefactIntoZP]  ('+this.ZP.getId()+") ");
+		socket.emit(CONSTANTE.EVT_ReceptionArtefactIntoZP, pseudo, this.ZP.getId(),chaineJSON );
+		console.log('    ---- socket : envoi à ZEP [EVT_ReceptionArtefactIntoZP]  ('+this.ZP.getId()+") --> "+chaineJSON);
 
 		
 		// envoi d'un evenement pour mettre à jour le client associé à la ZP, s'il est connecté
@@ -509,36 +508,32 @@ Serveur.prototype.receptionArtefactIntoZP = function(socket, pseudo, idZEP, idZE
 		
 		}
 };
-
+/**
+ * cette fonction envoi un artifact de la ZE vers EP
+ */
 Serveur.prototype.envoiArtefacttoEP = function (socket,idAr, idZE, idZEP)
-
 {
-
 	
-
-	this.ZP.sendArFromZEPtoEP(idAr, idZE, idZEP);
-
-	// envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
-
-	if (this.isZAConnected())
-
-		{
-
+	if (idAr==null) {
+		console.log("    ---- socket : erreur envoie vers EP idArt est null");
+	}
+	else {
 		
-
-
-		this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ArtefactDeletedFromZE, idAr , idZE,idZEP);
-
-		console.log("    ---- socket : envoie art " +idAr+ " de ZE = " +idZE+ " POUR IHM = ---  vers " +idZEP);
-
-		}	
-
-	else
-
-		{ console.log('    ---- socket : pas d IHM pour [EVT_ArtefactDeletedFromZE] '); }
-
 	
-
+		console.log("    ---- socket : appel sendArFromZEPtoEP avec idArt " +idAr+ " de ZE = " +idZE+ " ---  vers " +idZEP);
+		this.ZP.sendArFromZEPtoEP(idAr, idZE, idZEP);
+	
+		// envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
+	
+		if (this.isZAConnected())
+			{
+			this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ArtefactDeletedFromZE, idAr , idZE,idZEP);
+	
+			console.log("    ---- socket : envoie art " +idAr+ " de ZE = " +idZE+ " POUR IHM = ---  vers " +idZEP);
+			}	
+		else
+			{ console.log('    ---- socket : pas d IHM pour [EVT_ArtefactDeletedFromZE] '); }
+	}
 }
 
 /** cette fonction traite la deconnexion

@@ -108,6 +108,7 @@ ZonePartage.prototype.getIdZEdispo = function()
 {
 	var ret=null;
 	var trouve_i =false ;
+	var trouve_j =false ;
 	var j=0;
 	var i=0;
 	
@@ -117,6 +118,7 @@ ZonePartage.prototype.getIdZEdispo = function()
 	while (! trouve_i && i< max)
 	{		
 	    j=0;
+	    trouve_j =false;
 		while (! trouve_j && j< max)
 			{
 			if (this.listeZE[l].getId()===('ZE'+i)) trouve = true
@@ -335,22 +337,15 @@ ZonePartage.prototype.addArtifactFromZEPtoZE = function(pseudo, idZEP, idZE, art
 
 
 /**
-
  * envoi d'un Artefact depuis une ZEP (ZE) vers une EP
-
  * 
-
  * @public
-
  * @param {} idZE
-
  * @return {ZE} Zone echange
-
  */
 ZonePartage.prototype.sendArFromZEPtoEP = function(idAr, idZE,idZEP) 
-
 {
-
+	
 	this.ZC.setArtifactIntoEP(idAr,idZE,idZEP);
 
 };
