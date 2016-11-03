@@ -450,7 +450,7 @@ ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string)
 	
 	var temp = JSON.parse(artifact_json_string);
 	if (temp.idAr!=null) {
-		var id = parseint(temp.idAr);
+		var id = parseInt(temp.idAr);
 		console.log('    *** ZC : reprise  IdArtifact = '+id);
 		this.delArtifact(id);
 		console.log('    *** ZC : suppresion ancien  IdArtifact = '+id);
