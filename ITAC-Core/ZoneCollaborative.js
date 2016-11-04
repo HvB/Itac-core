@@ -42,6 +42,8 @@ var ZoneCollaborative = function(parametreZC) {
 	 * @private
 	 */
 	this.artifacts = [];
+	
+	this.idArtifactNext = 1 ;
 
 
 	// artifacs qui seront envoyé vers ZZ
@@ -386,16 +388,19 @@ ZoneCollaborative.prototype.getNbZP = function() {
 
 ZoneCollaborative.prototype.setIdAr = function() {
 
-	var ret = 1;
+	
 
-	if (this.getNbArtifact() !== 0) {
+/*	if (this.getNbArtifact() !== 0) {
 
 		// on récupere le dernier IdArtefact du tableau et on ajoute 1
 
-		ret = this.artifacts[this.getNbArtifact() - 1].getId() + 1;
+		ret = this.artifacts[this.idArt].getId() + 1;
 
 	}
 
+*/	
+	var ret = this.idArtifactNext ;
+	this.idArtifactNext =  this.idArtifactNext+1;
 	return ret;
 
 };

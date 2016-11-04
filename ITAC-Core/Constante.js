@@ -95,7 +95,7 @@ var Constante = function()
 	/**
 	 * cet evenement est envoyé par le serveur quand une tablette se déconnecte 
 	 */	
-	this.EVT_SuppressZEinZP='EVT_SuppressZEinZP';	
+	this.EVT_SuppressZEinZP='EVT_Deconnexion';	
 	/**
 	 * cet evenement est envoyé par le serveur quand un nouvelle artefact a été crée dans la ZE 
 	 */		
