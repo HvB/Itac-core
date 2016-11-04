@@ -44,7 +44,7 @@ module.exports = function( ) {
 	    	console.log('CLIENT workspace.js -> routage GET : reception de  idZC= '+idZC +' idZP= '+idZP+' port= '+port + 'rang= '+rang+' --- host= '+host );	
 	    	console.log('CLIENT workspace.js -> routage GET : calcul de l url = '+url );	
 	
-	    	res.render('workspace', { title: 'Express' , urldemande:url, myZP:idZP, rangZP:rang , NbZEMin:min , NbZEMax:max  });
+	    	res.render('workspace', { title: 'Itac_ZC_app' , urldemande:url, myZP:idZP, rangZP:rang , NbZEMin:min , NbZEMax:max  });
 	  	} );
 	
 	/*

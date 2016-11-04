@@ -39,7 +39,7 @@ interact('.menu').draggable({
     onmove: dragMoveListener,
     //appeler cette fontion a chaque fin de l'action de glissement 
     onend: function (event) {
-    
+    alert("on lance onend mais on ne sait pas pourquoi");
     }
   });
 

@@ -17,60 +17,69 @@
   <body id="ZP">
   
  	 <div id="menu" class="menu hand"></div>
-  
+ 
   </body > 
   
 
   
 <script type="text/javascript">
+
+// Attente fin de chargement
 if(jQuery.ui){
-	//alert("loaded")
+	//alert(" jQuery.ui loaded")
 }
 else {
-	alert("no")
+	alert(" jQuery.ui non chargée")
 }
-</script>
 
-<script>
 
+  
+// Récupération des variables passées depuis routes/workspace.js
 
 		var urldemande = '<%= urldemande %>';
 		var zpdemande = '<%= myZP %>';
 		var rang= '<%= rangZP %>';
 		
+		// on déclare l'objet myZC qui va être la zone collaborative
 		var myZC = {};
 		var ZEmax= '<%= NbZEMax %>';;
-		var paramAffichageZE = [];
 		
-		console.log('PAGE : workspace.ejs -> demande connection socket sur : '+ urldemande);
+		// tableau qui va permettre de positionner correctement les zones d'échange (position, taille, orientation)
+		var paramAffichageZE = [];
+
+
+// *********************** Partie connexion *****************************		
+		console.log('PAGE : workspace.ejs -> demande connexion socket sur : '+ urldemande);
 		
 		var socket = io.connect(urldemande, {transports:['websocket']});
    		console.log('PAGE : workspace.js -> connexion socket [OK] ');
    
-   		/* ----------------------------*/
-		/* --- premiere connexion ZA---*/
-		/* ----------------------------*/
+   		/* ------------------------------------------------*/
+		/* --- premiere connexion ZA (Zone d'Activité = Serveur ?)---*/
+		/* ------------------------------------------------*/
     	
     	socket.emit('EVT_DemandeConnexionZA', urldemande, zpdemande);
     	console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= '+zpdemande);
     			
 		socket.on('EVT_ReponseOKConnexionZA',function(ZC) {
 	  	
-			// on rï¿½cupï¿½re tout le paramatrage de la Zone Collaborative
+			// on récupère tout le paramétrage de la Zone Collaborative
+
 			myZC = ZC;
 			
-    		alert('Zone collaborative active : '+ ZC.idZC+'\n\nBienvenue sur l\'Espace de Partage :'+ZC.ZP[rang].idZP+'\n\n');
-    		console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= '+ZC.ZP[rang].idZP);
+			// [TC] Pourquoi les logs suivants sont faits avec le paramètre formel ZC et non myZC?  >corrigé
+    		alert('Zone collaborative active : '+ myZC.idZC+'\n\nBienvenue sur l\'Espace de Partage :'+myZC.ZP[rang].idZP+'\n\n');
+    		console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= '+myZC.ZP[rang].idZP);
     		
-    		
-    		console.log('PAGE : workspace.ejs -> parametre de ZP = '+JSON.stringify(ZC.ZP[rang]));
+    		// là-dessous on a typeZP qui n'apparait pas
+    		console.log('PAGE : workspace.ejs -> paramètre de ZP = '+JSON.stringify(myZC.ZP[rang]));
     	
-    		// on lance le calcul des paramatre d'affichage
+    		// on lance le calcul des paramètres d'affichage
     		Calcule_Nb_ZE(ZEmax);
     		console.log('PAGE : workspace.ejs -> calcul taille ZE , NB_ZE_Largeur = '+NB_ZE_Largeur+' NB_ZE_Hauteur = '+NB_ZE_Hauteur);
     		console.log('PAGE : workspace.ejs -> calcul taille ZE , TailleZEenlargeur = '+TailleZEenlargeur+ ' TailleZEenhauteur = '+TailleZEenhauteur);
     		
-    		// on cree les DIV pour les ER
+    		// on cree les DIV pour les ER  [TC]  Les ZE non???
     		$( document ).ready(function() {
 				for(var i=1; i<=ZEmax; i++) 
 				{
@@ -117,8 +126,8 @@ else {
    
 		socket.on('EVT_ReponseNOKConnexionZA',function(ZC) {
     		myZC = ZC;
-    		alert('Zone collaborative active : '+ ZC.idZC+'\n\nImpossible d\'acceder a l\'Espace de Partage :'+ZC.ZP[rang].idZP+'\n\n');
-    		console.log('PAGE : workspace.js -> reception evenement [EVT_ReponseNOKConnexionZA] pour ZP= '+ZC.ZP[rang].idZP);
+    		alert('Zone collaborative active : '+ myZC.idZC+'\n\nImpossible d\'acceder a l\'Espace de Partage :'+myZC.ZP[rang].idZP+'\n\n');
+    		console.log('PAGE : workspace.js -> reception evenement [EVT_ReponseNOKConnexionZA] pour ZP= '+myZC.ZP[rang].idZP);
     	});
     	
     	/* ----------------------------- */
@@ -370,11 +379,14 @@ $.map($('body > *'), function(e,n) {
   event.target.style.zIndex = maxZ + 1; 
 //  event.target.style.position = 'relative'; 
 },
-onmove: dragMoveListener }); //fonction responsable de glissement
-
+onmove: dragMoveListener, //fonction responsable de glissement
+//appeler cette fontion a chaque fin de l'action de glissement 
+onend: function (event) {}
+    })
+    
 function dragMoveListener (event) {
 
-
+alert("c'est là?: 1");
 var target = event.target,
         // keep the dragged position in the data-x/data-y attributes
         x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
@@ -408,7 +420,7 @@ angle1= getRotationDegrees($(target));
 //alert(angle1)
 
 
-    // update the posiion attributes
+    // update the position attributes
     target.setAttribute('data-x', x);
     target.setAttribute('data-y', y);
 
@@ -468,6 +480,7 @@ $("<div  id= 'notate' class='draggable point' >  </div>").appendTo("#"+ID+"");
 
 //fonction de glissement toujours appeler lorsque on fait le drag and drop
   function dragMoveListener (event) {
+    alert("C'est là?: 2");
     var target = event.target,
         // stocker la position dans les attributs data-x/data-y
         x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
@@ -712,6 +725,45 @@ ondropdeactivate: function (event) {
 });
 
 
+//fonction de glissement toujours appeler lorsque on fait le drag and drop
+  function dragMoveListener (event) {
+    //alert("C'est le premier dragMoveListener");
+    var target = event.target,
+        // stocker la position dans les attributs data-x/data-y
+        x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+        y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+    // translation de l'element
+    target.style.webkitTransform =
+    target.style.transform =
+      'translate(' + x + 'px, ' + y + 'px)';
+
+    // mis à jour de la position 
+    target.setAttribute('data-x', x);
+    target.setAttribute('data-y', y);
+  }
+
+//le menu est draggable
+interact('.menu')
+  .draggable({
+    inertia: true,
+//l element reste dans sa zone limite , il peut pas sortir de son parent 
+    restrict: {
+     restriction: "parent",
+      endOnly: true,
+      elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+    },
+    // activer autoScroll
+    autoScroll: true,
+
+
+//appeler cette fonction a chaque action de glissement 
+    onmove: dragMoveListener,
+//appeler cette fontion a chaque fin de l'action de glissement 
+    onend: function (event) {
+    
+    }
+  })  
 
 </script>
 
@@ -837,27 +889,7 @@ $(event.relatedTarget).fadeOut();
   }
 });
 
-//le menu est draggable
-interact('.menu')
-  .draggable({
-    inertia: true,
-//l element reste dans sa zone limite , il peut pas sortir de son parent 
-    restrict: {
-     restriction: "parent",
-      endOnly: true,
-      elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-    },
-    // activer autoScroll
-    autoScroll: true,
 
-
-//appeler cette fonction a chaque action de glissement 
-    onmove: dragMoveListener,
-//appeler cette fontion a chaque fin de l'action de glissement 
-    onend: function (event) {
-    
-    }
-  })  
 
 </script>
 

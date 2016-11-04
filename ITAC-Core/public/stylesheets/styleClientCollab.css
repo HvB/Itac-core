@@ -295,7 +295,7 @@ transform: totate(90deg);
 
 .right {
 -webkit-transform: rotate(270deg);
-transform: totate(270deg);
+transform: rotate(270deg);
 }
 
 .top {
