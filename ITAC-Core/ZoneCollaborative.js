@@ -540,11 +540,11 @@ ZoneCollaborative.prototype.setArtifactIntoZE = function(idArtifact, IdZE) {
  */
 ZoneCollaborative.prototype.setArtifactIntoZP = function(idArtifact, IdZP) {
 	
-	console.log('    *** ZC : deplacement artifact('+idArtifact+') vers ZP ='+idZP);
+	console.log('    *** ZC : deplacement artifact('+idArtifact+') vers ZP ='+IdZP);
 	var monArtifact= this.getArtifact(idArtifact);
 	console.log('    *** ZC : deplacement artifact vers ZP , recuperation artifact'+monArtifact.idAr);
 	monArtifact.setIntoZone(IdZP,CONSTANTE.typeConteneur_ZP);
-	console.log('    *** ZC : deplacement artifact ='+monArtifact.idAr+' vers ZP ='+idZP + '[OK]');
+	console.log('    *** ZC : deplacement artifact ='+monArtifact.idAr+' vers ZP ='+IdZP + '[OK]');
 	
 }
 
