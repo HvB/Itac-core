@@ -114,7 +114,7 @@ ZonePartage.prototype.getIdZEdispo = function()
 	
 	var max = this.listeZE.length;
 	
-	
+	console.log('      === ZonePartage : recherche du IdZE disponible, nb de ZE dans la liste = '+max);
 	while (! trouve_i && i< max)
 	{		
 	    j=0;
@@ -133,7 +133,7 @@ ZonePartage.prototype.getIdZEdispo = function()
 		ret= 'ZE'+i;
 	} 
 		
-	
+	console.log('      === ZonePartage : recherche du IdZE disponible, trouve  = '+ret);
 
 	return ret;
 };
@@ -228,7 +228,7 @@ ZonePartage.prototype.destroyZE = function(idZE) {
 
 	if (this.listeZE[i].getId()===idZE)
 		{
-		this.listeZE[i].splice(i,1);
+		this.listeZE.splice(i,1);
 		}
 	}
 }
@@ -247,15 +247,19 @@ ZonePartage.prototype.getZE = function(idZE) {
 
 	var ret=null;
 
-	//console.log(' recherche ZE parmis '+this.getNbZE());
-	for (var i=0; i  <this.listeZE.length ; i ++)
+	console.log('      === ZonePartage : recherche de ZE dans la liste contenant bn='+ this.listeZE.length);
+	var i=0;
+	while (i <this.listeZE.length && ret==null)
+		
 		{
-
 		if (this.listeZE[i].getId()===idZE)
 			{
 			ret= this.listeZE[i];
+			console.log('      === ZonePartage : recherche de ZE dans la liste [OK] idZE='+ret.getId()+' idZEP='+ret.getIdZEP())
 			}
+		else  i ++;
 		}
+	if (ret == null) console.log('      === ZonePartage : recherche de ZE dans la liste [NOK] pour idZE='+idZE);
 	return ret;
 };
 
@@ -339,10 +343,12 @@ ZonePartage.prototype.addArtifactFromZEPtoZE = function(pseudo, idZEP, idZE, art
 	var IdArtefact =0;
 	
 	var maZE = this.getZE(idZE);
+	console.log('      === ZonePartage : addArtifactFromZEPtoZE , recupération de la ZE par idZE='+idZE); 
+	
 	if (maZE.getIdZEP() === idZEP )
 		// cas ou elle est bien en lien avec la ZEP
 		{
-		
+		console.log('      === ZonePartage : addArtifactFromZEPtoZE , recuperation [OK]');
 		// conversion json en objet
 		IdArtefact= this.ZC.addArtifactFromJSON(artefactenjson);
 
@@ -389,12 +395,17 @@ ZonePartage.prototype.addArtifactFromZEPtoZP = function(pseudo, idZEP, idZE, art
 	var IdArtefact =0;
 	
 	var maZE = this.getZE(idZE);
+	console.log('      === ZonePartage : addArtifactFromZEPtoZP , recupération de la ZE par idZE='+idZE +' et idZEP='+idZEP); 
+
 	if (maZE.getIdZEP() === idZEP )
 		// cas ou elle est bien en lien avec la ZEP
 		{
-		
+		console.log('      === ZonePartage : addArtifactFromZEPtoZP , recuperation ZE [OK]');
 		// conversion json en objet
 		IdArtefact= this.ZC.addArtifactFromJSON(artefactenjson);
+		console.log('      === ZonePartage : addArtifactFromZEPtoZP , recuperation idArtefact [OK] = '+IdArtefact);
+		
+		console.log('      === ZonePartage : addArtifactFromZEPtoZP , changement de zone  vers ZP='+this.getId());
 
 		// affectation de l'artifact à la zone ZP
 		this.ZC.setArtifactIntoZP(IdArtefact,this.getId());
@@ -402,6 +413,7 @@ ZonePartage.prototype.addArtifactFromZEPtoZP = function(pseudo, idZEP, idZE, art
 		
 		}
 	// renvoie l'id de l'artifcat créé
+	console.log('      === ZonePartage : addArtifactFromZEPtoZP , renvoi IdArtefact utilise ='+IdArtefact);
 	return IdArtefact;
 
 };

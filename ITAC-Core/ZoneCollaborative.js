@@ -434,7 +434,19 @@ ZoneCollaborative.prototype.addArtifact = function(creator, typeArtifact,idConte
 
 ZoneCollaborative.prototype.delArtifact = function(id)
 	{
-	// afaire	
+	var ret = false;
+
+	for (var i = 0; i < this.getNbArtifact(); i++) 
+	{ 
+		if (this.artifacts[i].getId()==id) 
+		{
+			ret = true;
+			this.artifacts.splice(i,1);
+			console.log('    *** ZC : recherche arifact pour suppression [OK] idArtefact trouve='+id);			
+		}
+	}
+	if (!ret) console.log('    *** ZC : recherche arifact  pour suppression [NOK] idArtefact('+id+') nontrouve');
+	return ret;
 	};
 	
 /**
@@ -447,21 +459,22 @@ ZoneCollaborative.prototype.delArtifact = function(id)
  */
 ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string) {
 	
-	
+	console.log('    *** ZC : addArtifactFromJSON JSON='+artifact_json_string);
 	var temp = JSON.parse(artifact_json_string);
-	if (temp.idAr!=null) {
+	if (temp.idAr==null ||  Number.isNaN(temp.idAr) || temp.idAr=='' ) {
+		// calcul d'un nouvel identifiant
+		var id = this.setIdAr();
+		console.log('    *** ZC : calcul nouveau IdArtifact = '+id);
+	}
+	else
+	{
 		var id = parseInt(temp.idAr);
 		console.log('    *** ZC : reprise  IdArtifact = '+id);
 		this.delArtifact(id);
 		console.log('    *** ZC : suppresion ancien  IdArtifact = '+id);
 	} 	
-	else
-	{
-		// calcul d'un nouvel identifiant
-		var id = this.setIdAr();
-		console.log('    *** ZC : calcul nouveau IdArtifact = '+id);
-
-	}
+	
+		
 		// création de l'artifact
 		
 		var monArtifact = Artifact.fromJSON(artifact_json_string,id);
@@ -527,9 +540,11 @@ ZoneCollaborative.prototype.setArtifactIntoZE = function(idArtifact, IdZE) {
  */
 ZoneCollaborative.prototype.setArtifactIntoZP = function(idArtifact, IdZP) {
 	
+	console.log('    *** ZC : deplacement artifact('+idArtifact+') vers ZP ='+idZP);
 	var monArtifact= this.getArtifact(idArtifact);
+	console.log('    *** ZC : deplacement artifact vers ZP , recuperation artifact'+monArtifact.idAr);
 	monArtifact.setIntoZone(IdZP,CONSTANTE.typeConteneur_ZP);
-	console.log('    *** ZC : deplacement artifact ='+monArtifact.idAr+' vers ZP ='+idZP);
+	console.log('    *** ZC : deplacement artifact ='+monArtifact.idAr+' vers ZP ='+idZP + '[OK]');
 	
 }
 
@@ -749,12 +764,10 @@ ZoneCollaborative.prototype.addArtifactFromZEtoZEP = function(idZEP, idAr) {
 ZoneCollaborative.prototype.setArtifactIntoEP = function(idAr, idZE, idZEP) {
 	
 	console.log('    *** ZC : recherche art avec Id=' +idAr+ '  idZE= '+idZE + '  idZEP='+idZEP);
-	var monArtifact= this.getArtifact(idAr);
-	
 
 	
-	monArtifact.setIntoZone(idZEP,CONSTANTE.typeConteneur_EP);
-
+	if (this.delArtifact(idAr)) console.log('    *** ZC : suppression art avec Id=' +idAr+ '  idZE= '+idZE );
+	
 
 }
 

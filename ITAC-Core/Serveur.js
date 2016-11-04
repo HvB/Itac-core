@@ -305,8 +305,8 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 	 * 7 - demande de deconnexion
 	 */
 
-	socket.on("EVT_Deconnexion", (function (pseudo, idZE) {
-		console.log('******** '+CONSTANTE.EVT_Deconnexion+' ***** ---- deconnexion d une ZE (' +idZE+ ')'  );
+	socket.on(CONSTANTE.EVT_SuppressZEinZP, (function (pseudo, idZE) {
+		console.log('******** '+CONSTANTE.EVT_SuppressZEinZP+' ***** ---- deconnexion d une ZE (' +idZE+ ')'  );
 		this.deconnexion(socket, pseudo, idZE);
 	}).bind(this));
 	
@@ -399,6 +399,7 @@ Serveur.prototype.demandeConnexionZA = function(socket, urldemande, idZPdemande)
 		this.clientZAsocket = socket.id;
 		
 		myZC=this.ZP.ZC.getJSON();
+		
 		console.log('    ---- socket : demande connexion ZA [OK], ZC identifié associe a la ZP =  '+JSON.stringify(myZC));
 		// emission accusé de reception avec en JSON la ZC associé
 		socket.emit(CONSTANTE.EVT_ReponseOKConnexionZA, myZC);
@@ -515,6 +516,7 @@ Serveur.prototype.receptionArtefactIntoZP = function(socket, pseudo, idZEP, idZE
 	// transfert de l'artifact à la ZC et association de cet artefact à la ZE associée
 	var newidAr=this.ZP.addArtifactFromZEPtoZP(pseudo,idZEP, idZE, artefactenjson);  
 	
+	console.log('    ---- socket : reception depuis une ZEP ('+ idZEP+') idArtifact [Ok] =',newidAr);
 	if (newidAr !== 0)
 		{
 		// retour à la ZEP pour mettre à jour les données de l'artefact
@@ -578,7 +580,7 @@ Serveur.prototype.deconnexion = function (socket,pseudo, idZE)
 	// il faut liberer la zone echange 
 	
 	//je récupere la socket de la ZE recherché
-	var idsock= getZESocketId(idZE);
+	//var idsock= getZESocketId(idZE);
 	
 	console.log("    ---- socket : suppresion de la liste des ZE de la ZP ZE=" +idZE);
 	this.ZP.destroyZE(idZE);
