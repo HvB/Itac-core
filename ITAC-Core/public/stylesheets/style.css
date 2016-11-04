@@ -8,6 +8,9 @@ body{
   	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   	background-size: cover;
   		width: auto;
+  		
+  	/* à voir: problème du menu corrigé avec hauteur bloquée à max */	
+  		min-height: 1200px; 
 		background-repeat: repeat-y;
 }
 
@@ -22,18 +25,19 @@ body{
 
 }
 
-
 img
 {
     height: 100px;
     width: 100px;
     margin: 2px;
 }
+
 .draggable
 {
     filter: alpha(opacity=60);
     opacity: 0.6;
 }
+
 .dropped
 {
     position: static !important;
