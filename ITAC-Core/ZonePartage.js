@@ -116,7 +116,7 @@ ZonePartage.prototype.getIdZEdispo = function()
 	var max = this.listeZE.length;
 	
 	console.log('      === ZonePartage : recherche du IdZE disponible, nb de ZE dans la liste = '+max);
-	while (! trouve_i && i< max)
+	while (! trouve_i && i<= max)
 	{		
 	    j=0;
 	    trouve_j =false;
@@ -126,7 +126,12 @@ ZonePartage.prototype.getIdZEdispo = function()
 			{
 			 // est que "ZEi" est dans la liste
 			
-			if (this.listeZE[j].getId()===ret) trouve = true
+			if (this.listeZE[j].getId()===ret) 
+				{
+				trouve_j = true;
+				console.log('      === ZonePartage : recherche du IdZE disponible, recherche sur id= '+ret +' trouve dans tab pour j='+j);
+				}
+				
 			else j++;
 			}
 		if (trouve_j) 
@@ -142,7 +147,7 @@ ZonePartage.prototype.getIdZEdispo = function()
 	}
 	if (!trouve_i) 	
 	{
-		if (max != 0 ) i++;
+		if (max == 0) i=1;
 		ret= 'ZE'+i;
 	} 
 		
