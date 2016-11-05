@@ -307,7 +307,18 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 
 	socket.on(CONSTANTE.EVT_SuppressZEinZP, (function (pseudo, idZE) {
 		console.log('******** '+CONSTANTE.EVT_SuppressZEinZP+' ***** ---- deconnexion d une ZE (' +idZE+ ')'  );
-		this.deconnexion(socket, pseudo, idZE);
+		this.envoiArtefacttoEP(socket, idAr, idZE,idZEP);	
+	}).bind(this));
+	
+	
+	/*
+	 * 8 - envoie d'un artefact d'une Zp ---> ZP
+	 *     cet evenement est envoye par une ZA depuis le menu ITAC pour transferer des artifacts d'une ZP à une autre ZP
+	 */
+
+	socket.on(CONSTANTE.EVT_Envoie_ArtefactdeZPversZP, (function(idAr, idZPsource, idZPcible) {
+		console.log('******** '+CONSTANTE.EVT_Envoie_ArtefactdeZPversZP+' ***** ---- envoi artifact('+idAr+') depuis ZP('+idZPsource+') vers  ZP(' +idZPcible+ ')'  );
+		this.envoiArtefactZPtoZP(socket, idAr, idZPsource,idZPcible);
 	}).bind(this));
 	
 };
@@ -565,6 +576,45 @@ Serveur.prototype.envoiArtefacttoEP = function (socket,idAr, idZE, idZEP)
 			}	
 		else
 			{ console.log('    ---- socket : pas d IHM pour [EVT_ArtefactDeletedFromZE] '); }
+	}
+}
+
+/**
+ * cette fonction envoi un artifact de la ZP source vers la ZP cible
+ */
+Serveur.prototype.envoiArtefactZPtoZP = function (socket, idAr, idZPsource,idZPcible)
+{
+	var transfert = false;
+	var ZPcible= null;
+	var artifact = {};
+	
+	if (idAr==null) {
+		console.log("    ---- socket : erreur envoie ZP vers ZP,  idArt est null");
+	}
+	else {
+		ZPcible= this.ZC.getZP(idZPcible);
+		
+		if (ZPcible != null){
+			if (ZPcible.isZAConnected()){
+				this.ZC.transfertArtefactZPtoZP(idAr, idZPsource,idZPcible);
+				transfert = true;
+				artifact.this.ZC.getArtifact(idAr);
+				this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ReceptionArtefactIntoZP,'', idZPcible.getId() ,JSON.stringify(artifact));
+				
+			}
+			
+		}
+		if (!transfert){
+			this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ReponseNOKEnvoie_ArtefactdeZPversZP, idAr);
+			console.log("    ---- socket : envoie art [ok]" +idAr+ " de ZP = " +idZPsource+ " POUR IHM = ---  vers " +idZPcible);
+		}
+		else
+		{
+			this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ReponseOKEnvoie_ArtefactdeZPversZP, idAr);
+			console.log("    ---- socket : envoie art [nok]" +idAr+ " de ZP = " +idZPsource+ " POUR IHM = ---  vers " +idZPcible);
+		}
+
+
 	}
 }
 

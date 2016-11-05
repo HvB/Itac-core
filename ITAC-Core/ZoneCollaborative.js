@@ -198,6 +198,51 @@ ZoneCollaborative.prototype.getAllZP = function() {
 };
 
 
+/**
+ * retourne une ZP(Zone de Partage) de la zone collaborative
+ * 
+ * @public
+ * @param {idZP}
+ * @returns {ZonePartage} liste des ZP
+ * @author philippe pernelle
+ */
+
+ZoneCollaborative.prototype.getZP = function(idZP) {
+	
+	var ret = null;
+	
+	console.log('    *** ZC : recherche de la ZP suivante : '+idZP);
+	for (var i = 0; i < this.getNbZP(); i++) {
+
+		if (listeZP[i].getId() === idZP )
+			{
+			ret = listeZP[i];
+			console.log('    *** ZC : recherche de la ZP suivante : '+idZP+' trouve [OK] ');
+			}
+
+	}
+	if (ret == null) console.log('    *** ZC : recherche de la ZP suivante : '+idZP+' trouve [NOK] ');
+	return ret;
+
+};
+
+
+/**
+ * retourne une ZP(Zone de Partage) de la zone collaborative
+ * 
+ * @public
+ * @param {idZP}
+ * @returns {ZonePartage} liste des ZP
+ * @author philippe pernelle
+ */
+
+ZoneCollaborative.prototype.transfertArtefactZPtoZP = function(idAr, idZPsource,idZPcible) {
+	
+	console.log('    *** ZC : appel deplacement vers une ZP');
+	this.setArtifactIntoZP(idArtifact, idZPcible);
+	
+};
+
 
 
 /**

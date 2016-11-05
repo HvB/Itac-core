@@ -26,7 +26,16 @@
 */
 
 
-var Constante = function()
+var /**
+ * 
+ */
+/**
+ * 
+ */
+/**
+ * 
+ */
+Constante = function()
 
 {
 	this.typeConteneur_EP = 'EP';
@@ -101,6 +110,13 @@ var Constante = function()
 	 */		
 	this.EVT_NewArtefactInZE='EVT_NewArtefactInZE'; 
 	this.EVT_NewArtefactInZP='EVT_NewArtefactInZP';
+	/**
+	 * cet evenement est envoyé par la ZA pour envoyer un artifact d'une ZP vers une autre
+	 */	
+	this.EVT_EnvoieArtefactdeZPversZE='EVT_Envoie_ArtefactdeZPversZP';
+	
+	this.EVT_ReponseOKEnvoie_ArtefactdeZPversZP ='EVT_ReponseOKEnvoie_ArtefactdeZPversZP';
+	this.EVT_ReponseNOKEnvoie_ArtefactdeZPversZP ='EVT_ReponseNOKEnvoie_ArtefactdeZPversZP';
 };
 
 
