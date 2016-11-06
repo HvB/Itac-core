@@ -480,10 +480,16 @@ ZoneCollaborative.prototype.addArtifact = function(creator, typeArtifact,idConte
 
 	console.log('    *** ZC : total artifact ='+ this.artifacts.length);
 
-	};
+}
 
-ZoneCollaborative.prototype.delArtifact = function(id)
-	{
+/**
+ * supprime un artefact de la zone collaborative
+ * 
+ * @public
+ * @returns {boolean} identifiant ZC
+ * @author philippe pernelle
+ */
+ZoneCollaborative.prototype.delArtifact = function(id)	{
 	var ret = false;
 
 	for (var i = 0; i < this.getNbArtifact(); i++) 
@@ -497,8 +503,8 @@ ZoneCollaborative.prototype.delArtifact = function(id)
 	}
 	if (!ret) console.log('    *** ZC : recherche arifact  pour suppression [NOK] idArtefact('+id+') nontrouve');
 	return ret;
-	};
-	
+}
+
 /**
  * ajoute un nouveau artefact à la zone collaborative à partir d'un JSON
  * 

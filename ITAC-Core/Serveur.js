@@ -321,6 +321,17 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 		this.envoiArtefactZPtoZP(socket, idAr, idZPsource,idZPcible);
 	}).bind(this));
 	
+	
+	/*
+	 * 9 - suppression d'un artefact d'une Zp 
+	 *     cet evenement est envoye par une ZA depuis le menu ITAC pour supprimer des artifacts d'une ZP 
+	 */
+
+	socket.on(CONSTANTE.EVT_ArtefactDeletedFromZP, (function(idAr) {
+		console.log('******** '+CONSTANTE.EVT_ArtefactDeletedFromZP+' ***** ---- supression artifact('+idAr+') '  );
+		this.suppresArtefactFromZP(socket, idAr);
+	}).bind(this));
+	
 };
 
 /**
@@ -592,11 +603,11 @@ Serveur.prototype.envoiArtefactZPtoZP = function (socket, idAr, idZPsource,idZPc
 		console.log("    ---- socket : erreur envoie ZP vers ZP,  idArt est null");
 	}
 	else {
-		ZPcible= this.ZC.getZP(idZPcible);
+		ZPcible= this.ZP.ZC.getZP(idZPcible);
 		
 		if (ZPcible != null){
 			if (ZPcible.isZAConnected()){
-				this.ZC.transfertArtefactZPtoZP(idAr, idZPsource,idZPcible);
+				this.ZP.ZC.transfertArtefactZPtoZP(idAr, idZPsource,idZPcible);
 				transfert = true;
 				artifact.this.ZC.getArtifact(idAr);
 				this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ReceptionArtefactIntoZP,'', idZPcible.getId() ,JSON.stringify(artifact));
@@ -617,6 +628,29 @@ Serveur.prototype.envoiArtefactZPtoZP = function (socket, idAr, idZPsource,idZPc
 
 	}
 }
+
+/**
+* cette fonction supprime un artifact de la ZP source vers la ZP cible
+*/
+Serveur.prototype.suppresArtefactFromZP = function (socket, idAr)
+{
+	console.log("    ---- socket : surpress art ---- de la ZC="+ this.ZP.ZC.getId());
+	if (idAr==null) {
+		console.log("    ---- socket : erreur pas d Artefact a supprimer ,  idArt est null");
+	}
+	else {
+		if (this.ZP.ZC.delArtifact(idAr)) {
+			console.log("    ---- socket : surpress art [ok]" +idAr+ " ");
+		}
+		else
+			{
+			console.log("    ---- socket : surpress art [Nok]" +idAr+ " ");
+			}
+		
+		
+	}
+}
+
 
 /** cette fonction traite la deconnexion
  * 
