@@ -610,18 +610,20 @@ Serveur.prototype.envoiArtefactZPtoZP = function (socket, idAr, idZPsource,idZPc
 				this.ZP.ZC.transfertArtefactZPtoZP(idAr, idZPsource,idZPcible);
 				transfert = true;
 				artifact.this.ZC.getArtifact(idAr);
-				this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ReceptionArtefactIntoZP,'', idZPcible.getId() ,JSON.stringify(artifact));
+				// marche pas pas la bonne socket
+				//this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ReceptionArtefactIntoZP,'', idZPcible.getId() ,JSON.stringify(artifact));
 				
 			}
 			
 		}
 		if (!transfert){
-			this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ReponseNOKEnvoie_ArtefactdeZPversZP, idAr);
+			
+			socket.emit(CONSTANTE.EVT_ReponseNOKEnvoie_ArtefactdeZPversZP, idAr);
 			console.log("    ---- socket : envoie art [ok]" +idAr+ " de ZP = " +idZPsource+ " POUR IHM = ---  vers " +idZPcible);
 		}
 		else
 		{
-			this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ReponseOKEnvoie_ArtefactdeZPversZP, idAr);
+			socket.emit(CONSTANTE.EVT_ReponseOKEnvoie_ArtefactdeZPversZP, idAr);
 			console.log("    ---- socket : envoie art [nok]" +idAr+ " de ZP = " +idZPsource+ " POUR IHM = ---  vers " +idZPcible);
 		}
 

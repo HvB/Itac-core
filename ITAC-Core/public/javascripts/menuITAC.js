@@ -60,17 +60,17 @@ interact('.menu').on('tap',function (event) {
 	
 	console.log("menu ITAC -> top");
 	// detection du menu toper
-	var className = $(event.currentTarget).attr('class');
-	var listeclassName = className.split(" ");
-	var souslisteclassName= listeclassName[1].split("!");
+	
+	var listeclassName = $(event.currentTarget).attr('class').split(" ");
+	var className = listeclassName[listeclassName.length-1];
 	var j=0;
     //var classCSSCourante = $(event.currentTarget).classList;
 	console.log("menu ITAC -> classname = "+className);
-	console.log("menu ITAC -> classname = "+listeclassName);
-	console.log("menu ITAC -> classname[1] = "+listeclassName[1]+" taille menu="+menuITAC.length);
+	console.log("menu ITAC -> listeclassName = "+listeclassName);
+	console.log("menu ITAC -> taille menu="+menuITAC.length);
 	for(var i=0; i<menuITAC.length; i++) { 
 		console.log("menu ITAC -> i courant="+i+" classmenu= "+menuITAC[i]);		
-		if (listeclassName[1] == menuITAC[i]) {
+		if (className == menuITAC[i]) {
 			
 			if (menuITAC[i]=="ZP") (event.currentTarget).classList.toggle(contenuMenu[i]);
 	  		(event.currentTarget).classList.remove(menuITAC[i]); 
@@ -122,8 +122,19 @@ interact('.ZP').dropzone({
   },
   
   ondrop: function (event) {
-	 
-	$(event.relatedTarget).fadeOut();
+	  
+	  // bizarre bug js ? pour relatedTarget il faut le value et pas pour target
+	  var idAr = $(event.relatedTarget).context.attributes[0].value;
+	  var idZPsource =zpdemande;
+	  var idZPcible = $(event.target).context.classList[1];
+	  console.log("menu ITAC -> transfert ART = "+idAr+" de ZP="+idZPsource+" vers ZP="+idZPcible);
+	  socket.emit('EVT_Envoie_ArtefactdeZPversZP', idAr, idZPsource, idZPcible);
+	  
+	  	socket.on('EVT_ReponseOKEnvoie_ArtefactdeZPversZP',function(idart) {
+	  		 console.log("menu ITAC -> transfert Artefact envoye et bien recu "+idart);
+	  		 $(event.relatedTarget).fadeOut();
+          });
+	
   },
   
   ondropdeactivate: function (event) {

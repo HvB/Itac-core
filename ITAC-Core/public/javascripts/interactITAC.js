@@ -79,6 +79,7 @@ interact('.zoneEchange').dropzone({
 			var idZE = event.target.id;
 			console.log('ondragleave d un Artefact (' +idAr +') de la ZE= ' +idZE +' vers la ZP= '+zpdemande);
 			
+			console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP]');
 			socket.emit('EVT_EnvoieArtefactdeZEversZP', idAr, idZE , zpdemande);
 
 
@@ -103,11 +104,12 @@ interact('.zoneEchange').dropzone({
 			bg=bg.replace('url(','').replace(')','');
 			var className = $(event.relatedTarget).attr('class');
 			
+			console.log('ondrop d un Artefact --> className ='+className);
 			if ( (className != "draggable artefact dropped-msg") & (className != "draggable artefact img dropped-image") & (className != "draggable artefact img dropped-image right")& (className != "draggable artefact img dropped-image left")& (className != "draggable artefact img dropped-image top") & (className != "draggable artefact dropped-msg left")& (className != "draggable artefact dropped-msg right ")& (className != "draggable artefact dropped-msg top"))
 				{
 				var idAr = event.relatedTarget.id;
 				var idZE=event.target.id;
-			
+				console.log('ondrop d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
 				socket.emit('EVT_EnvoieArtefactdeZPversZE', idAr, idZE);
 			}
 
@@ -158,5 +160,59 @@ interact('.zoneEchange').dropzone({
 			event.target.classList.remove('drop-target');
 			}
 });
+
+/* ==========================================
+ *  les zones de partage
+ * ==========================================
+ */
+interact('#ZP').dropzone({
+	//accepter just les element ayant la class artefact
+	accept: '.artefact',
+
+	// il faut 50% de l'element soit dans la zone pour que le drop est possible 
+	overlap: 0.5,
+
+// les evenement de drop
+
+	ondropactivate: function (event) {
+		// activer la zone de drop
+		event.target.classList.add('drop-active');
+	},
+	
+	ondragenter: function (event) {
+		var draggableElement = event.relatedTarget,
+        zoneEchangeElement = event.target;
+
+		// la possibilité de drop 
+	    zoneEchangeElement.classList.add('drop-target');
+	    draggableElement.classList.add('can-drop');
+
+	},
+	
+	ondragleave: function (event) {
+		//supprimer le feedback de drop 
+	    event.target.classList.remove('drop-target');
+	    event.relatedTarget.classList.remove('can-drop');
+	
+	    event.relatedTarget.classList.remove('dropped');
+	    event.relatedTarget.classList.add('artefact');
+	
+	  },
+	  
+	ondrop: function (event) {
+	  //les evenements aprés le drop
+	  // event.relatedTarget.classList.add('dropped');
+	  event.relatedTarget.classList.remove('can-drop');
+	  event.relatedTarget.classList.add('artefact');
+  
+	},
+	ondropdeactivate: function (event) {
+//supprimer le drop-active class de la zone de drop 
+
+    event.target.classList.remove('drop-active');
+    event.target.classList.remove('drop-target');
+  }
+});
+
 
 
