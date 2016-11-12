@@ -1,28 +1,33 @@
+/* ------------------------- 
+ * parametre globale du menu
+ * -------------------------
+ */
 
-		var menuITAC = ["hand", "trash","pen" ];
-		var contenuMenu = ["","",""];
+
+var menuITAC = ["hand", "trash","pen" ];
+var contenuMenu = ["","",""];
 		
 
 
-		//fonction de glissement toujours appeler lorsque on fait le drag and drop
-		function dragMoveListener (event) {
-		  //alert("C'est l�?: 2");
-		  var target = event.target,
-		      // stocker la position dans les attributs data-x/data-y
-		      x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-		      y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+//fonction de glissement toujours appeler lorsque on fait le drag and drop
+function dragMoveListener (event) {
+  //alert("C'est l�?: 2");
+  var target = event.target,
+      // stocker la position dans les attributs data-x/data-y
+      x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+      y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-		  // translation de l'element
-		  target.style.webkitTransform =
-		  target.style.transform =
-		    'translate(' + x + 'px, ' + y + 'px)';
+  // translation de l'element
+  target.style.webkitTransform =
+  target.style.transform =
+    'translate(' + x + 'px, ' + y + 'px)';
 
-		  // mis � jour de la position 
-		  target.setAttribute('data-x', x);
-		  target.setAttribute('data-y', y);
-		}
+  // mis � jour de la position 
+  target.setAttribute('data-x', x);
+  target.setAttribute('data-y', y);
+}
 
-		window.dragMoveListener = dragMoveListener;
+window.dragMoveListener = dragMoveListener;
 
 		
 /* ------------------------- 

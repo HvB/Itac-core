@@ -18,11 +18,24 @@
  	// tableau qui va permettre de positionner correctement les zones d'�change (position, taille, orientation)
  		var paramAffichageZE = [];
  		var orientationZE = [];
+ 		var socket = null; 
 
 
  	</script>
  	
     <script language="JavaScript" type="text/javascript" src="/socket.io-client/socket.io.js"></script>
+    
+    <script>
+		/* ------------------------------------------------*/
+		/*  connexion soket 								 */
+		/* ------------------------------------------------*/
+		console.log('****************************************************************************');
+		console.log('PAGE ZA : workspace.ejs -> **** demande connexion socket sur : '+ urldemande);	
+		socket = io.connect(urldemande, {transports:['websocket']});
+		console.log('PAGE ZA : workspace.ejs -> **** connexion socket [OK] ');
+		console.log('****************************************************************************');
+    </script>
+    
     <script language="JavaScript" type="text/javascript" src="/javascripts/interact.js"></script>
     
     <script language="JavaScript" type="text/javascript" src="/javascripts/menuITAC.js"></script>
@@ -35,30 +48,20 @@
   <body id="ZP">
   
  	 <div id="menu" class="menu hand"></div>
- 
+ 	 
   </body > 
   
 
   
-<script type="text/javascript">
+  <script type="text/javascript">
 
-// Attente fin de chargement
-if(jQuery.ui){
-	//alert(" jQuery.ui loaded")
-}
-else {
-	alert(" jQuery.ui non chargee")
-}
-
-
-  
-
-		
-// *********************** Partie connexion *****************************		
-		console.log('PAGE : workspace.ejs -> demande connexion socket sur : '+ urldemande);
-		
-		var socket = io.connect(urldemande, {transports:['websocket']});
-   		console.log('PAGE : workspace.js -> connexion socket [OK] ');
+		// Attente fin de chargement
+		if(jQuery.ui){
+			//alert(" jQuery.ui loaded")
+		}
+		else {
+			alert(" jQuery.ui non chargee")
+		}
    
    		/* ------------------------------------------------*/
 		/* --- premiere connexion ZA (Zone d'Activit� = Serveur ?)---*/
@@ -73,11 +76,8 @@ else {
 
 			myZC = ZC;
 			
-			console.log('PAGE : workspace.ejs ->ZC ='+JSON.stringify(myZC));
-		
-			
-			console.log('PAGE : workspace.ejs -> menu ITAC initiale : '+ menuITAC );
-			
+			console.log('PAGE : workspace.ejs -> ZC ='+JSON.stringify(myZC));					
+			console.log('PAGE : workspace.ejs -> menu ITAC initiale : '+ menuITAC );			
 			console.log('PAGE : workspace.ejs -> ajout des ZP , total ='+ myZC.nbZP) ;
 			
 			for(var i=0; i<myZC.nbZP; i++) { 
@@ -86,23 +86,23 @@ else {
 					menuITAC.push("ZP" );
 					//classmenuITAC.push("menu ZP"+i);
 					contenuMenu.push(myZC.ZP[i].idZP);
-				}
-				
+				}				
 			}
 			console.log('PAGE : workspace.ejs -> menu ITAC en cours : '+ menuITAC);
 
 			
-			// [TC] Pourquoi les logs suivants sont faits avec le param�tre formel ZC et non myZC?  >corrig�
     		alert('Zone collaborative active : '+ myZC.idZC+'\n\nBienvenue sur l\'Espace de Partage :'+myZC.ZP[rang].idZP+'\n\n');
     		console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= '+myZC.ZP[rang].idZP);
     		
     		// l�-dessous on a typeZP qui n'apparait pas
-    		console.log('PAGE : workspace.ejs -> param�tre de ZP = '+JSON.stringify(myZC.ZP[rang]));
+    		console.log('PAGE : workspace.ejs -> parametre de ZP = '+JSON.stringify(myZC.ZP[rang]));
     	
     		// on lance le calcul des param�tres d'affichage
-    		Calcule_Nb_ZE(ZEmax);
+    		Calcule_Nb_ZE('Table1',ZEmax);
+    		console.log('PAGE : workspace.ejs -> calcul taille ZE , largeur max = '+paramZAITAC['Table1'][0]+' hauteur Max = '+paramZAITAC['Table1'][1]);
     		console.log('PAGE : workspace.ejs -> calcul taille ZE , NB_ZE_Largeur = '+NB_ZE_Largeur+' NB_ZE_Hauteur = '+NB_ZE_Hauteur);
     		console.log('PAGE : workspace.ejs -> calcul taille ZE , TailleZEenlargeur = '+TailleZEenlargeur+ ' TailleZEenhauteur = '+TailleZEenhauteur);
+    		console.log('PAGE : workspace.ejs -> calcul taille ZE , TailleEspaceenlargeur = '+TailleEspaceenlargeur+ ' TailleEspaceenhauteur = '+TailleEspaceenhauteur);
     		
     		// on cree les DIV pour les ER  [TC]  Les ZE non???
     		$( document ).ready(function() {
@@ -113,38 +113,38 @@ else {
  					orientationZE[codeZE]= new Array('');
  					
  					if (i <= NB_ZE_Largeur) {
-	 					paramAffichageZE[codeZE][0]=TailleZEenlargeur; // largeur
-	 					paramAffichageZE[codeZE][1]=40;				 // hauteur
-	 					paramAffichageZE[codeZE][2]=180;				 // rotation
-	 					paramAffichageZE[codeZE][3]=-10;				 // pos X
-	 					paramAffichageZE[codeZE][4]=50;       // pos Y
+	 					paramAffichageZE[codeZE][0]=TailleZEenlargeur;             // largeur
+	 					paramAffichageZE[codeZE][1]=paramZAITAC['Table1'][5];				               // hauteur
+	 					paramAffichageZE[codeZE][2]=180;				           // rotation
+	 					paramAffichageZE[codeZE][3]=0;				 			   // pos X - top
+	 					paramAffichageZE[codeZE][4]=paramZAITAC['Table1'][5]+TailleEspaceenlargeur*i+TailleZEenlargeur*(i-1);       // pos Y -left
 	 					orientationZE[codeZE]='top';
  					}
  					else if (i <= NB_ZE_Largeur+NB_ZE_Hauteur) {
- 						paramAffichageZE[codeZE][0]=40;
+ 						paramAffichageZE[codeZE][0]=paramZAITAC['Table1'][5];
 	 					paramAffichageZE[codeZE][1]=TailleZEenhauteur;
 	 					paramAffichageZE[codeZE][2]=270;
-	 					paramAffichageZE[codeZE][3]=-10;
-	 					paramAffichageZE[codeZE][4]=50;
+	 					paramAffichageZE[codeZE][3]= TailleEspaceenhauteur*i+TailleZEenhauteur*(i-1);
+	 					paramAffichageZE[codeZE][4]= paramZAITAC['Table1'][0]-paramZAITAC['Table1'][5]-0;
 	 					orientationZE[codeZE]='right';
  					}
  					else if (i <= 2* NB_ZE_Largeur+NB_ZE_Hauteur) {
  						paramAffichageZE[codeZE][0]=TailleZEenlargeur;
-	 					paramAffichageZE[codeZE][1]=40;
+	 					paramAffichageZE[codeZE][1]=paramZAITAC['Table1'][5];
 	 					paramAffichageZE[codeZE][2]=0;
-	 					paramAffichageZE[codeZE][3]=-10;
-	 					paramAffichageZE[codeZE][4]=50;
+	 					paramAffichageZE[codeZE][3]=paramZAITAC['Table1'][1]-0;
+	 					paramAffichageZE[codeZE][4]=TailleEspaceenlargeur*(i-NB_ZE_Largeur-NB_ZE_Hauteur);
 	 					orientationZE[codeZE]='down';
  					}
  					else  {
- 						paramAffichageZE[codeZE][0]=40;
+ 						paramAffichageZE[codeZE][0]=paramZAITAC['Table1'][5];
 	 					paramAffichageZE[codeZE][1]=TailleZEenhauteur;
 	 					paramAffichageZE[codeZE][2]=90;
-	 					paramAffichageZE[codeZE][3]=-10;
-	 					paramAffichageZE[codeZE][4]=50;
+	 					paramAffichageZE[codeZE][3]=TailleEspaceenhauteur*(i-2* NB_ZE_Largeur+NB_ZE_Hauteur);
+	 					paramAffichageZE[codeZE][4]=0;
 	 					orientationZE[codeZE]='left';
  					}
- 					$("<div  id="+codeZE+"  class='zoneEchange' style ='position:relative ; top: "+paramAffichageZE[codeZE][3]+" ; right: "+paramAffichageZE[codeZE][4]+" ; width:"+paramAffichageZE[codeZE][0] +" ; height :"+paramAffichageZE[codeZE][1] +"'  > </div>").appendTo("#ZP");
+ 					$("<div  id="+codeZE+"  class='zoneEchange' style ='position:relative ; top: "+paramAffichageZE[codeZE][3]+" ; left: "+paramAffichageZE[codeZE][4]+" ; width:"+paramAffichageZE[codeZE][0] +" ; height :"+paramAffichageZE[codeZE][1] +"'  > </div>").appendTo("#ZP");
 				}
 			});
     		console.log('PAGE : workspace.js -> creation de div ZE nb='+ZEmax);
@@ -267,99 +267,72 @@ else {
 		 	target.appendTo("#ZP"); 
 		})
  
-    
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-socket.on('EVT_Deconnexion', function (pseudo, idZE) {
-//alert("Deconnection")
-//alert(idZE)
-//$("#test0").fadeIn();
-//if($("#"+idZE+"").find('div.artefact').length !=0) { alert("deconnexion interdit")} 
- $("#"+idZE+"").fadeOut() ; 
-
-	//var cnt = $("#"+idZE+"").contents();
-	//$("#"+idZE+"").replaceWith(cnt);
-	
-	//var myarr=[];
-	$(function() {
-		$("#"+idZE+"").children("div","img").each (function ()
-				
-				{
-			//myarr[myarr.length]=$(this).attr('id')
-			var className =$(this).attr('class');
-			var idAr =  $(this).attr('id');
-			//$("#"+idZE+"").find("div[id="+idAr+"]");
-	var position = $(this).position()
-	function getRotationDegrees(obj) { //stocker l'angle de la rotation
-var matrix = obj.css("-webkit-transform") ||
-obj.css("-moz-transform")    ||
-obj.css("-ms-transform")     ||
-obj.css("-o-transform")      ||
-obj.css("transform");
-if(matrix !== 'none') {
-    var values = matrix.split('(')[1].split(')')[0].split(',');
-    var a = values[0];
-    var b = values[1];
-    var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
-} else { var angle = 0; }
-return angle;
-}
-
-angle1= getRotationDegrees($(this));
-alert(angle1)
-
-if (className == "draggable artefact"){ 
-	
-	//art.contenu=(art.contenu).replace(/(\r\n|\n|\r)/gm, "</br>"); 
-	var titre= $(this).find("h1").text();
-	var message= $(this).find("p").text();
-	
-
-	   var target = $("<div id="+idAr+" class='draggable artefact' style='left:"+position.left+"; top:"+position.top+" ;position: absolute; transform: rotate("+angle1+"deg)'>  <h1> "+titre+" </h1> <p> "+message+" </p> </div>");
-}
-
-//if (className == "draggable artefact img "/*(art.typeArtefact == "image")*/)
-else {
-	//art.contenu=(art.contenu).replace(/(\r\n|\n|\r)/gm, ""); 
-	//var cnt= $(this).text();
-	var bg = $(this).css('background-image'); //l'image
-	bg=bg.replace('url(','').replace(')','');
-	var target = $("<div id="+idAr+" class='draggable artefact img' style='left:"+position.left+"; top:"+position.top+" position: absolute; transform: rotate("+angle1+"deg)'> </div>").css("background-image", "url("+bg+")");
-}//alert($(this).attr('id'))
-target.appendTo("#ZP"); 
-
-	});
-		});
-	
-	
-//	$("#"+idZE+"").replaceWith(function () { return $('.artefact', this); }) //suppression de la zone
-
-	
-	//var ID = $("#"+idZE+"").children("div").attr("id");
-	//alert(ID)
-		//var target = $("#"+idZE+"").children("div");
-
-	 //var target = $("<div id="+art.idAr+" class='draggable artefact' style='left:50%; top:50%'>  <h1> "+art.titre+" </h1> <p> "+art.contenu+" </p> </div>")
-	   
-	
-		// target.appendTo("#ZP"); 
-})
-
-//////////////////////////////////////////////////////////////////////////////////////////////
- socket.on ('EVT_ArtefactDeletedFromZE', function (idAr, idZE, idZEP)
+		/* ------------------------------------------------ */
+    	/* ----- suppression d'un artifact d'une ZE ----*/
+    	/* ------------------------------------------------ */
+		
+		socket.on ('EVT_ArtefactDeletedFromZE', function (idAr, idZE, idZEP)
 		 {
-	 //art=JSON.parse(chaineJSON)
-	//alert(idAr+ " from " +idZE);
-	 //var idAr= art.idAr;
-	// $("#"+idAr+"").remove();
-	$("#"+idZE+"").find("div[id="+idAr+"]").remove();
-
-	//var target = ("#"+idAr+"");
-	//$(target).remove();
+			console.log('PAGE : workspace.js -> reception evenement [EVT_ArtefactDeletedFromZE] pour IdArt = '+idAr +' idZE=' +idZE+'idZEP='+idZEP);
+			$("#"+idZE+"").find("div[id="+idAr+"]").remove();
 	
-		 })
+		 })   
 		 
- ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/* ----------------------------- */
+    	/* ----- deonnexion d'une ZE ----*/
+    	/* ----------------------------- */
+
+
+		 socket.on('EVT_Deconnexion', function (pseudo, idZE) 
+		  {
+			$("#"+idZE+"").fadeOut() ; 
+
+			$(function() {
+					$("#"+idZE+"").children("div","img").each (function () {
+						//myarr[myarr.length]=$(this).attr('id')
+						var className =$(this).attr('class');
+						var idAr =  $(this).attr('id');
+						//$("#"+idZE+"").find("div[id="+idAr+"]");
+						var position = $(this).position()
+						function getRotationDegrees(obj) { //stocker l'angle de la rotation
+							var matrix = obj.css("-webkit-transform") ||
+							obj.css("-moz-transform")    ||
+							obj.css("-ms-transform")     ||
+							obj.css("-o-transform")      ||
+							obj.css("transform");
+							if(matrix !== 'none') {
+							    var values = matrix.split('(')[1].split(')')[0].split(',');
+							    var a = values[0];
+							    var b = values[1];
+							    var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
+							} else { var angle = 0; }
+							return angle;
+						}
+			
+						angle1= getRotationDegrees($(this));
+			
+			
+						if (className == "draggable artefact"){ 
+							var titre= $(this).find("h1").text();
+							var message= $(this).find("p").text();
+						
+							var target = $("<div id="+idAr+" class='draggable artefact' style='left:"+position.left+"; top:"+position.top+" ;position: absolute; transform: rotate("+angle1+"deg)'>  <h1> "+titre+" </h1> <p> "+message+" </p> </div>");
+						}
+			
+			
+						else {
+
+							var bg = $(this).css('background-image'); //l'image
+							bg=bg.replace('url(','').replace(')','');
+							var target = $("<div id="+idAr+" class='draggable artefact img' style='left:"+position.left+"; top:"+position.top+" position: absolute; transform: rotate("+angle1+"deg)'> </div>").css("background-image", "url("+bg+")");
+						}//alert($(this).attr('id'))
+						target.appendTo("#ZP"); 		
+					});
+				});
+	
+
+		  })
+
   
 </script>
 	    

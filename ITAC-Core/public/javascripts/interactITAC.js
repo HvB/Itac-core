@@ -79,9 +79,9 @@ interact('.zoneEchange').dropzone({
 			var idZE = event.target.id;
 			console.log('ondragleave d un Artefact (' +idAr +') de la ZE= ' +idZE +' vers la ZP= '+zpdemande);
 			
-			console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP]');
+			console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP] idSocket ='+socket.id);
 			socket.emit('EVT_EnvoieArtefactdeZEversZP', idAr, idZE , zpdemande);
-
+			console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP] ');
 
 			//revenir à la classe initialle 
 			//event.relatedTarget.classList.add('artefact');
