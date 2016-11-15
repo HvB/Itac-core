@@ -11,13 +11,15 @@
  		var zpdemande = '<%= myZP %>';
  		var rang= '<%= rangZP %>';
 
- 		// on d�clare l'objet myZC qui va �tre la zone collaborative
+ 		// on declare l'objet myZC qui va  etre la zone collaborative
  		var myZC = {};
  		var ZEmax= '<%= NbZEMax %>';
  		
- 	// tableau qui va permettre de positionner correctement les zones d'�change (position, taille, orientation)
+ 		// tableau qui va permettre de positionner correctement les zones d'�change (position, taille, orientation)
  		var paramAffichageZE = [];
  		var orientationZE = [];
+ 		
+ 		// declarion de la variable socket
  		var socket = null; 
 
 		console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
@@ -133,7 +135,7 @@
  						paramAffichageZE[codeZE][0]=paramZAITAC['Table1'][5];
 	 					paramAffichageZE[codeZE][1]=TailleZEenhauteur;
 	 					paramAffichageZE[codeZE][2]=270;
-	 					paramAffichageZE[codeZE][3]= TailleEspaceenhauteur*i+TailleZEenhauteur*(i-1);
+	 					paramAffichageZE[codeZE][3]= TailleEspaceenhauteur*(i-NB_ZE_Largeur)+TailleZEenhauteur*(i-NB_ZE_Largeur-1);
 	 					paramAffichageZE[codeZE][4]= paramZAITAC['Table1'][0]-paramZAITAC['Table1'][5]-0;
 	 					orientationZE[codeZE]='right';
  					}
@@ -141,22 +143,22 @@
  						paramAffichageZE[codeZE][0]=TailleZEenlargeur;
 	 					paramAffichageZE[codeZE][1]=paramZAITAC['Table1'][5];
 	 					paramAffichageZE[codeZE][2]=0;
-	 					paramAffichageZE[codeZE][3]=paramZAITAC['Table1'][1]-0;
-	 					paramAffichageZE[codeZE][4]=TailleEspaceenlargeur*(i-NB_ZE_Largeur-NB_ZE_Hauteur);
+	 					paramAffichageZE[codeZE][3]=paramZAITAC['Table1'][1]-paramZAITAC['Table1'][5];
+	 					paramAffichageZE[codeZE][4]=paramZAITAC['Table1'][5]+TailleEspaceenlargeur*(i-NB_ZE_Largeur-NB_ZE_Hauteur)+TailleZEenlargeur*(i-NB_ZE_Largeur-NB_ZE_Hauteur-1); 
 	 					orientationZE[codeZE]='down';
  					}
  					else  {
  						paramAffichageZE[codeZE][0]=paramZAITAC['Table1'][5];
 	 					paramAffichageZE[codeZE][1]=TailleZEenhauteur;
 	 					paramAffichageZE[codeZE][2]=90;
-	 					paramAffichageZE[codeZE][3]=TailleEspaceenhauteur*(i-2* NB_ZE_Largeur+NB_ZE_Hauteur);
+	 					paramAffichageZE[codeZE][3]=TailleEspaceenhauteur*(i-2* NB_ZE_Largeur-NB_ZE_Hauteur)+TailleZEenhauteur*(i-2* NB_ZE_Largeur-NB_ZE_Hauteur-1);
 	 					paramAffichageZE[codeZE][4]=0;
 	 					orientationZE[codeZE]='left';
  					}
  					$("<div  id="+codeZE+"  class='zoneEchange' style ='position:absolute ; top: "+paramAffichageZE[codeZE][3]+" ; left: "+paramAffichageZE[codeZE][4]+" ; width:"+paramAffichageZE[codeZE][0] +" ; height :"+paramAffichageZE[codeZE][1] +"'  > </div>").appendTo("#ZP");
 				}
 			});
-    		console.log('PAGE : workspace.js -> creation de div ZE nb='+ZEmax);
+    		console.log('PAGE : workspace.ejs -> creation de div ZE nb='+ZEmax);
     		
     		
     		
@@ -166,7 +168,7 @@
 		socket.on('EVT_ReponseNOKConnexionZA',function(ZC) {
     		myZC = ZC;
     		alert('Zone collaborative active : '+ myZC.idZC+'\n\nImpossible d\'acceder a l\'Espace de Partage :'+myZC.ZP[rang].idZP+'\n\n');
-    		console.log('PAGE : workspace.js -> reception evenement [EVT_ReponseNOKConnexionZA] pour ZP= '+myZC.ZP[rang].idZP);
+    		console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseNOKConnexionZA] pour ZP= '+myZC.ZP[rang].idZP);
     	});
     	
     	/* ----------------------------- */
@@ -176,7 +178,7 @@
 
 	    socket.on('EVT_NewZEinZP', function(pseudo, idZE ,idZEP, posAvatar)
   			{
-    		alert('Creation d une ZE ='+idZE+' \n ZEP associee = '+idZEP+'\n Pour pseudo='+pseudo);
+	    	console.log('PAGE : workspace.ejs -> Creation d une ZE ='+idZE+' \n ZEP associee = '+idZEP+'\n pour pseudo='+pseudo);
     		
     		$(function () {
         		
@@ -237,14 +239,14 @@
            		art.contenu=(art.contenu).replace(/(\r\n|\n|\r)/gm, ""); //supprimer les caract�re sp�ciaux
 
     	
-             	var target = $("<div id="+art.idAr+" class='draggable artefact img dropped-image' style='background-image: url(data:image/png;base64,"+art.contenu+")'> </div>");
+             	var target = $("<div id="+art.idAr+" class='draggable artefact img dropped-image "+orientationZE[idZE] +"' style='background-image: url(data:image/png;base64,"+art.contenu+")'> </div>");
     		}
     		
     		
     		else {
            		art.contenu=(art.contenu).replace(/(\r\n|\n|\r)/gm, "</br>"); //pour le saut de ligne
 
-	    		  var target = $("<div id="+art.idAr+" class='draggable artefact dropped-msg left'>  <h1> "+art.titre+" </h1> <p style ='display : none'> "+art.contenu+" </p> </div>")
+	    		  var target = $("<div id="+art.idAr+" class='draggable artefact dropped-msg "+orientationZE[idZE] +"'>  <h1> "+art.titre+" </h1> <p style ='display : none'> "+art.contenu+" </p> </div>")
 
     		}
 
