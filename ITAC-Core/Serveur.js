@@ -278,7 +278,7 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 	 *     un evenement est ensuite emis pour informer la tablette qu'elle doit supprimer l'artifact
 	 */
 	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZEversZP, (function (idAr,idZE, idZP) {
-		console.log('******** '+CONSTANTE.EVT_EnvoieArtefactdeZEversZP+' ***** --- Envoie artefact '+idAr+ ' vers la zone de partage '+this.ZP.getId());
+		console.log('******** '+CONSTANTE.EVT_EnvoieArtefactdeZEversZP+' ***** --- Envoie artefact='+idAr+ ' de ZE = '+idZE+'vers la zone de partage ='+idZP); //this.ZP.getId());
 		this.envoiArtefacttoZP(socket,idAr,idZE, idZP);
 		console.log('******** FIN TRAITEMENT DE :'+CONSTANTE.EVT_EnvoieArtefactdeZEversZP+' ***** ');
 	}).bind(this));
@@ -311,7 +311,7 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 
 	socket.on(CONSTANTE.EVT_SuppressZEinZP, (function (pseudo, idZE) {
 		console.log('******** '+CONSTANTE.EVT_SuppressZEinZP+' ***** ---- deconnexion d une ZE (' +idZE+ ')'  );
-		this.envoiArtefacttoEP(socket, idAr, idZE,idZEP);	
+		this.deconnexion(socket, pseudo, idZE);	
 	}).bind(this));
 	
 	

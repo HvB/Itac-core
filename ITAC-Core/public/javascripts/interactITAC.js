@@ -79,9 +79,9 @@ interact('.zoneEchange').dropzone({
 			var idZE = event.target.id;
 			console.log('ondragleave d un Artefact (' +idAr +') de la ZE= ' +idZE +' vers la ZP= '+zpdemande);
 			
-			console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP] idSocket ='+socket.id);
-			socket.emit('EVT_EnvoieArtefactdeZEversZP', idAr, idZE , zpdemande);
-			console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP] ');
+			console.log('ondragleave d un Artefact --> emission sur soket de [EVT_Envoie_ArtefactdeZEversZP] idSocket ='+socket.id+' idAR='+idAr+' idZE='+idZE+' zpdemande='+zpdemande);
+			socket.emit('EVT_Envoie_ArtefactdeZEversZP', idAr, idZE , zpdemande);
+			console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_Envoie_ArtefactdeZEversZP] ');
 
 			//revenir à la classe initialle 
 			//event.relatedTarget.classList.add('artefact');
@@ -109,8 +109,8 @@ interact('.zoneEchange').dropzone({
 				{
 				var idAr = event.relatedTarget.id;
 				var idZE=event.target.id;
-				console.log('ondrop d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
-				socket.emit('EVT_EnvoieArtefactdeZPversZE', idAr, idZE);
+				console.log('ondrop d un Artefact --> emission sur soket de [EVT_Envoie_ArtefactdeZPversZE]');
+				socket.emit('EVT_Envoie_ArtefactdeZPversZE', idAr, idZE);
 			}
 
 			//selon la classe (image ou artefact normal) on organise les drops (rotations et affichage)

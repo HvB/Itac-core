@@ -20,19 +20,28 @@
  		var orientationZE = [];
  		var socket = null; 
 
+		console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
+		console.log('PAGE ZA : workspace.ejs -> urldemande = '+urldemande);
+		console.log('PAGE ZA : workspace.ejs -> zpdemande = '+zpdemande);
+		console.log('PAGE ZA : workspace.ejs -> rang = '+rang);
+		console.log('PAGE ZA : workspace.ejs -> ZEmax = '+ZEmax);
+		console.log('****************************************************************************');
+		console.log('');
 
  	</script>
  	
     <script language="JavaScript" type="text/javascript" src="/socket.io-client/socket.io.js"></script>
     
     <script>
+    
 		/* ------------------------------------------------*/
 		/*  connexion soket 								 */
 		/* ------------------------------------------------*/
+		
 		console.log('****************************************************************************');
 		console.log('PAGE ZA : workspace.ejs -> **** demande connexion socket sur : '+ urldemande);	
 		socket = io.connect(urldemande, {transports:['websocket']});
-		console.log('PAGE ZA : workspace.ejs -> **** connexion socket [OK] ');
+		console.log('PAGE ZA : workspace.ejs -> **** connexion socket [OK] : idSocket ='+socket.id);
 		console.log('****************************************************************************');
     </script>
     

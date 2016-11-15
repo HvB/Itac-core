@@ -11,7 +11,7 @@ var contenuMenu = ["","","","",""];
 
 //fonction de glissement toujours appeler lorsque on fait le drag and drop
 function dragMoveListener (event) {
-  //alert("C'est l�?: 2");
+ 
   var target = event.target,
       // stocker la position dans les attributs data-x/data-y
       x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
