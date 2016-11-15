@@ -4,8 +4,8 @@
  */
 
 
-var menuITAC = ["hand", "trash","pen" ];
-var contenuMenu = ["","",""];
+var menuITAC = ["hand", "trash","pen","change", "print"];
+var contenuMenu = ["","","","",""];
 		
 
 
@@ -96,6 +96,10 @@ interact('.menu').on('tap',function (event) {
 	} 	
 })
 
+/* ----------------------------------------- 
+ * permet d'envoyer un artefact vers une ZP
+ * ----------------------------------------
+ */
 
 interact('.ZP').dropzone({
   //accepter que les elements avec ce CSS selector
@@ -149,6 +153,11 @@ interact('.ZP').dropzone({
   }
 });
 	
+/* ----------------------------------------- 
+ * permet de supprimer un artefact 
+ * ----------------------------------------
+ */
+
 interact('.trash').dropzone({
   //accepter que les elements avec ce CSS selector
   accept: '.artefact',
@@ -191,4 +200,33 @@ interact('.trash').dropzone({
   }
 });
 
+/* ----------------------------------------- 
+ * permet de faire une copie d'ecran (appui long)
+ * ----------------------------------------
+ */
 
+interact('.print').on('hold', function (event) {
+  alert("Appui long pour lancer le screenshot!");
+  // event.preventDefault();  (TC: test pour mieux différencier du simple tap mais non probant)
+
+  // TC: pour plus tard : ajouter un son d'appareil photo
+    //var soundfile="../sons/polaroid.wav" //ici le chemin du fichier son
+    //$("<bgsound src="+soundfile+" id=soundeffect loop=1 autostart=true />").appendTo("#ZP");
+  
+  html2canvas(document.body, {
+    onrendered: function(canvas) {
+
+      // traitement à faire pour ajouter le fond...
+
+      document.body.appendChild(canvas);
+      canvas.id="screenshot";
+      canvas.style="display: none"
+      canvas.toBlob(function(blob) {
+      saveAs(blob, "screenshot.png");}, "image/png");
+
+      // on n'oublie pas de retirer l'élément canvas contenant le screenshot de la page
+      document.body.removeChild(canvas);
+    }
+  })
+ 
+})  // fin hold pour print
