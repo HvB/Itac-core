@@ -16,8 +16,8 @@
  
  
 var paramZAITAC = [];
- 
-paramZAITAC['Table1'] = new Array(1680,1050,5,2,10,70); 
+// contennu du tableau : taille en largeur , taille en hauteur, nb de ZE max en largeur, nb ZE max en hauteur, % de l'espacement , hauteur de la ZE 
+paramZAITAC['Table1'] = new Array(1920,1080,5,2,20,70); 
  
 
 // nb de ZE à placer dans une hauteur et dans une largeur 
@@ -30,9 +30,14 @@ var TailleEspaceenhauteur = 0;
 
 function Calcule_Nb_ZE(nomZA, Nb_ZE) {
 	
+	
+	// on force la taille en fonction de l'objet screen
+	paramZAITAC[nomZA][0]=screen.availWidth  ;
+	paramZAITAC[nomZA][1]=screen.availHeight  ;
+	
 	 /* taille de l'ecran */ 
-	var ZA_Largeur = paramZAITAC[nomZA][0]-paramZAITAC[nomZA][5]; // je retire la taille fixe des ZE
-	var ZA_Hauteur = paramZAITAC[nomZA][1]-paramZAITAC[nomZA][5]; // je retire la taille fixe des ZE
+	var ZA_Largeur = paramZAITAC[nomZA][0]-2*paramZAITAC[nomZA][5]; // je retire la taille fixe des ZE à droite et a gauche
+	var ZA_Hauteur = paramZAITAC[nomZA][1]-2*paramZAITAC[nomZA][5]; // je retire la taille fixe des ZE à droite et a gauche
 	
 	var Nb_ZE_Max_Largeur = paramZAITAC[nomZA][2];
 	var Nb_ZE_Max_Hauteur = paramZAITAC[nomZA][3];
@@ -59,10 +64,10 @@ function Calcule_Nb_ZE(nomZA, Nb_ZE) {
 
 	
 	TailleZEenlargeur = Math.round(Largeur_Dispo_Total / NB_ZE_Largeur) ;
-	TailleZEenhauteur = Math.round(Hauteur_Dispo_Total / NB_ZE_Largeur);
+	TailleZEenhauteur = Math.round(Hauteur_Dispo_Total / NB_ZE_Hauteur);
 	
 	TailleEspaceenlargeur = Math.round((ZA_Largeur -TailleZEenlargeur*NB_ZE_Largeur) / (NB_ZE_Largeur+1));
-	TailleEspaceenhauteur  = Math.round((ZA_Hauteur -TailleZEenhauteur*NB_ZE_Largeur) / (NB_ZE_Hauteur+1));
+	TailleEspaceenhauteur  = Math.round((ZA_Hauteur -TailleZEenhauteur*NB_ZE_Hauteur) / (NB_ZE_Hauteur+1));
 
 	/*
 	// dans ce cas tout tient dans la longueur	

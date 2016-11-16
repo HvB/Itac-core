@@ -121,11 +121,12 @@
 				{
 				    var codeZE='ZE'+i;
  					paramAffichageZE[codeZE] = new Array(0,0,0,0,0);
+ 					var marge=5; // marge erreur sur la taille
  					orientationZE[codeZE]= new Array('');
  					
  					if (i <= NB_ZE_Largeur) {
 	 					paramAffichageZE[codeZE][0]=TailleZEenlargeur;             // largeur
-	 					paramAffichageZE[codeZE][1]=paramZAITAC['Table1'][5];				               // hauteur
+	 					paramAffichageZE[codeZE][1]=paramZAITAC['Table1'][5];	   // hauteur
 	 					paramAffichageZE[codeZE][2]=180;				           // rotation
 	 					paramAffichageZE[codeZE][3]=0;				 			   // pos X - top
 	 					paramAffichageZE[codeZE][4]=paramZAITAC['Table1'][5]+TailleEspaceenlargeur*i+TailleZEenlargeur*(i-1);       // pos Y -left
@@ -135,15 +136,15 @@
  						paramAffichageZE[codeZE][0]=paramZAITAC['Table1'][5];
 	 					paramAffichageZE[codeZE][1]=TailleZEenhauteur;
 	 					paramAffichageZE[codeZE][2]=270;
-	 					paramAffichageZE[codeZE][3]= TailleEspaceenhauteur*(i-NB_ZE_Largeur)+TailleZEenhauteur*(i-NB_ZE_Largeur-1);
-	 					paramAffichageZE[codeZE][4]= paramZAITAC['Table1'][0]-paramZAITAC['Table1'][5]-0;
+	 					paramAffichageZE[codeZE][3]= paramZAITAC['Table1'][5]+TailleEspaceenhauteur*(i-NB_ZE_Largeur)+TailleZEenhauteur*(i-NB_ZE_Largeur-1);
+	 					paramAffichageZE[codeZE][4]= paramZAITAC['Table1'][0]-paramZAITAC['Table1'][5]-marge;
 	 					orientationZE[codeZE]='right';
  					}
  					else if (i <= 2* NB_ZE_Largeur+NB_ZE_Hauteur) {
  						paramAffichageZE[codeZE][0]=TailleZEenlargeur;
 	 					paramAffichageZE[codeZE][1]=paramZAITAC['Table1'][5];
 	 					paramAffichageZE[codeZE][2]=0;
-	 					paramAffichageZE[codeZE][3]=paramZAITAC['Table1'][1]-paramZAITAC['Table1'][5];
+	 					paramAffichageZE[codeZE][3]=paramZAITAC['Table1'][1]-paramZAITAC['Table1'][5]-marge;
 	 					paramAffichageZE[codeZE][4]=paramZAITAC['Table1'][5]+TailleEspaceenlargeur*(i-NB_ZE_Largeur-NB_ZE_Hauteur)+TailleZEenlargeur*(i-NB_ZE_Largeur-NB_ZE_Hauteur-1); 
 	 					orientationZE[codeZE]='down';
  					}
@@ -151,7 +152,7 @@
  						paramAffichageZE[codeZE][0]=paramZAITAC['Table1'][5];
 	 					paramAffichageZE[codeZE][1]=TailleZEenhauteur;
 	 					paramAffichageZE[codeZE][2]=90;
-	 					paramAffichageZE[codeZE][3]=TailleEspaceenhauteur*(i-2* NB_ZE_Largeur-NB_ZE_Hauteur)+TailleZEenhauteur*(i-2* NB_ZE_Largeur-NB_ZE_Hauteur-1);
+	 					paramAffichageZE[codeZE][3]=paramZAITAC['Table1'][5]+TailleEspaceenhauteur*(i-2* NB_ZE_Largeur-NB_ZE_Hauteur)+TailleZEenhauteur*(i-2* NB_ZE_Largeur-NB_ZE_Hauteur-1);
 	 					paramAffichageZE[codeZE][4]=0;
 	 					orientationZE[codeZE]='left';
  					}
