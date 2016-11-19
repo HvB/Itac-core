@@ -320,8 +320,8 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 	 *     cet evenement est envoye par une ZA depuis le menu ITAC pour transferer des artifacts d'une ZP à une autre ZP
 	 */
 
-	socket.on(CONSTANTE.EVT_Envoie_ArtefactdeZPversZP, (function(idAr, idZPsource, idZPcible) {
-		console.log('******** '+CONSTANTE.EVT_Envoie_ArtefactdeZPversZP+' ***** ---- envoi artifact('+idAr+') depuis ZP('+idZPsource+') vers  ZP(' +idZPcible+ ')'  );
+	socket.on(CONSTANTE.EVT_EnvoieArtefactdeZPversZP, (function(idAr, idZPsource, idZPcible) {
+		console.log('******** '+CONSTANTE.EVT_EnvoieArtefactdeZPversZP+' ***** ---- envoi artifact('+idAr+') depuis ZP('+idZPsource+') vers  ZP(' +idZPcible+ ')'  );
 		this.envoiArtefactZPtoZP(socket, idAr, idZPsource,idZPcible);
 	}).bind(this));
 	
@@ -611,12 +611,12 @@ Serveur.prototype.envoiArtefactZPtoZP = function (socket, idAr, idZPsource,idZPc
 		ZPcible= this.ZP.ZC.getZP(idZPcible);
 		
 		if (ZPcible != null){
-			if (ZPcible.isZAConnected()){
+			if (ZPcible.server.isZAConnected()){
 				this.ZP.ZC.transfertArtefactZPtoZP(idAr, idZPsource,idZPcible);
 				transfert = true;
-				artifact.this.ZC.getArtifact(idAr);
+				artifact=this.ZP.ZC.getArtifact(idAr);
 				// marche pas pas la bonne socket
-				//this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ReceptionArtefactIntoZP,'', idZPcible.getId() ,JSON.stringify(artifact));
+				ZPcible.server._io.sockets.to(ZPcible.server.getSocketZA()).emit(CONSTANTE.EVT_ReceptionArtefactIntoZP,'', ZPcible.getId() ,JSON.stringify(artifact));
 				
 			}
 			
@@ -624,12 +624,12 @@ Serveur.prototype.envoiArtefactZPtoZP = function (socket, idAr, idZPsource,idZPc
 		if (!transfert){
 			
 			socket.emit(CONSTANTE.EVT_ReponseNOKEnvoie_ArtefactdeZPversZP, idAr);
-			console.log("    ---- socket : envoie art [ok]" +idAr+ " de ZP = " +idZPsource+ " POUR IHM = ---  vers " +idZPcible);
+			console.log("    ---- socket : envoie art [NO]" +idAr+ " de ZP = " +idZPsource+ " POUR IHM = ---  vers " +idZPcible);
 		}
 		else
 		{
 			socket.emit(CONSTANTE.EVT_ReponseOKEnvoie_ArtefactdeZPversZP, idAr);
-			console.log("    ---- socket : envoie art [nok]" +idAr+ " de ZP = " +idZPsource+ " POUR IHM = ---  vers " +idZPcible);
+			console.log("    ---- socket : envoie art [OK] " +idAr+ " de ZP = " +idZPsource+ " POUR IHM = ---  vers " +idZPcible);
 		}
 
 

@@ -74,15 +74,10 @@ var ZoneCollaborative = function(parametreZC) {
 
 
 	/**
-
 	 * liste des "ZonePartage" associé à la zone collaborative
-
 	 * 
-
 	 * @private
-
 	 */
-
 	this.listeZP = [];
 
 
@@ -111,9 +106,7 @@ var ZoneCollaborative = function(parametreZC) {
 	}
 
 	console.log('\n*************************');
-
 	console.log('*** nbZP total creees = ' + this.getNbZP());
-
 	console.log('*************************');
 
 
@@ -176,25 +169,16 @@ ZoneCollaborative.prototype.getId = function() {
 
 
 /**
-
  * retourne la liste des ZP(Zone de Partage) la zone collaborative
-
  * 
-
  * @public
-
  * @returns {ZonePartage[]} liste des ZP
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.getAllZP = function() {
-
 	//console.log('   *** nbZP dans liste ='+this.listeZP.length);
-
 	return this.listeZP;
-
 };
 
 
@@ -214,9 +198,9 @@ ZoneCollaborative.prototype.getZP = function(idZP) {
 	console.log('    *** ZC : recherche de la ZP suivante : '+idZP);
 	for (var i = 0; i < this.getNbZP(); i++) {
 
-		if (listeZP[i].getId() === idZP )
+		if (this.listeZP[i].getId() === idZP )
 			{
-			ret = listeZP[i];
+			ret = this.listeZP[i];
 			console.log('    *** ZC : recherche de la ZP suivante : '+idZP+' trouve [OK] ');
 			}
 
@@ -238,8 +222,8 @@ ZoneCollaborative.prototype.getZP = function(idZP) {
 
 ZoneCollaborative.prototype.transfertArtefactZPtoZP = function(idAr, idZPsource,idZPcible) {
 	
-	console.log('    *** ZC : appel deplacement vers une ZP');
-	this.setArtifactIntoZP(idArtifact, idZPcible);
+	console.log('    *** ZC : appel deplacement de idArt= '+idAr+'vers une ZP='+idZPcible);
+	this.setArtifactIntoZP(idAr, idZPcible);
 	
 };
 
@@ -364,17 +348,11 @@ ZoneCollaborative.prototype.getArtifact = function(idAr) {
 
 
 /**
-
  * retourne le nombre des artefacts associé à la zone collaborative
-
  * 
-
  * @public
-
  * @returns {Number} Nb de AR
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.getAllArtifactsInZE = function(idZE) {
@@ -382,44 +360,28 @@ ZoneCollaborative.prototype.getAllArtifactsInZE = function(idZE) {
 	var artifactsInZE = [];
 
 	//console.log('   ***  recherche artifact pour ZE='+idZE);
-
 	for (var i = 0; i < this.getNbArtifact(); i++) { 
 
-	
-
 		if (this.artifacts[i].isInto(idZE,CONSTANTE.typeConteneur_ZE))
-
 			{
-
 			artifactsInZE.push(this.artifacts[i]);
-
 			}
-
 	}
-
 	return artifactsInZE;
 
 };
 
 
 /**
-
  * retourne le nombre de Zone de Partage (ZP) associé à la zone collaborative
-
  * 
-
  * @public
-
  * @returns {Number} Nb de ZP
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.getNbZP = function() {
-
 	return this.listeZP.length;
-
 };
 
 
@@ -617,57 +579,37 @@ ZoneCollaborative.prototype.addArtifactFromZEPToZP = function(idZP, idAr) {
 
 
 	this.idZP = idZP;
-
 	this.idAr = idAr;
 
 
 	for (i = 0; i < this.artifacts.length; i++) {
-
-
 		if (this.artifacts[i].idAr == idAr) // && (this.listeZP[i].idZP===
-
 											// idZP)) //chercher lartifact ayant l'id correspendante
-
 		{
-
 			this.artifactsInZP.push(this.artifacts[i]);
-
 			console.log( this.artifacts);
-
 			this.artifacts.splice(i,1);//effacer l'artefact déja ajouter à la zone partage
 
 
 			console.log('........................................................................')
-
-
 			console.log('*** Artifact numéro # ' +this.idAr + ' est ajouté à la zone de partage , total = '+ this.artifactsInZP.length);
-
 			console.log();
-
 			console.log (this.artifactsInZP[i] );
-
 			console.log();
 
 			(this.newID=this.setIdAr()+i);
 
 			console.log('-- new id =  ' + this.newID);
-
 		}
 
 	}
 
 	console.log('========================================================================')
-
 	console.log('les artifacts envoyés vers la zone de partage sont : \n')
-
 	console.log(this.artifactsInZP);
-
 	console.log('........................................................................')
-
 	console.log('========================================================================')
-
 	console.log('========================================================================')
-
 
 };
 

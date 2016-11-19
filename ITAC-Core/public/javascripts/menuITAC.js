@@ -112,7 +112,7 @@ interact('.ZP').dropzone({
 	  	var draggableElement = event.relatedTarget;   // l'objet ddeplacé
         var dropzoneElement = event.target;			  // le conteneur
         
-        console.log("menu ITAC -> ondragenter , draggableElement="+draggableElement );
+        console.log("menu ITAC -> ZP.ondragenter , draggableElement="+draggableElement );
         //$(event.relatedTarget)
         // on masque l'élément
         
@@ -136,11 +136,11 @@ interact('.ZP').dropzone({
 	  var idAr = $(event.relatedTarget).context.attributes[0].value;
 	  var idZPsource =zpdemande;
 	  var idZPcible = $(event.target).context.classList[1];
-	  console.log("menu ITAC -> transfert ART = "+idAr+" de ZP="+idZPsource+" vers ZP="+idZPcible);
+	  console.log("menu ITAC -> ZP.ondrop : transfert ART = "+idAr+" de ZP="+idZPsource+" vers ZP="+idZPcible);
 	  socket.emit('EVT_Envoie_ArtefactdeZPversZP', idAr, idZPsource, idZPcible);
-	  
+	  console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
 	  	socket.on('EVT_ReponseOKEnvoie_ArtefactdeZPversZP',function(idart) {
-	  		 console.log("menu ITAC -> transfert Artefact envoye et bien recu "+idart);
+	  		 console.log("menu ITAC -> ZP.ondrop : transfert Artefact envoye et bien recu "+idart);
 	  		 $(event.relatedTarget).fadeOut();
           });
 	
