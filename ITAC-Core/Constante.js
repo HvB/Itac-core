@@ -45,7 +45,7 @@ Constante = function()
 	this.typeArtefact_Message = 'message';
 	this.typeArtefact_Image = 'image';
 
-	this.repArtifact ='';
+	this.repArtifact ='artefacts/';
 
 	/**
 	 * evenement envoyé par une ZA lorsque qu'elle se connecte à une ZP
@@ -132,6 +132,8 @@ Constante = function()
 	 */
 	this.EVT_ReponseOKArtefactDeletedFromZP ='EVT_ReponseOKArtefactDeletedFromZP';
 	this.EVT_ReponseNOKArtefactDeletedFromZP ='EVT_ReponseNOKArtefactDeletedFromZP';
+	
+	
 };
 
 

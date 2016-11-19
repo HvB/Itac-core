@@ -636,25 +636,29 @@ Serveur.prototype.envoiArtefactZPtoZP = function (socket, idAr, idZPsource,idZPc
 	}
 }
 
+
 /**
-* cette fonction supprime un artifact de la ZP source vers la ZP cible
-*/
+ * cette fonction supprime un artifact de la zone collabiratuve
+ * 
+ * @param {socket} socket
+ * @param {string} idAr
+ * 
+ * @author philippe pernelle 
+ */
 Serveur.prototype.suppresArtefactFromZP = function (socket, idAr)
 {
-	console.log("    ---- socket : surpress art ---- de la ZC="+ this.ZP.ZC.getId());
+	console.log("    ---- socket : surpress artefact  de la ZC="+ this.ZP.ZC.getId());
 	if (idAr==null) {
 		console.log("    ---- socket : erreur pas d Artefact a supprimer ,  idArt est null");
 	}
 	else {
 		if (this.ZP.ZC.delArtifact(idAr)) {
-			console.log("    ---- socket : surpress art [ok]" +idAr+ " ");
+			console.log("    ---- socket : surpress artefact [OK]" +idAr+ " ");
 		}
 		else
 			{
-			console.log("    ---- socket : surpress art [Nok]" +idAr+ " ");
-			}
-		
-		
+			console.log("    ---- socket : surpress artefact [NOK]" +idAr+ " ");
+			}	
 	}
 }
 

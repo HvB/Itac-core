@@ -17,7 +17,6 @@ var fs = require("fs");
 
 
 //création des constantes
-
 var CONSTANTE = new Constantes();
 
 
@@ -25,16 +24,13 @@ var CONSTANTE = new Constantes();
  * constructeur de la classe ZoneCollaborative
  * 
  * @constructor
- * @param {json}
- * parametreZC - parametre de configuration de la ZC
+ * @param {json} parametreZC - parametre de configuration de la ZC
  * @author philippe pernelle
  */
 
 var ZoneCollaborative = function(parametreZC) {
 
-	console.log('*************************');
-	console.log('*** ZoneCollaborative ***');
-	console.log('*************************');
+
 
 	/**
 	 * listes de artefacts associée à la liste
@@ -50,17 +46,8 @@ var ZoneCollaborative = function(parametreZC) {
 	this.artifactsInZP = [];
 
 	
-
 	// artifacs qui seront envoyé vers ZE
 	this.artifactsInZE = [];
-
-
-	/**
-	 * repertoire contenant les fichiers artefact
-	 * 
-	 * @private
-	 */
-	this.pathArtifacts = 'artifacts/';
 
 
 	/**
@@ -69,9 +56,28 @@ var ZoneCollaborative = function(parametreZC) {
 	 * @private
 	 */
 	this.idZC = parametreZC.idZC;
-
-	console.log('*** idZC cree = ' + this.idZC);
-
+	
+	/**
+	 * repertoire contenant les fichiers artefact
+	 * 
+	 * @private
+	 */
+	this.pathArtifacts = CONSTANTE.repArtifact+this.idZC; //'artifacts/';
+	
+	
+	/**
+	 * email de contact de la zone collaborative
+	 * 
+	 * @private
+	 */
+	this.emailZC = parametreZC.emailZC;	
+	
+	/**
+	 * description de la zone collaborative
+	 * 
+	 * @private
+	 */
+	this.descriptionZC = parametreZC.descriptionZC;		
 
 	/**
 	 * liste des "ZonePartage" associé à la zone collaborative
@@ -79,31 +85,50 @@ var ZoneCollaborative = function(parametreZC) {
 	 * @private
 	 */
 	this.listeZP = [];
+	
 
 
+	
+	console.log('*****************************************');
+	console.log('*** ZoneCollaborative  --> idZC= '+this.idZC+' email contact='+this.emailZC);
+	console.log('*****************************************');
+	console.log(' description='+this.descriptionZC);
+
+	console.log('\n*** traitement du dossier de sauvegarde ='+this.pathArtifacts);
+	try {
+		
+	    fs.mkdirSync(CONSTANTE.repArtifact);
+	    console.log('*** dossier cree'+CONSTANTE.repArtifact);
+	  } catch(e) {
+		  console.log('*** dossier principal existant :'+e.code);
+		 
+	  }
+	
+	  try {
+			
+		    fs.mkdirSync(this.pathArtifacts);
+		    console.log('*** dossier cree'+this.pathArtifacts);
+		  } catch(e) {
+			  console.log('*** dossier de sauvegarde existant :'+e.code);
+			  if ( e.code != 'EEXIST' ) throw e;
+		  }
+	
 	// chargement de la liste des ZP
-
 	for (var i = 0; i < parametreZC.nbZP; i++) {
 
-
 		// id ZP défini dans le fichier de parametre
-
-		console.log('\n*** idZP = ' + parametreZC.ZP[i].idZP);
+		console.log('\n*** traitement de le ZP = ' + parametreZC.ZP[i].idZP);
 
 
 		// creation des ZP
-
 		this.listeZP[i] = new ZonePartage(this, parametreZC.ZP[i].idZP,
-
 				parametreZC.ZP[i].nbZEmin, parametreZC.ZP[i].nbZEmax,
-
 				parametreZC.ZP[i].urlWebSocket, parametreZC.ZP[i].portWebSocket);
-
-		
-
-
-
 	}
+	
+	
+	
+	
 
 	console.log('\n*************************');
 	console.log('*** nbZP total creees = ' + this.getNbZP());
@@ -477,41 +502,42 @@ ZoneCollaborative.prototype.delArtifact = function(id)	{
  */
 ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string) {
 	
-	console.log('    *** ZC : addArtifactFromJSON JSON='+artifact_json_string);
+	console.log('    *** ZC : ajout artefact a partir du JSON='+artifact_json_string);
+	
 	var temp = JSON.parse(artifact_json_string);
+	
+	// cas ou l'identifiant n'existe pas, c'est un nouveau artefact
 	if (temp.idAr==null ||  Number.isNaN(temp.idAr) || temp.idAr=='' ) {
 		// calcul d'un nouvel identifiant
 		var id = this.setIdAr();
 		console.log('    *** ZC : calcul nouveau IdArtifact = '+id);
 	}
+	// cas ou l'identifiant existe , il faut reprendre 
 	else
 	{
 		var id = parseInt(temp.idAr);
-		console.log('    *** ZC : reprise  IdArtifact = '+id);
+		console.log('    *** ZC : il s agit d un artefact avec un id : reprise  IdArtifact = '+id);
 		this.delArtifact(id);
-		console.log('    *** ZC : suppresion ancien  IdArtifact = '+id);
+		console.log('    *** ZC : suppresion de l ancien  IdArtifact = '+id);
 	} 	
 	
 		
-		// création de l'artifact
+	// création de l'artifact
 		
-		var monArtifact = Artifact.fromJSON(artifact_json_string,id);
-		console.log('    *** ZC : creation artifact depuis un json'+monArtifact.getId() );
-
-	
-	
+	var monArtifact = Artifact.fromJSON(artifact_json_string,id);
+	console.log('    *** ZC : creation artifact depuis un json'+monArtifact.getId() );
 
 	// ajout à la liste
 	this.artifacts.push(monArtifact);
 	console.log('    *** ZC : total artifact ='+ this.artifacts.length);
 	
-	//sauvegarde fichier
+	//sauvegarde du fichier JSON
 	var chaine = JSON.stringify(monArtifact);
 	var path = this.getPathArtifacts() + monArtifact.getId();
 	fs.writeFileSync(path, chaine, "UTF-8");
 	console.log('    *** ZC : sauvegarde artifact depuis un json, de type='+monArtifact.getTypeArtefact()+' de path ='+path );
 	
-	
+	//sauvegarde du fichier contenu
 	if (monArtifact.getTypeArtefact() === CONSTANTE.typeArtefact_Image)
 		{
 		
@@ -523,7 +549,18 @@ ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string)
 
 		fs.writeFile(path, binaryData, "binary", function (err) {
 		    console.log(err); // writes out file without error, but it's not a valid image
-		});
+			});
+		
+		}
+	if (monArtifact.getTypeArtefact() === CONSTANTE.typeArtefact_Message)
+		{
+		path= path+'.txt';
+		console.log('    *** ZC : creation artifact : creation text '+path );
+		
+		
+		fs.writeFile(path, monArtifact.contenu, "UTF-8", function (err) {
+		    console.log(err); // writes out file without error, but it's not a valid image
+			});
 		
 		}
 	
