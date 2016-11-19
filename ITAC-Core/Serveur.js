@@ -567,8 +567,19 @@ Serveur.prototype.receptionArtefactIntoZP = function(socket, pseudo, idZEP, idZE
 		
 		}
 };
+
+
 /**
- * cette fonction envoi un artifact de la ZE vers EP
+ * cette fonction envoi un artifact de la ZE vers EP (l'espace personnelle de la tablette)
+ * pour cela on efface l'artefact de la ZC et on envoie à la ZA associé l'information
+ * 
+ * @public
+ * 
+ * @param {idAr}    artefact 
+ * @param {idZE}    identifiant de la ZE associé à la ZEP
+ * @param {idZEP}   identifiant de la tablette ZEP 
+ * 
+ * @author philippe pernelle
  */
 Serveur.prototype.envoiArtefacttoEP = function (socket,idAr, idZE, idZEP)
 {
@@ -576,14 +587,12 @@ Serveur.prototype.envoiArtefacttoEP = function (socket,idAr, idZE, idZEP)
 	if (idAr==null) {
 		console.log("    ---- socket : erreur envoie vers EP idArt est null");
 	}
-	else {
-		
-	
+	else {	
 		console.log("    ---- socket : appel sendArFromZEPtoEP avec idArt " +idAr+ " de ZE = " +idZE+ " ---  vers " +idZEP);
+		// en fait on efface l artefact de la ZP, ZE
 		this.ZP.sendArFromZEPtoEP(idAr, idZE, idZEP);
 	
 		// envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
-	
 		if (this.isZAConnected())
 			{
 			this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_ArtefactDeletedFromZE, idAr , idZE,idZEP);
