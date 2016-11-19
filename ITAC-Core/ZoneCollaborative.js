@@ -187,9 +187,7 @@ ZoneCollaborative.prototype.getJSON = function() {
  * @author philippe pernelle
  */
 ZoneCollaborative.prototype.getId = function() {
-
 	return this.idZC;
-
 };
 
 
@@ -255,67 +253,42 @@ ZoneCollaborative.prototype.transfertArtefactZPtoZP = function(idAr, idZPsource,
 
 
 /**
-
  * retourne le chemin contenant les artefacts de la zone collaborative
-
  * 
-
  * @public
-
  * @returns {String} path
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.getPathArtifacts = function() {
-
 	return this.pathArtifacts;
-
 };
 
 
 /**
-
  * retourne le nombre des artefacts associé à la zone collaborative
-
  * 
-
  * @public
-
  * @returns {Number} Nb de AR
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.getNbArtifact = function() {
-
 	return this.artifacts.length;
-
 };
 
 
 /**
-
  * retourne la liste des Artefacts de la zone collaborative
-
  * 
-
  * @public
-
  * @returns {artifacts} liste des artifacts
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.getAllArtifacts = function() {
-
 	//console.log('   *** nbArtifact dans liste ='+this.artifacts.length);
-
 	return this.artifacts;
-
 };
 
 
@@ -603,6 +576,26 @@ ZoneCollaborative.prototype.setArtifactIntoZP = function(idArtifact, IdZP) {
 	
 }
 
+
+/**
+ * supprimer artefact de la zone ZE à partir d'un JSON
+ * 
+ * @public
+ * @param {JSON } 
+ * 
+ * @author philippe pernelle
+ */
+
+ZoneCollaborative.prototype.setArtifactIntoEP = function(idAr, idZE, idZEP) {
+	
+	console.log('    *** ZC : recherche art avec Id=' +idAr+ '  idZE= '+idZE + '  idZEP='+idZEP);
+
+	
+	if (this.delArtifact(idAr)) console.log('    *** ZC : suppression art avec Id=' +idAr+ '  idZE= '+idZE );
+	
+
+}
+
 /**
  * envoyer un artefact vers la zone de partage
  * @param {string}
@@ -787,24 +780,7 @@ ZoneCollaborative.prototype.addArtifactFromZEtoZEP = function(idZEP, idAr) {
 
 
 
-/**
- * supprimer artefact de la zone ZE à partir d'un JSON
- * 
- * @public
- * @param {JSON } 
- * 
- * @author philippe pernelle
- */
 
-ZoneCollaborative.prototype.setArtifactIntoEP = function(idAr, idZE, idZEP) {
-	
-	console.log('    *** ZC : recherche art avec Id=' +idAr+ '  idZE= '+idZE + '  idZEP='+idZEP);
-
-	
-	if (this.delArtifact(idAr)) console.log('    *** ZC : suppression art avec Id=' +idAr+ '  idZE= '+idZE );
-	
-
-}
 
 
 
