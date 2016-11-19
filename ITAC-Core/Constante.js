@@ -26,7 +26,16 @@
 */
 
 
-var Constante = function()
+var /**
+ * 
+ */
+/**
+ * 
+ */
+/**
+ * 
+ */
+Constante = function()
 
 {
 	this.typeConteneur_EP = 'EP';
@@ -101,6 +110,28 @@ var Constante = function()
 	 */		
 	this.EVT_NewArtefactInZE='EVT_NewArtefactInZE'; 
 	this.EVT_NewArtefactInZP='EVT_NewArtefactInZP';
+	
+	/**
+	 * cet evenement est envoyé par la ZA pour envoyer un artifact d'une ZP vers une autre ZP
+	 */	
+	this.EVT_EnvoieArtefactdeZPversZP='EVT_Envoie_ArtefactdeZPversZP';
+
+	/**
+	 * ces evenement sont les réponses du serveur au EVT_Envoie_ArtefactdeZPversZP
+	 */
+	this.EVT_ReponseOKEnvoie_ArtefactdeZPversZP ='EVT_ReponseOKEnvoie_ArtefactdeZPversZP';
+	this.EVT_ReponseNOKEnvoie_ArtefactdeZPversZP ='EVT_ReponseNOKEnvoie_ArtefactdeZPversZP';
+	
+	/**
+	 * cet evenement est envoyé par la ZA quand on supprime un artéfact d'une ZP
+	 */
+	this.EVT_ArtefactDeletedFromZP='EVT_ArtefactDeletedFromZP';
+
+	/**
+	 * ces evenement sont les réponses du serveur au EVT_ArtefactDeletedFromZP
+	 */
+	this.EVT_ReponseOKArtefactDeletedFromZP ='EVT_ReponseOKArtefactDeletedFromZP';
+	this.EVT_ReponseNOKArtefactDeletedFromZP ='EVT_ReponseNOKArtefactDeletedFromZP';
 };
 
 

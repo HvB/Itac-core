@@ -55,8 +55,8 @@ module.exports = function( ) {
 			console.log('CLIENT configcollab.js -> routage POST : envoi du formulaire pour la ZC = '+ZC.idZC);
 				
  			var host = req.headers.host;
-			//var splithost=host.split(":");    	
-	    	var url='http://'+host; //':'+port;
+			var splithost=host.split(":");    	
+	    	var url='http://'+splithost[0]; //':'+port;
 			
 			// transformation du JSOn en tab
 			var tab= json2array(ZC);

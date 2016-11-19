@@ -74,15 +74,10 @@ var ZoneCollaborative = function(parametreZC) {
 
 
 	/**
-
 	 * liste des "ZonePartage" associé à la zone collaborative
-
 	 * 
-
 	 * @private
-
 	 */
-
 	this.listeZP = [];
 
 
@@ -111,9 +106,7 @@ var ZoneCollaborative = function(parametreZC) {
 	}
 
 	console.log('\n*************************');
-
 	console.log('*** nbZP total creees = ' + this.getNbZP());
-
 	console.log('*************************');
 
 
@@ -176,27 +169,63 @@ ZoneCollaborative.prototype.getId = function() {
 
 
 /**
-
  * retourne la liste des ZP(Zone de Partage) la zone collaborative
-
  * 
-
  * @public
-
  * @returns {ZonePartage[]} liste des ZP
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.getAllZP = function() {
-
 	//console.log('   *** nbZP dans liste ='+this.listeZP.length);
-
 	return this.listeZP;
+};
+
+
+/**
+ * retourne une ZP(Zone de Partage) de la zone collaborative
+ * 
+ * @public
+ * @param {idZP}
+ * @returns {ZonePartage} liste des ZP
+ * @author philippe pernelle
+ */
+
+ZoneCollaborative.prototype.getZP = function(idZP) {
+	
+	var ret = null;
+	
+	console.log('    *** ZC : recherche de la ZP suivante : '+idZP);
+	for (var i = 0; i < this.getNbZP(); i++) {
+
+		if (this.listeZP[i].getId() === idZP )
+			{
+			ret = this.listeZP[i];
+			console.log('    *** ZC : recherche de la ZP suivante : '+idZP+' trouve [OK] ');
+			}
+
+	}
+	if (ret == null) console.log('    *** ZC : recherche de la ZP suivante : '+idZP+' trouve [NOK] ');
+	return ret;
 
 };
 
+
+/**
+ * retourne une ZP(Zone de Partage) de la zone collaborative
+ * 
+ * @public
+ * @param {idZP}
+ * @returns {ZonePartage} liste des ZP
+ * @author philippe pernelle
+ */
+
+ZoneCollaborative.prototype.transfertArtefactZPtoZP = function(idAr, idZPsource,idZPcible) {
+	
+	console.log('    *** ZC : appel deplacement de idArt= '+idAr+'vers une ZP='+idZPcible);
+	this.setArtifactIntoZP(idAr, idZPcible);
+	
+};
 
 
 
@@ -319,17 +348,11 @@ ZoneCollaborative.prototype.getArtifact = function(idAr) {
 
 
 /**
-
  * retourne le nombre des artefacts associé à la zone collaborative
-
  * 
-
  * @public
-
  * @returns {Number} Nb de AR
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.getAllArtifactsInZE = function(idZE) {
@@ -337,44 +360,28 @@ ZoneCollaborative.prototype.getAllArtifactsInZE = function(idZE) {
 	var artifactsInZE = [];
 
 	//console.log('   ***  recherche artifact pour ZE='+idZE);
-
 	for (var i = 0; i < this.getNbArtifact(); i++) { 
 
-	
-
 		if (this.artifacts[i].isInto(idZE,CONSTANTE.typeConteneur_ZE))
-
 			{
-
 			artifactsInZE.push(this.artifacts[i]);
-
 			}
-
 	}
-
 	return artifactsInZE;
 
 };
 
 
 /**
-
  * retourne le nombre de Zone de Partage (ZP) associé à la zone collaborative
-
  * 
-
  * @public
-
  * @returns {Number} Nb de ZP
-
  * @author philippe pernelle
-
  */
 
 ZoneCollaborative.prototype.getNbZP = function() {
-
 	return this.listeZP.length;
-
 };
 
 
@@ -435,10 +442,16 @@ ZoneCollaborative.prototype.addArtifact = function(creator, typeArtifact,idConte
 
 	console.log('    *** ZC : total artifact ='+ this.artifacts.length);
 
-	};
+}
 
-ZoneCollaborative.prototype.delArtifact = function(id)
-	{
+/**
+ * supprime un artefact de la zone collaborative
+ * 
+ * @public
+ * @returns {boolean} identifiant ZC
+ * @author philippe pernelle
+ */
+ZoneCollaborative.prototype.delArtifact = function(id)	{
 	var ret = false;
 
 	for (var i = 0; i < this.getNbArtifact(); i++) 
@@ -452,8 +465,8 @@ ZoneCollaborative.prototype.delArtifact = function(id)
 	}
 	if (!ret) console.log('    *** ZC : recherche arifact  pour suppression [NOK] idArtefact('+id+') nontrouve');
 	return ret;
-	};
-	
+}
+
 /**
  * ajoute un nouveau artefact à la zone collaborative à partir d'un JSON
  * 
@@ -566,57 +579,37 @@ ZoneCollaborative.prototype.addArtifactFromZEPToZP = function(idZP, idAr) {
 
 
 	this.idZP = idZP;
-
 	this.idAr = idAr;
 
 
 	for (i = 0; i < this.artifacts.length; i++) {
-
-
 		if (this.artifacts[i].idAr == idAr) // && (this.listeZP[i].idZP===
-
 											// idZP)) //chercher lartifact ayant l'id correspendante
-
 		{
-
 			this.artifactsInZP.push(this.artifacts[i]);
-
 			console.log( this.artifacts);
-
 			this.artifacts.splice(i,1);//effacer l'artefact déja ajouter à la zone partage
 
 
 			console.log('........................................................................')
-
-
 			console.log('*** Artifact numéro # ' +this.idAr + ' est ajouté à la zone de partage , total = '+ this.artifactsInZP.length);
-
 			console.log();
-
 			console.log (this.artifactsInZP[i] );
-
 			console.log();
 
 			(this.newID=this.setIdAr()+i);
 
 			console.log('-- new id =  ' + this.newID);
-
 		}
 
 	}
 
 	console.log('========================================================================')
-
 	console.log('les artifacts envoyés vers la zone de partage sont : \n')
-
 	console.log(this.artifactsInZP);
-
 	console.log('........................................................................')
-
 	console.log('========================================================================')
-
 	console.log('========================================================================')
-
 
 };
 

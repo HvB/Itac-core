@@ -39,8 +39,8 @@ module.exports = function( ) {
 	    				{
 	    				"idZP":"test2",
 	    				"typeZP":"Ecran",
-	    				"nbZEmin":"0",
-	    				"nbZEmax":"0",
+	    				"nbZEmin":"1",
+	    				"nbZEmax":"6",
 	    				"urlWebSocket":"",
 	    				"portWebSocket":"8081"
 	    				}
