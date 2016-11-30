@@ -79,10 +79,8 @@ module.exports = function( ) {
 				console.log('CLIENT configcollab.js -> routage POST : creation des ZP , etape '+i+'ZP ='+paramZP);				
 				}
 			
-			// chaine finale de creation de la ZC
-			paramZP= "{\"idZC\":\""+tab[0].toString()+"\",  \"emailZC\":\""+ tab[1].toString()+    "\",  \"descriptionZC\":\""+ tab[2].toString()  + "\",  \"nbZP\":\""+nombreZP.toString()+"\", \"ZP\":["+paramZP+"]}";
+			paramZP= "{\"idZC\":\""+tab[0].toString()+"\", \"nbZP\":\""+nombreZP.toString()+"\", \"ZP\":["+paramZP+"]}";
 			console.log('CLIENT configcollab.js -> routage POST : la ZC reconfiguré en JSON ='+paramZP);
-			
 			var paramZC= JSON.parse((paramZP).replace(/}{/g,","));
 			console.log('CLIENT configcollab.js -> routage POST : la ZC reconfiguré en JSON =');
 			var temp= util.inspect(paramZC);

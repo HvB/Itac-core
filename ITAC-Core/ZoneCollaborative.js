@@ -30,7 +30,9 @@ var CONSTANTE = new Constantes();
 
 var ZoneCollaborative = function(parametreZC) {
 
-
+	console.log('*************************');
+	console.log('*** ZoneCollaborative ***');
+	console.log('*************************');
 
 	/**
 	 * listes de artefacts associée à la liste
@@ -63,15 +65,15 @@ var ZoneCollaborative = function(parametreZC) {
 	 * @private
 	 */
 	this.pathArtifacts = CONSTANTE.repArtifact+this.idZC; //'artifacts/';
-	
-	
+
+
 	/**
 	 * email de contact de la zone collaborative
 	 * 
 	 * @private
 	 */
 	this.emailZC = parametreZC.emailZC;	
-	
+
 	/**
 	 * description de la zone collaborative
 	 * 
@@ -85,7 +87,7 @@ var ZoneCollaborative = function(parametreZC) {
 	 * @private
 	 */
 	this.listeZP = [];
-	
+
 
 
 	
@@ -114,21 +116,26 @@ var ZoneCollaborative = function(parametreZC) {
 		  }
 	
 	// chargement de la liste des ZP
+
 	for (var i = 0; i < parametreZC.nbZP; i++) {
+
 
 		// id ZP défini dans le fichier de parametre
 		console.log('\n*** traitement de le ZP = ' + parametreZC.ZP[i].idZP);
 
 
 		// creation des ZP
+
 		this.listeZP[i] = new ZonePartage(this, parametreZC.ZP[i].idZP,
+
 				parametreZC.ZP[i].nbZEmin, parametreZC.ZP[i].nbZEmax,
+
 				parametreZC.ZP[i].urlWebSocket, parametreZC.ZP[i].portWebSocket);
 	}
-	
-	
-	
-	
+
+		
+
+
 
 	console.log('\n*************************');
 	console.log('*** nbZP total creees = ' + this.getNbZP());
@@ -187,7 +194,9 @@ ZoneCollaborative.prototype.getJSON = function() {
  * @author philippe pernelle
  */
 ZoneCollaborative.prototype.getId = function() {
+
 	return this.idZC;
+
 };
 
 
@@ -253,42 +262,67 @@ ZoneCollaborative.prototype.transfertArtefactZPtoZP = function(idAr, idZPsource,
 
 
 /**
+
  * retourne le chemin contenant les artefacts de la zone collaborative
+
  * 
+
  * @public
+
  * @returns {String} path
+
  * @author philippe pernelle
+
  */
 
 ZoneCollaborative.prototype.getPathArtifacts = function() {
+
 	return this.pathArtifacts;
+
 };
 
 
 /**
+
  * retourne le nombre des artefacts associé à la zone collaborative
+
  * 
+
  * @public
+
  * @returns {Number} Nb de AR
+
  * @author philippe pernelle
+
  */
 
 ZoneCollaborative.prototype.getNbArtifact = function() {
+
 	return this.artifacts.length;
+
 };
 
 
 /**
+
  * retourne la liste des Artefacts de la zone collaborative
+
  * 
+
  * @public
+
  * @returns {artifacts} liste des artifacts
+
  * @author philippe pernelle
+
  */
 
 ZoneCollaborative.prototype.getAllArtifacts = function() {
+
 	//console.log('   *** nbArtifact dans liste ='+this.artifacts.length);
+
 	return this.artifacts;
+
 };
 
 
@@ -475,42 +509,41 @@ ZoneCollaborative.prototype.delArtifact = function(id)	{
  */
 ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string) {
 	
-	console.log('    *** ZC : ajout artefact a partir du JSON='+artifact_json_string);
-	
+	console.log('    *** ZC : addArtifactFromJSON JSON='+artifact_json_string);
 	var temp = JSON.parse(artifact_json_string);
-	
-	// cas ou l'identifiant n'existe pas, c'est un nouveau artefact
 	if (temp.idAr==null ||  Number.isNaN(temp.idAr) || temp.idAr=='' ) {
 		// calcul d'un nouvel identifiant
 		var id = this.setIdAr();
 		console.log('    *** ZC : calcul nouveau IdArtifact = '+id);
 	}
-	// cas ou l'identifiant existe , il faut reprendre 
 	else
 	{
 		var id = parseInt(temp.idAr);
-		console.log('    *** ZC : il s agit d un artefact avec un id : reprise  IdArtifact = '+id);
+		console.log('    *** ZC : reprise  IdArtifact = '+id);
 		this.delArtifact(id);
-		console.log('    *** ZC : suppresion de l ancien  IdArtifact = '+id);
+		console.log('    *** ZC : suppresion ancien  IdArtifact = '+id);
 	} 	
 	
 		
-	// création de l'artifact
+		// création de l'artifact
 		
-	var monArtifact = Artifact.fromJSON(artifact_json_string,id);
-	console.log('    *** ZC : creation artifact depuis un json'+monArtifact.getId() );
+		var monArtifact = Artifact.fromJSON(artifact_json_string,id);
+		console.log('    *** ZC : creation artifact depuis un json'+monArtifact.getId() );
+
+	
+	
 
 	// ajout à la liste
 	this.artifacts.push(monArtifact);
 	console.log('    *** ZC : total artifact ='+ this.artifacts.length);
 	
-	//sauvegarde du fichier JSON
+	//sauvegarde fichier
 	var chaine = JSON.stringify(monArtifact);
 	var path = this.getPathArtifacts() + monArtifact.getId();
 	fs.writeFileSync(path, chaine, "UTF-8");
 	console.log('    *** ZC : sauvegarde artifact depuis un json, de type='+monArtifact.getTypeArtefact()+' de path ='+path );
 	
-	//sauvegarde du fichier contenu
+	
 	if (monArtifact.getTypeArtefact() === CONSTANTE.typeArtefact_Image)
 		{
 		
@@ -522,18 +555,7 @@ ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string)
 
 		fs.writeFile(path, binaryData, "binary", function (err) {
 		    console.log(err); // writes out file without error, but it's not a valid image
-			});
-		
-		}
-	if (monArtifact.getTypeArtefact() === CONSTANTE.typeArtefact_Message)
-		{
-		path= path+'.txt';
-		console.log('    *** ZC : creation artifact : creation text '+path );
-		
-		
-		fs.writeFile(path, monArtifact.contenu, "UTF-8", function (err) {
-		    console.log(err); // writes out file without error, but it's not a valid image
-			});
+		});
 		
 		}
 	
@@ -574,26 +596,6 @@ ZoneCollaborative.prototype.setArtifactIntoZP = function(idArtifact, IdZP) {
 	monArtifact.setIntoZone(IdZP,CONSTANTE.typeConteneur_ZP);
 	console.log('    *** ZC : deplacement artifact ='+monArtifact.idAr+' vers ZP ='+IdZP + '[OK]');
 	
-}
-
-
-/**
- * supprimer artefact de la zone ZE à partir d'un JSON
- * 
- * @public
- * @param {JSON } 
- * 
- * @author philippe pernelle
- */
-
-ZoneCollaborative.prototype.setArtifactIntoEP = function(idAr, idZE, idZEP) {
-	
-	console.log('    *** ZC : recherche art avec Id=' +idAr+ '  idZE= '+idZE + '  idZEP='+idZEP);
-
-	
-	if (this.delArtifact(idAr)) console.log('    *** ZC : suppression art avec Id=' +idAr+ '  idZE= '+idZE );
-	
-
 }
 
 /**
@@ -780,7 +782,24 @@ ZoneCollaborative.prototype.addArtifactFromZEtoZEP = function(idZEP, idAr) {
 
 
 
+/**
+ * supprimer artefact de la zone ZE à partir d'un JSON
+ * 
+ * @public
+ * @param {JSON } 
+ * 
+ * @author philippe pernelle
+ */
 
+ZoneCollaborative.prototype.setArtifactIntoEP = function(idAr, idZE, idZEP) {
+	
+	console.log('    *** ZC : recherche art avec Id=' +idAr+ '  idZE= '+idZE + '  idZEP='+idZEP);
+
+	
+	if (this.delArtifact(idAr)) console.log('    *** ZC : suppression art avec Id=' +idAr+ '  idZE= '+idZE );
+	
+
+}
 
 
 

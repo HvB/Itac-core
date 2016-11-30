@@ -348,19 +348,11 @@ ZonePartage.prototype.sendArFromZEtoZP = function(idAr, idZP)
 
 
 /**
- * ajoute un artifact envoyé d'une tablette (ZEP) vers une Zone d'échange spécifique de la ZP
- *  - creation de l'artifact dans la ZC (ZC.addArtifactFromJSON)
- *  - affectation de cet artifact dans la ZE (ZC.setArtifactIntoZE)
+ * tr une Zone d'échange spécifique de la ZP
  * 
  * @public
- * 
- * @param {idZEP}   identifiant de la tablette ZEP 
- * @param {idZE}    identifiant de la ZE associé à la ZEP
- * @param {artefactenjson}   artefact en JSON
- * 
- * @return {IdArtefact} identifiant de l'artefact crée
- * 
- * @author philippe pernelle
+ * @param {} idZEP
+ * @return {ZE} Zone echange
  */
 ZonePartage.prototype.addArtifactFromZEPtoZE = function(pseudo, idZEP, idZE, artefactenjson) {
 
@@ -384,8 +376,22 @@ ZonePartage.prototype.addArtifactFromZEPtoZE = function(pseudo, idZEP, idZE, art
 		
 		}
 	// renvoie l'id de l'artifcat créé
-	console.log('      === ZonePartage : addArtifactFromZEPtoZE , renvoi IdArtefact utilise ='+IdArtefact);
 	return IdArtefact;
+
+};
+
+
+/**
+ * envoi d'un Artefact depuis une ZEP (ZE) vers une EP
+ * 
+ * @public
+ * @param {} idZE
+ * @return {ZE} Zone echange
+ */
+ZonePartage.prototype.sendArFromZEPtoEP = function(idAr, idZE,idZEP) 
+{
+	
+	this.ZC.setArtifactIntoEP(idAr,idZE,idZEP);
 
 };
 
@@ -393,19 +399,11 @@ ZonePartage.prototype.addArtifactFromZEPtoZE = function(pseudo, idZEP, idZE, art
 
 
 /**
- * ajoute un artifact envoyé d'une tablette (ZEP) directement vers une Zone de partage ZP
- *  - creation de l'artifact dans la ZC (ZC.addArtifactFromJSON)
- *  - affectation de cet artifact dans la ZE (ZC.setArtifactIntoZE)
+ * tr une Zone d'échange spécifique de la ZP
  * 
  * @public
- * 
- * @param {idZEP}   identifiant de la tablette ZEP 
- * @param {idZP}    identifiant de la ZP
- * @param {artefactenjson}   artefact en JSON
- * 
- * @return {IdArtefact} identifiant de l'artefact crée
- * 
- * @author philippe pernelle
+ * @param {} idZEP
+ * @return {ZE} Zone echange
  */
 
 ZonePartage.prototype.addArtifactFromZEPtoZP = function(pseudo, idZEP, idZE, artefactenjson) {
@@ -436,23 +434,5 @@ ZonePartage.prototype.addArtifactFromZEPtoZP = function(pseudo, idZEP, idZE, art
 	console.log('      === ZonePartage : addArtifactFromZEPtoZP , renvoi IdArtefact utilise ='+IdArtefact);
 	return IdArtefact;
 
-};
-
-
-/**
- * envoi d'un Artefact depuis une ZEP (ZE) vers une EP
- * 
- * @public
- * 
- * @param {idAr}    artefact 
- * @param {idZEP}   identifiant de la tablette ZEP 
- * @param {idZE}    identifiant de la ZE associé à la ZEP
- * 
- * @author philippe pernelle
- */
- 
-ZonePartage.prototype.sendArFromZEPtoEP = function(idAr, idZE,idZEP) 
-{	
-	this.ZC.setArtifactIntoEP(idAr,idZE,idZEP);
 };
 

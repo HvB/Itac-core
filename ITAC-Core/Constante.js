@@ -132,8 +132,6 @@ Constante = function()
 	 */
 	this.EVT_ReponseOKArtefactDeletedFromZP ='EVT_ReponseOKArtefactDeletedFromZP';
 	this.EVT_ReponseNOKArtefactDeletedFromZP ='EVT_ReponseNOKArtefactDeletedFromZP';
-	
-	
 };
 
 

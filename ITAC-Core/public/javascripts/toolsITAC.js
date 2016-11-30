@@ -28,7 +28,7 @@ var TailleZEenhauteur = 0;
 var TailleEspaceenlargeur = 0;
 var TailleEspaceenhauteur = 0;
 
-function Calcule_Nb_ZE(nomZA, Nb_ZE) {
+function calcule_Nb_ZE(nomZA, Nb_ZE) {
 	
 	
 	// on force la taille en fonction de l'objet screen
