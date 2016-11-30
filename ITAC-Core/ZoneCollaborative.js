@@ -506,7 +506,7 @@ ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string)
 	
 	//sauvegarde du fichier JSON
 	var chaine = JSON.stringify(monArtifact);
-	var path = this.getPathArtifacts() + monArtifact.getId();
+	var path = this.getPathArtifacts() +'/'+ monArtifact.getId();
 	fs.writeFileSync(path, chaine, "UTF-8");
 	console.log('    *** ZC : sauvegarde artifact depuis un json, de type='+monArtifact.getTypeArtefact()+' de path ='+path );
 	
