@@ -509,19 +509,23 @@ ZoneCollaborative.prototype.delArtifact = function(id)	{
  */
 ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string) {
 	
-	console.log('    *** ZC : addArtifactFromJSON JSON='+artifact_json_string);
+	console.log('    *** ZC : ajout artefact a partir du JSON='+artifact_json_string);
+	
 	var temp = JSON.parse(artifact_json_string);
+	
+	// cas ou l'identifiant n'existe pas, c'est un nouveau artefact
 	if (temp.idAr==null ||  Number.isNaN(temp.idAr) || temp.idAr=='' ) {
 		// calcul d'un nouvel identifiant
 		var id = this.setIdAr();
 		console.log('    *** ZC : calcul nouveau IdArtifact = '+id);
 	}
+	// cas ou l'identifiant existe , il faut reprendre 
 	else
 	{
 		var id = parseInt(temp.idAr);
-		console.log('    *** ZC : reprise  IdArtifact = '+id);
+		console.log('    *** ZC : il s agit d un artefact avec un id : reprise  IdArtifact = '+id);
 		this.delArtifact(id);
-		console.log('    *** ZC : suppresion ancien  IdArtifact = '+id);
+		console.log('    *** ZC : suppresion de l ancien  IdArtifact = '+id);
 	} 	
 	
 		
@@ -537,13 +541,13 @@ ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string)
 	this.artifacts.push(monArtifact);
 	console.log('    *** ZC : total artifact ='+ this.artifacts.length);
 	
-	//sauvegarde fichier
+	//sauvegarde du fichier JSON
 	var chaine = JSON.stringify(monArtifact);
-	var path = this.getPathArtifacts() + monArtifact.getId();
+	var path = this.getPathArtifacts() +'/'+ monArtifact.getId();
 	fs.writeFileSync(path, chaine, "UTF-8");
 	console.log('    *** ZC : sauvegarde artifact depuis un json, de type='+monArtifact.getTypeArtefact()+' de path ='+path );
 	
-	
+	//sauvegarde du fichier contenu
 	if (monArtifact.getTypeArtefact() === CONSTANTE.typeArtefact_Image)
 		{
 		
@@ -556,6 +560,17 @@ ZoneCollaborative.prototype.addArtifactFromJSON = function(artifact_json_string)
 		fs.writeFile(path, binaryData, "binary", function (err) {
 		    console.log(err); // writes out file without error, but it's not a valid image
 		});
+		
+		}
+	if (monArtifact.getTypeArtefact() === CONSTANTE.typeArtefact_Message)
+		{
+		path= path+'.txt';
+		console.log('    *** ZC : creation artifact : creation text '+path );
+	
+		
+		fs.writeFile(path, monArtifact.contenu, "UTF-8", function (err) {
+		    console.log(err); // writes out file without error, but it's not a valid image
+			});
 		
 		}
 	
@@ -596,6 +611,25 @@ ZoneCollaborative.prototype.setArtifactIntoZP = function(idArtifact, IdZP) {
 	monArtifact.setIntoZone(IdZP,CONSTANTE.typeConteneur_ZP);
 	console.log('    *** ZC : deplacement artifact ='+monArtifact.idAr+' vers ZP ='+IdZP + '[OK]');
 	
+}
+
+/**
+ * supprimer artefact de la zone ZE à partir d'un JSON
+ * 
+ * @public
+ * @param {JSON } 
+ * 
+ * @author philippe pernelle
+ */
+
+ZoneCollaborative.prototype.setArtifactIntoEP = function(idAr, idZE, idZEP) {
+	
+	console.log('    *** ZC : recherche art avec Id=' +idAr+ '  idZE= '+idZE + '  idZEP='+idZEP);
+
+	
+	if (this.delArtifact(idAr)) console.log('    *** ZC : suppression art avec Id=' +idAr+ '  idZE= '+idZE );
+	
+
 }
 
 /**
@@ -782,25 +816,6 @@ ZoneCollaborative.prototype.addArtifactFromZEtoZEP = function(idZEP, idAr) {
 
 
 
-/**
- * supprimer artefact de la zone ZE à partir d'un JSON
- * 
- * @public
- * @param {JSON } 
- * 
- * @author philippe pernelle
- */
-
-ZoneCollaborative.prototype.setArtifactIntoEP = function(idAr, idZE, idZEP) {
-	
-	console.log('    *** ZC : recherche art avec Id=' +idAr+ '  idZE= '+idZE + '  idZEP='+idZEP);
-
-	
-	if (this.delArtifact(idAr)) console.log('    *** ZC : suppression art avec Id=' +idAr+ '  idZE= '+idZE );
-	
-
-}
-
 
 
 
@@ -980,17 +995,12 @@ this.artifactsInZP = ZoneCollaborative.artifactsInZP ;
 		  }  
 
 		  // liste des ZE par ZP
-
 		  listeZE = liste2[i].getAllZE();
 
 		  console.log('         *****   Contenu de ZP ('+liste2[i].getId()+') : Nb ZE trouve = '+listeZE.length);
 
 		  for (j=0; j< listeZE.length; j++)
-
 			  {
-
-			  
-
 			  liste = this.getAllArtifactsInZE(listeZE[j].getId());
 
 			  console.log('                 --> Contenu de ZE ('+listeZE[j].getId()+')  Nb artifact trouve = '+liste.length+ ' <---');
@@ -1000,21 +1010,8 @@ this.artifactsInZP = ZoneCollaborative.artifactsInZP ;
 				  console.log('                    - Artefact ='+liste[k].getId());
 
 			  }
-
-			  
-
-			  }
-
-		  
-
-		  
-
-			  
-
-		  
-
+		  }
 	  }
-
   }
 
 	  
