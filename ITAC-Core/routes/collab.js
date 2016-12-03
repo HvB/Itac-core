@@ -20,12 +20,20 @@ module.exports = function( ) {
 	  	 
 	    	
 	    	var numconfig= req.params.numconfig ;
-	    	console.log('CLIENT configcollab.js -> routage GET , preconfig = '+numconfig);	    	
+	    	    	
+	    	
+	    	var host = req.headers.host;
+			var splithost=host.split(":");    	
+	    	var url='http://'+splithost[0];
+	    	
+	    	console.log('CLIENT configcollab.js -> routage GET , preconfig = '+numconfig +' avec URL='+url);	
 	    	
 	    	if (numconfig==1) {
 	    		
 	    		var paramZC={
 	    			"idZC": "444",
+	    			"emailZC":"",
+	    			"descriptionZC":"Zone de travail pré-configurer",
 	    			"nbZP": "2",
 	    			"ZP": [
 	    				{
@@ -33,7 +41,7 @@ module.exports = function( ) {
 	    				"typeZP":"TableTactile",
 	    				"nbZEmin":"2",
 	    				"nbZEmax":"4",
-	    				"urlWebSocket":"",
+	    				"urlWebSocket":url,
 	    				"portWebSocket":"8080"
 	    				},
 	    				{
@@ -41,7 +49,7 @@ module.exports = function( ) {
 	    				"typeZP":"Ecran",
 	    				"nbZEmin":"1",
 	    				"nbZEmax":"6",
-	    				"urlWebSocket":"",
+	    				"urlWebSocket":url,
 	    				"portWebSocket":"8081"
 	    				}
 	    			]
@@ -52,7 +60,7 @@ module.exports = function( ) {
 	    	var ZC=new ZoneCollaborative(paramZC);    	  
 	
 	
-	  	  	res.render('collab', { title: 'Express', ipserver:'http://localhost:8080', zonecollab : paramZC });
+	  	  	res.render('collab', { title: 'Express', ipserver:url, zonecollab : paramZC });
 	  	} );
 	
 	
