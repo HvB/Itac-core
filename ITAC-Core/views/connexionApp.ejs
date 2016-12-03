@@ -4,7 +4,7 @@
   /* --------------------------------- Gestion de la connexion ------------------------------------------ */ 
   /********************************************************************************************************/
 
-    if(jQuery.ui){
+  if(jQuery.ui){
       // alert("J'ai bien chargé jQuery.ui")
     }
     else {
@@ -13,21 +13,21 @@
  
   //  TC: tout ce qui correspond à de l'envoi ou de la réception d'événements avec le serveur 
 
-console.log('PAGE : workspace2.ejs -> on s occupe maintenant de la connexion');
+	console.log('PAGE : connexionApp.ejs -> on s occupe maintenant de la connexion');
 
-		var urldemande = '<%= urldemande %>';
-		var zpdemande = '<%= myZP %>';
-		var rang= '<%= rangZP %>';
-		
-		var myZC = {};
-		var ZEmax= '<%= NbZEMax %>';;
-		var paramAffichageZE = [];
-		
-    // PP
-    var orientationZE = [];
-		
-    // PP declaration de la variable socket
-    var socket = null;
+	var urldemande = '<%= urldemande %>';
+	var zpdemande = '<%= myZP %>';
+	var rang= '<%= rangZP %>';
+	
+	var myZC = {};
+	var ZEmax= '<%= NbZEMax %>';;
+	var paramAffichageZE = [];
+	
+	// PP : orientation de la ZE
+	var orientationZE = [];
+	
+	// PP : declaration de la variable socket
+	var socket = null;
 
     console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
     console.log('PAGE ZA : workspace.ejs -> urldemande = '+urldemande);
@@ -39,17 +39,18 @@ console.log('PAGE : workspace2.ejs -> on s occupe maintenant de la connexion');
 
     console.log('PAGE : workspace.ejs -> demande connection socket sur : '+ urldemande);
 		
-    /* ------------------------------------------------*/
+    /* -----------------------------------*/
     /*  connexion socket                  */
-    /* ------------------------------------------------*/
-		  socket = io.connect(urldemande, {transports:['websocket']});
+    /* -----------------------------------*/
 
-      console.log('PAGE ZA : workspace.ejs -> **** connexion socket [OK] : idSocket ='+socket.id);
-      console.log('****************************************************************************');
+    socket = io.connect(urldemande, {transports:['websocket']});
+
+    console.log('PAGE ZA : workspace.ejs -> **** connexion socket ZA vers Serveur [OK] : idSocket ='+socket.id);
+    console.log('****************************************************************************');
    
    	/* ------------------------------------------------------*/
-		/* --- premiere connexion ZA (Zone d'affichage = App) ---*/
-		/* ------------------------------------------------------*/
+	/* --- premiere connexion ZA (Zone d'affichage = App) ---*/
+	/* ------------------------------------------------------*/
     	
     	socket.emit('EVT_DemandeConnexionZA', urldemande, zpdemande);
     	console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= '+zpdemande);
