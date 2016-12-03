@@ -157,19 +157,12 @@ var Serveur = function(ZP, port) {
 		console.log('    ---- Arrive demande Connection SOCKET ----- ID='+socket.id);
 		console.log('    -----------------------------------------------------------------------');
 		
-		
-		/*
-		console.log('    ----> les constantes :'+CONSTANTE.EVT_DemandeConnexionZA);
-		socket.on(CONSTANTE.EVT_DemandeConnexionZA,  (function(pseudo,idZA ) {
-		   	console.log('    ---- Demande de connexion d une ZA ( ' +idZA +' ) avec IP= ' + clientIp +' et pseudo= '+pseudo);
-		    this.demandeConnexionZA(socket,pseudo,idZA);  		
-		 }).bind(this));
-		 */
-		
 		this.traitementSurConnexion(socket);
 		
+		
+		
 	}).bind(this));
-
+/* DEPRECATED
 	this._io.sockets.on('disconnect', (function() {
 
 		console.log('    ---------------------------------------------');	    
@@ -179,11 +172,13 @@ var Serveur = function(ZP, port) {
 		
 	}).bind(this));
 
-	
+*/	
 
 };
 
 module.exports = Serveur;
+
+
 /**
 */
 Serveur.prototype.getSocketZA = function(){
@@ -194,11 +189,19 @@ Serveur.prototype.isZAConnected = function() {
 	return (this.clientZAsocket !== 0);
 };
 
+/**
+ * fonction retournant l'identifiant de la socket associé à une ZE 
+ * qui est connectée au serveur
+ * 
+ * @param idZE
+ * @return identifiant socket
+ * 
+ * @autor philippe pernelle
+ */
 Serveur.prototype.getZESocketId = function(idZE) {
 	
 	var ret = null;
 	for (var i = 0; i < this.clientZEid.length; i++) {
-
 		if (this.clientZEid[i] === idZE)
 			{
 			ret = this.clientZEsocket[i];
@@ -207,10 +210,66 @@ Serveur.prototype.getZESocketId = function(idZE) {
 	return ret;
 };
 
+/**
+ * fonction retournant l'identifiant de la ZE 
+ * qui est connectée au serveur en fonction de son idsocket
+ * 
+ * @param idsocket identifiant socket
+ * @return identifiant ZE
+ * 
+ * @autor philippe pernelle
+ */
+Serveur.prototype.getZEbySocketId = function(idsocket) {
+	
+	var ret = null;
+	for (var i = 0; i < this.clientZEsocket.length; i++) {
+		if (this.clientZEsocket[i] === idsocket)
+			{
+			ret = this.clientZEid[i];
+			}
+	}
+	return ret;
+};
+
+/**
+ * fonction supprimmant une ZE de la liste par son idZE
+ * 
+ * @param idsocket identifiant socket
+ * 
+ * @autor philippe pernelle
+ */
+Serveur.prototype.removeZEbyId = function(idZE) {
+	
+	for (var i = 0; i < this.clientZEid.length; i++) {
+		if (this.clientZEid[i]===idZE)
+			{
+				this.clientZEid.splice(i,1);
+				this.clientZEsocket.splice(i,1);
+			}
+	}
+}
 
 
 /**
- * fonction de traitement des evenements de la socket ZEP
+ * fonction supprimmant une ZE de la liste par son socketID
+ * 
+ * @param idsocket identifiant socket
+ * 
+ * @autor philippe pernelle
+ */
+Serveur.prototype.removeZEbySocketId = function(idsocket) {
+	
+	for (var i = 0; i < this.clientZEsocket.length; i++) {
+		if (this.clientZEsocket[i]===idsocket)
+			{
+				this.clientZEid.splice(i,1);
+				this.clientZEsocket.splice(i,1);
+			}
+	}
+}
+
+/**
+ * fonction de traitement des evenements de la socket ZEP+ZA
  * 
  * @param socket
  * 
@@ -336,6 +395,36 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 		this.suppresArtefactFromZP(socket, idAr);
 		console.log('******** FIN TRAITEMENT DE :'+CONSTANTE.EVT_ArtefactDeletedFromZP+' ***** ');
 	}).bind(this));
+
+	
+	
+
+	socket.on('disconnect', (function () {
+		/*
+	        io.sockets.emit('count', {
+	            number: io.engine.clientsCount
+	        });
+	       */
+		console.log('******** DECONNECT ***** ---- deconnexion de ('+socket.id+') '  );		
+		var ZEaSupprimer = this.getZEbySocketId(socket.id);
+		if (ZEaSupprimer != null)
+			{
+			console.log('    ---- socket : recherche de la ZE associé ' +ZEaSupprimer);	
+			this.deconnexion(socket, "", ZEaSupprimer);	
+			}
+		else
+			{
+			console.log('    ---- socket : pas de traitement');
+			}
+		
+
+		
+		
+	}).bind(this));
+	
+	
+	
+	
 	
 };
 
@@ -688,6 +777,9 @@ Serveur.prototype.deconnexion = function (socket,pseudo, idZE)
 	
 	console.log("    ---- socket : suppresion de la liste des ZE de la ZP ZE=" +idZE);
 	this.ZP.destroyZE(idZE);
+	
+	console.log("    ---- socket : suppresion de la liste des ZE de la ZC ZE=" +idZE);
+	this.removeZEbyId(idZE);
 
 	// envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
 
