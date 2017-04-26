@@ -1,5 +1,6 @@
-var fs = require('fs');
+const fs = require('fs');
 const crypto = require('crypto');
+
 
 class Credential {
 	constructor(){
