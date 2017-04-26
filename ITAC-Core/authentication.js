@@ -1,7 +1,10 @@
 const fs = require('fs');
 const crypto = require('crypto');
 
-
+/**
+ * Class abstraite pour la representation des infos d'authentification. 
+ * 
+ */
 class Credential {
 	constructor(){
 		if (this.constructor === Credential) {
@@ -11,6 +14,10 @@ class Credential {
 	}
 }
 
+/**
+ * Class pour la representation des infos d'authentification de type login/mot de passe. 
+ * 
+ */
 class LoginPwdCredential extends Credential {
 	constructor(login, pwd, uid){
 		super();
@@ -20,9 +27,15 @@ class LoginPwdCredential extends Credential {
 	}
 }
 
+// gestion de la liste des authentificateurs utilisables
 let _registred_authenticators = new Array();
+//gestion de la liste des fabriques d'authentificateur utilisables
 let _registred_authenticator_factories = new Array();
 
+/**
+ * Class abstraite pour les authentificateurs. 
+ * 
+ */
 class Authenticator {
 	constructor(){
 		if (this.constructor === Authenticator) {
@@ -66,6 +79,10 @@ class Authenticator {
 	}
 }
 
+/**
+ * Authentificateurs qui accepte tout. 
+ * 
+ */
 class YesAuthenticator extends Authenticator {
 	
 	verifyCredential(credential ){
@@ -80,6 +97,10 @@ class YesAuthenticator extends Authenticator {
 	}
 }
 
+/**
+ * Classe pour le representation d'une base d'utilisateur de type login/mot de passe. 
+ * 
+ */
 class LoginPwdDB {
 	constructor(userArray){
 		this.users = Object.freeze(userArray);
@@ -120,6 +141,10 @@ class LoginPwdDB {
 	}
 }
 
+/**
+ * Authentificateur associe a une base de type login/mot de passe. 
+ * 
+ */
 class LoginPwdAuthenticator extends Authenticator {
 	constructor(userDB){
 		super();
@@ -173,6 +198,10 @@ class LoginPwdAuthenticator extends Authenticator {
 	}
 }
 
+/**
+ * Authentificateur associe a une base de type login/mot de passe, stockee dans un fichier. 
+ * 
+ */
 class FileLoginPwdAuthenticator extends LoginPwdAuthenticator {
 	constructor(myfile){
 		console.log('password file : '+ myfile);
@@ -185,8 +214,18 @@ class FileLoginPwdAuthenticator extends LoginPwdAuthenticator {
 Authenticator.registerAuthenticator({ YesAuthenticator:  YesAuthenticator, LoginPwdAuthenticator: LoginPwdAuthenticator, FileLoginPwdAuthenticator: FileLoginPwdAuthenticator });
 
 // fabrique d'authetificateur par defaut
-var factory = function (config){
+/**
+ * Factory for the authenticators. On cree l'autentificateur a partir du nom
+ * de sa classe et de sa configuration.
+ * 
+ * @param {json}
+ *            configuration de l'authenticator
+ * @return {Authenticator} instance cree
+ */
+var factory = function factory(config){
+	// nom de la classe a utiliser
 	var classname = config.type;
+	// configuration de l'authentificateur (depend du type d'authetificateur)
 	var params = config.params;
 	if (classname == "LoginPwdAuthenticator"){
 		return new LoginPwdAuthenticator(LoginPwdDB(params));
@@ -197,8 +236,12 @@ var factory = function (config){
 // enregistrement de la fabrique
 Authenticator.registerFactory(factory);
 
+// liste des authetificateurs et fabriques 
 console.log('Authenticators: '+Authenticator.registredAuthenticators());
 console.log('Factories: '+Authenticator.registredFactories());
+
+module.exports = {Authenticator, YesAuthenticator, LoginPwdCredential, 
+		LoginPwdAuthenticator, LoginPwdDB, FileLoginPwdAuthenticator};
 
 /*  Exemples d'utilisations : 
 
@@ -233,5 +276,3 @@ console.log('joe/joe: '+ id4);
 console.log('jeanne/jeanne: '+ id5);
 
 */
-module.exports = {Authenticator, YesAuthenticator, LoginPwdCredential, 
-		LoginPwdAuthenticator, LoginPwdDB, FileLoginPwdAuthenticator};
