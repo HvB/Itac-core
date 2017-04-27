@@ -46,6 +46,8 @@ Constante = function()
 	this.typeArtefact_Image = 'image';
 
 	this.repArtifact ='artefacts/';
+	// dossier de sauvergarde pour les sessions
+	this.repSession ='sessions/';
 
 	/**
 	 * evenement envoyé par une ZA lorsque qu'elle se connecte à une ZP
