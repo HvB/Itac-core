@@ -47,6 +47,7 @@ app.all('*', function(req, res, next) {
 app.use('/', routes);
 app.use('/users', users);
 app.use( '/collab/config', require( './routes/configcollab' )() );
+app.use( '/collab/sessionconfig', require( './routes/configsession' )() );
 app.use( '/collab', require( './routes/collab' )() );
 app.use( '/collab/session/:name', require( './routes/session' )() );
 app.use( '/collab/:idZC/espacetravail/:rang/:idZP/:port/:minmax', require( './routes/workspace' )() );

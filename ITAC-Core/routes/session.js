@@ -27,7 +27,7 @@ module.exports = function( ) {
 		    	console.log('CLIENT session.js -> routage GET,  lancement creation de la session \n');
 	    		var session = Session.loadSession(name);
 		    	
-		    	console.log('CLIENT configcollab.js -> routage GET,  lancement recureation de la ZC \n');
+		    	console.log('CLIENT session.js -> routage GET,  lancement recureation de la ZC \n');
 		    	var ZC=session.ZC;    	  
 	    	}
 	
