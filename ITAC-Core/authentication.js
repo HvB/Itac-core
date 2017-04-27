@@ -28,9 +28,9 @@ class LoginPwdCredential extends Credential {
 }
 
 // gestion de la liste des authentificateurs utilisables
-let _registred_authenticators = new Array();
+let _registred_authenticators = {};
 //gestion de la liste des fabriques d'authentificateur utilisables
-let _registred_authenticator_factories = new Array();
+let _registred_authenticator_factories = {};
 
 /**
  * Class abstraite pour les authentificateurs. 
@@ -59,12 +59,12 @@ class Authenticator {
 	static getAuthenticator(name){
 		return _registred_authenticators[name]
 	}
-	static registerFactory(classes){
-		if (classes && typeof classes == 'function'){
-			_registred_authenticator_factories[classes.name] = classes;
+	static registerFactory(factories){
+		if (factories && typeof factories == 'function'){
+			_registred_authenticator_factories[factories.name] = factories;
 		} else {
-			for (var i in classes){
-				Authenticator.registerFactory(classes[i]);
+			for (var i in factories){
+				Authenticator.registerFactory(factories[i]);
 			}
 		}
 	}
