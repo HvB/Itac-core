@@ -13,6 +13,9 @@ const ZoneCollaborative = require('./ZoneCollaborative');
 const BaseAuthentification = require("./authentication");
 const crypto = require('crypto');
 const fs = require('fs');
+const Constantes=require('./Constante');
+
+const CONSTANTE = new Constantes();
 
 class Session {
 	/**
@@ -28,7 +31,7 @@ class Session {
 	 *   "authentification": {
 	 *     // fabrique charge de la creation de l'autentificateur
 	 *    "factory": "factory",
-	 *    // configuration passee a la fabrique (type authetificateur + params d'initialisation)
+	 *    // configuration passee a la fabrique: type authentificateur + params d'initialisation
 	 *    "config": {
 	 *      "type": "FileLoginPwdAuthenticator",
 	 *      "params": "./users.json"
@@ -66,16 +69,29 @@ class Session {
 	 */
 	constructor(context){
 		this.context = context;
-		this.name = this.context.session.name;
+		this.name = context.session.name;
 		// creation dispositif d'authetification
-		var confAuth = this.context.authentification;
+		var confAuth = context.authentification;
 		console.log("factory: "+confAuth.factory);
 		var factory = BaseAuthentification.Authenticator.getFactory(confAuth.factory);
 		this.auth = factory(confAuth.config);
 		// creation de la ZC
-		var confZC = this.context.zc.config;
+		var confZC = context.zc.config;
 		this.ZC =new ZoneCollaborative(confZC);
 		this.ZC.session=this;	
+	}
+	
+	/**
+	 * liste des ids des articles de la session
+	 * 
+	 * @returns {Array} : liste des ids des articles de la ZC
+	 */
+	get artifactIds(){
+		var listIds=[];
+		if(this.ZC){
+			listIds = this.ZC.getAllArtifacts().map((a)=>{return a.getId()});
+		}
+		return listIds; 
 	}
 	
 	/**
@@ -84,6 +100,8 @@ class Session {
 	 * @returns {json} : contexte de la session
 	 */
 	toJSON() {
+		this.context.session.artifactIds = this.artifactIds;
+		this.context.session.name = this.name;
 		return this.context;
 	}
 	
@@ -94,10 +112,31 @@ class Session {
 	 * @returns {string} nom du fichier de sauvegarde
 	 */
 	saveSession(){
-		var filename = crypto.createHash('sha1').update(this.name,'utf8').digest('hex');
-		var stream = fs.createWriteStream("./sessions/"+filename);
-		stream.write(JSON.stringify(this, null, 2));
-		stream.close();
+		return new Promise((resolve, reject) => {
+			console.log('\n*** traitement de la demande de sauvegarde de sauvegarde la session='+this.name);		
+			console.log('*** creation du dossier de sauvegarde des sessions='+CONSTANTE.repSession);
+			fs.mkdir(CONSTANTE.repSession, (err) => {
+				if (err && err.code !== 'EEXIST'){
+					 console.log('*** erreur lor de la creation du dossier sauvegarde pour les sessions :'+err.code);
+					 reject(err);
+				} else {
+					  if (err) console.log('*** dossier de sauvegarde pour les sessions existe : '+err.code);
+					  else console.log('*** dossier de sauvegarde pour les sessions cree');
+					  var filename = crypto.createHash('sha1').update(this.name,'utf8').digest('hex');
+					  console.log('*** debut de la sauvegarde de la session '+this.name+' : '+CONSTANTE.repSession+filename);
+					  fs.writeFile(CONSTANTE.repSession+filename, JSON.stringify(this, null, 2), "utf8", 
+							  (err) => { 
+								  if (err) {
+									  console.log('*** erreur lor de la sauvegarde de la sessions '+this.name+' :'+err.code);
+									  reject(err);
+								  } else {
+									  console.log('*** fin de la sauvegarde de la sessions '+this.name+' : '+CONSTANTE.repSession+filename);
+									  resolve(filename)
+								  }
+								});
+				}
+			});
+		});
 	}
 	/**
 	 * Chargement d'une session precedente
