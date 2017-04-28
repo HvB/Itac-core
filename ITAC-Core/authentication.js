@@ -98,6 +98,20 @@ class YesAuthenticator extends Authenticator {
 }
 
 /**
+ * Authentificateurs qui refuse tout. 
+ * 
+ */
+class NoAuthenticator extends Authenticator {
+	
+	verifyCredential(credential ){
+		return undefined;
+	}
+	createCredential(uid){
+		return new LoginPwdCredential(uid);
+	}
+}
+
+/**
  * Classe pour le representation d'une base d'utilisateur de type login/mot de passe. 
  * 
  */
@@ -211,7 +225,7 @@ class FileLoginPwdAuthenticator extends LoginPwdAuthenticator {
 }
 
 // enregistrement de la liste des fournisseurs de service d'auhtentification
-Authenticator.registerAuthenticator({ YesAuthenticator:  YesAuthenticator, LoginPwdAuthenticator: LoginPwdAuthenticator, FileLoginPwdAuthenticator: FileLoginPwdAuthenticator });
+Authenticator.registerAuthenticator({ YesAuthenticator:  YesAuthenticator, NoAuthenticator:  NoAuthenticator, LoginPwdAuthenticator: LoginPwdAuthenticator, FileLoginPwdAuthenticator: FileLoginPwdAuthenticator });
 
 // fabrique d'authetificateur par defaut
 /**
@@ -228,7 +242,7 @@ var factory = function factory(config){
 	// configuration de l'authentificateur (depend du type d'authetificateur)
 	var params = config.params;
 	if (classname == "LoginPwdAuthenticator"){
-		return new LoginPwdAuthenticator(LoginPwdDB(params));
+		return new LoginPwdAuthenticator(new LoginPwdDB(params));
 	} else if (classname) {
 		return new (Authenticator.getAuthenticator(classname))(params);
 	}

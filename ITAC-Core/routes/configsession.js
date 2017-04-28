@@ -70,7 +70,14 @@ module.exports = function( ) {
 			var authFactory = tab.shift(); // on recupere le nom de la factory pour l'authentification et on l'enleve du tableau...
 			var authClass = tab.shift(); // on recupere le nom de la methode pour l'authentification et on l'enleve du tableau...
 			var authParams = tab.shift(); // on recupere les parametres pour la methode pour l'authentification et on l'enleve du tableau...
-			var sessionContext = JSON.parse('{ "session":{"name":"'+sessionName+'"},"authentification":{"factory":"'+authFactory+'","config": {"type":"'+authClass+'", "params":"'+authParams+'"}}}');
+			try {
+				let jsonParams=JSON.parse(authParams);
+				console.log('CLIENT configsession.js -> routage POST : les parametres d\'authentifications sont en JSON : '+authParams);
+				authParams=jsonParams;
+			} catch(e){
+				console.log('CLIENT configsession.js -> routage POST : les parametres d\'authentifications ne sont pas en JSON : '+e);
+			}
+			var sessionContext = { session:{name:sessionName},authentification:{factory:authFactory,config: {type:authClass, params:authParams}}};
 			var longueur=tab.length - 3 ; // on retire les 3 champs de la ZC (idZC, email, description)
 			var nombreZP= Math.floor(longueur/5); // il y a 5 champs par ZP
 			console.log('CLIENT configcollab.js -> routage POST : nb de ZP demandé ='+nombreZP);
