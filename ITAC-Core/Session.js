@@ -4,6 +4,7 @@
  * La session est construite en fonction du contexte passe au constructeur.
  * @requires ZoneCollaborative
  * @requires authentification
+ * @requires Constante
  * @requires crypto
  * @requires fs
  * 
@@ -17,11 +18,19 @@ const Constantes=require('./Constante');
 
 const CONSTANTE = new Constantes();
 
+/**
+ * Class pour la representation des Sessions. 
+ * La session est construite en fonction du contexte passe au constructeur.
+ * 
+ * @author Stephane Talbot
+ */
+
 class Session {
 	/**
 	 * Constructeur pour la session.
-	 * Le contexte de la session permet de construire le syteme d'authentification et la ZC de la session
+	 * Le contexte de la session permet de construire le systeme d'authentification et la ZC de la session
 	 * 
+	 * @example <caption>Session context example.</caption>
 	 * Exemple de contexte : 
 	 * { // config specifique a la session : le nom de la session
 	 *   "session": {
@@ -64,7 +73,6 @@ class Session {
 	 *  }
 	 *}
 	 * 
-	 * @constructor
 	 * @param {json} context: contexte de la session
 	 */
 	constructor(context){
@@ -109,7 +117,7 @@ class Session {
 	 * Methode de sauvegarde de la session (au format json) dans un fichier.
 	 * Le nom du fichier depend du nom de la session.
 	 * 
-	 * @returns {string} nom du fichier de sauvegarde
+	 * @returns {Promise} Si elle est tenue, la valeur de la promesse correspond au nom nom du fichier de sauvegarde
 	 */
 	saveSession(){
 		return new Promise((resolve, reject) => {
@@ -139,7 +147,7 @@ class Session {
 		});
 	}
 	/**
-	 * Chargement d'une session precedente
+	 * Chargement d'une session precedente.
 	 * 
 	 * @param {string} nom de la session a charger
 	 * @returns {Session} la session sauvegardee

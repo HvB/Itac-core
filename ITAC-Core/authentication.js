@@ -1,11 +1,28 @@
+/**
+ * Module de base pour le support de l'authentification.
+ * 
+ * @module
+ * 
+ * @requires crypto
+ * @requires fs
+ * 
+ * @author Stephane Talbot
+ */
 const fs = require('fs');
 const crypto = require('crypto');
 
 /**
- * Class abstraite pour la representation des infos d'authentification. 
+ * Class abstraite pour la representation des infos d'authentification.
+ * 
+  * @abstract 
  * 
  */
 class Credential {
+	/**
+	 * Constructeur par defaut.
+	 * 
+	 * @throws {TypeError} c'est une classe abstraite.
+	 */
 	constructor(){
 		if (this.constructor === Credential) {
 			throw new TypeError('Abstract class "Credential" cannot be instantiated directly.'); 
@@ -17,8 +34,16 @@ class Credential {
 /**
  * Class pour la representation des infos d'authentification de type login/mot de passe. 
  * 
+ * @augments {Credential}
+ * 
  */
 class LoginPwdCredential extends Credential {
+	/**
+	 * Constructeur.
+	 * 
+	 * @param login - the login 
+	 * @param pwd - the password 
+	 */
 	constructor(login, pwd, uid){
 		super();
 		this.login = login;
@@ -35,15 +60,36 @@ let _registred_authenticator_factories = {};
 /**
  * Class abstraite pour les authentificateurs. 
  * 
+  * @abstract 
+ * 
  */
 class Authenticator {
+	/**
+	 * Constructeur par defaut.
+	 * 
+	 * @throws {TypeError} c'est une classe abstraite.
+	 */
 	constructor(){
 		if (this.constructor === Authenticator) {
 			throw new TypeError('Abstract class "Authentificator" cannot be instantiated directly.'); 
 		}
 	}
+	/**
+	 * Methode permettant de verifier des informations d'authentifications.
+	 * 
+	 * @method 
+	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier
+	 * @returns 
+	 */
 	verifyCredential( credential){
 	}
+	/**
+	 * Methode statique d'enregistrer une ou plusieurs methodes d'authentification (an Authenticator).
+	 * 
+	 * @static
+	 * @method 
+	 * @param {Authenticator|Authenticator[]|Object.<key, Authenticator>} classes -classe ou liste de classes a enregistrer.
+	 */
 	static registerAuthenticator(classes){
 		if (classes && classes.prototype instanceof Authenticator){
 			_registred_authenticators[classes.name] = classes;
@@ -53,12 +99,34 @@ class Authenticator {
 			}
 		}
 	}
+	/**
+	 * Methode permettant d'obtenir la liste des methodes d'authentification enregistrées.
+	 * 
+	 * @method 
+	 * @static
+	 * @returns {string[]} la liste des methodes d'autentifications enregistrees
+	 */
 	static registredAuthenticators(){
 		return Object.keys(_registred_authenticators)
 	}
+	/**
+	 * Methode permettant d'obtenir une des methodes authentification enregistrées.
+	 * 
+	 * @method 
+	 * @static
+	 * @param {string} name - nom de la classes correspondant à la methode d'authentification
+	 * @returns {Authenticator}
+	 */
 	static getAuthenticator(name){
 		return _registred_authenticators[name]
 	}
+	/**
+	 * Methode statique d'enregistrer une ou plusieurs fabriques pour les methodes d'authentification.
+	 * 
+	 * @static
+	 * @method 
+	 * @param {function|function[]|Object.<key, function>} factories -fonction ou liste de fonctions a enregistrer.
+	 */
 	static registerFactory(factories){
 		if (factories && typeof factories == 'function'){
 			_registred_authenticator_factories[factories.name] = factories;
@@ -68,12 +136,36 @@ class Authenticator {
 			}
 		}
 	}
+	/**
+	 * Methode permettant d'obtenir la liste des fabriques enregistrées pour les methodes d'authentification.
+	 * 
+	 * @method 
+	 * @static
+	 * @returns {string[]} la liste des fabriques enregistrees
+	 */
 	static registredFactories(){
 		return Object.keys(_registred_authenticator_factories)
 	}
+	/**
+	 * Methode permettant d'obtenir une des fabriques enregistrées pour les methodes d'authentification.
+	 * 
+	 * @method 
+	 * @static
+	 * @param {string} name - nom de la fabrique recherche
+	 * @returns {function} la fabrique
+	 */
 	static getFactory(name){
 		return _registred_authenticator_factories[name]
 	}
+	/**
+	 * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications courrante..
+	 * 
+	 * @method 
+	 * @abstract
+	 * @param informations d'authentification
+	 * @returns {Credential} un credentaila adapté
+	 * @throws {Error} la classe est abtraite et la methode doit etre redefinie dans les sous classes.
+	 */
 	createCredential(){
 		throw new Error('Abstract method "createCredential" should be redefined in subclasses.');
 	}
@@ -82,9 +174,20 @@ class Authenticator {
 /**
  * Authentificateurs qui accepte tout. 
  * 
+ * @augments {Authenticator}
+ * 
  */
 class YesAuthenticator extends Authenticator {
 	
+	/**
+	 * Methode permettant de verifier des informations d'authentifications.
+	 * La reponse est toujours positive.
+	 * 
+	 * @method 
+	 * @override
+	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier
+	 * @returns 
+	 */
 	verifyCredential(credential ){
 		if ( credential instanceof Credential){
 			return credential.uid;
@@ -92,6 +195,14 @@ class YesAuthenticator extends Authenticator {
 			throw new TypeError('Invalid credential: '+credential); 
 		}
 	}
+	/**
+	 * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications courrante..
+	 * 
+	 * @method 
+	 * @override
+	 * @param uid - informations d'authentification
+	 * @returns {Credential} un credential adapte
+	 */
 	createCredential(uid){
 		return new LoginPwdCredential(uid);
 	}
@@ -100,19 +211,37 @@ class YesAuthenticator extends Authenticator {
 /**
  * Authentificateurs qui refuse tout. 
  * 
+ * @augments {Authenticator}
  */
 class NoAuthenticator extends Authenticator {
 	
+	/**
+	 * Methode permettant de verifier des informations d'authentifications.
+	 * La reponse est toujours negative.
+	 * 
+	 * @method 
+	 * @override
+	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier
+	 * @returns 
+	 */
 	verifyCredential(credential ){
 		return undefined;
 	}
+	/**
+	 * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications courrante..
+	 * 
+	 * @method 
+	 * @override 
+	 * @param uid - informations d'authentification
+	 * @returns {Credential} un credential adapté
+	 */
 	createCredential(uid){
 		return new LoginPwdCredential(uid);
 	}
 }
 
 /**
- * Classe pour le representation d'une base d'utilisateur de type login/mot de passe. 
+ * Classe pour la representation d'une base d'utilisateurs de type login/mot de passe. 
  * 
  */
 class LoginPwdDB {
@@ -158,8 +287,14 @@ class LoginPwdDB {
 /**
  * Authentificateur associe a une base de type login/mot de passe. 
  * 
+ * @augments {Authenticator}
  */
 class LoginPwdAuthenticator extends Authenticator {
+	/**
+	 * Constructeur par defaut.
+	 * 
+	 * @param {LoginPwdDB} userDB - fbase des couples login/mot de passe.
+	 */
 	constructor(userDB){
 		super();
 		if ( ! userDB instanceof LoginPwdDB) {
@@ -168,6 +303,15 @@ class LoginPwdAuthenticator extends Authenticator {
 			this.userDB = Object.freeze(userDB);
 		}
 	}
+	/**
+	 * Methode permettant de verifier des informations d'authentifications.
+	 * On verifie si le couple {login, password} du credential est dans la base d'utilisateurs.
+	 * 
+	 * @method 
+	 * @override
+	 * @param {LoginPwdCredential} credential - credential de l'utilisateur a authentifier
+	 * @returns 
+	 */
 	verifyCredential(credential ){
 		if ( credential instanceof LoginPwdCredential){
 			var hash = this.userDB.getPwdHash(credential.login);
@@ -207,6 +351,14 @@ class LoginPwdAuthenticator extends Authenticator {
 			throw new TypeError('Invalid credential: '+credential); 
 		}
 	}
+	/**
+	 * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications.
+	 * 
+	 * @method 
+	 * @param login - the login 
+	 * @param password - the password 
+	 * @returns {LoginPwdCredential} un credential adapté
+	 */
 	createCredential(login, password){
 		return new LoginPwdCredential(login, password);
 	}
@@ -215,11 +367,17 @@ class LoginPwdAuthenticator extends Authenticator {
 /**
  * Authentificateur associe a une base de type login/mot de passe, stockee dans un fichier. 
  * 
+ * @augments {LoginPwdAuthenticator}
  */
 class FileLoginPwdAuthenticator extends LoginPwdAuthenticator {
-	constructor(myfile){
-		console.log('password file : '+ myfile);
-		var data = fs.readFileSync(myfile, {flag:'r', encoding:'utf8'});
+	/**
+	 * Constructeur par defaut.
+	 * 
+	 * @param {string} path - fichier contenant la base des couples login/mot de passe (au format JSON).
+	 */
+	constructor(path){
+		console.log('password file : '+ path);
+		var data = fs.readFileSync(path, {flag:'r', encoding:'utf8'});
 		super(new LoginPwdDB(JSON.parse(data)));
 	}
 }
@@ -232,8 +390,8 @@ Authenticator.registerAuthenticator({ YesAuthenticator:  YesAuthenticator, NoAut
  * Factory for the authenticators. On cree l'autentificateur a partir du nom
  * de sa classe et de sa configuration.
  * 
- * @param {json}
- *            configuration de l'authenticator
+ * @function
+ * @param {json} configuration de l'authenticator
  * @return {Authenticator} instance cree
  */
 var factory = function factory(config){
