@@ -1,6 +1,4 @@
 
-
-
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
@@ -8,13 +6,11 @@ var server = require('http').createServer(app);
 
 var http2 = require('http');
 
-
 var fs = require ('fs');
 var util = require ("util");
 var ZP = require('./ZonePartage');
 var ZC = require("./ZoneCollaborative");
 var Constantes = require('./Constante');
-
 
 //création des constantes
 var CONSTANTE = new Constantes();
@@ -57,111 +53,34 @@ var Serveur = function(ZP, port) {
 	 */
 	this.clientZAsocket = 0;
 	
-/*
-	var srv = require('http').createServer(function(req, res) {	
-		  res.writeHead(200, {'Content-Type': 'text/plain'});
-		  res.end('Socket OK!');
-		}).listen(this.port);
-	
-	//, this.address, 512, function(){ console.log('    ---- Server HTTP en ecoute sur port ' + port);});
-	/
-
-
-	// mise en ecoute de la socket sur le port passé en parametre
-	this._io = require('socket.io')(srv);
-		/* , function() {
-		console.log('    ---- Socket en ecoute sur port ' + port);
-	});
-		*/
-	
+	// lancement serveur socket
 	console.log("       ---- Creation d'un serveur pour la ZP (" + ZP.getId()+ ") sur le port " + port);
-	
 	var srv=http2.createServer();
 	srv.listen(this.port, function () {
-	  console.log('Server listening at port %d', port);
+	    console.log("       ---- Serevur en ecoute sur %d", port);
 	});
 	this._io = require('socket.io').listen(srv,function () {
 		console.log('    ---- Socket en ecoute sur port ' + port);
 	});
 	this._io.origins('*:*');
 	
-	/*
-	
-	this._io = require('socket.io')(server);
-	
-	this._io.origins('*:*');
 
-	server.listen(port, function () {
-	  console.log('Server listening at port %d', port);
-	});
-	*/
-	/*
-	var srv = http.createServer(function(req, res) {
-		  res.writeHead(200);
-		  res.end('Le serveur fonctionne.');
-		});
-	srv.listen(this.port, function() {
-		console.log('       ---- Server HTTP en ecoute sur port ' + port);
-	});
-	*/
-	//var srv = http.createServer(app);
-//	var srv = app.listen(port,function() {
-//		console.log('    ---- Serveur en ecoute sur port ' + port);
-//	});
-//	var io = require('socket.io')(app);
+	console.log('       ---- Socket [ok] ');
 	
-	// mise en ecoute de la socket sur le port passé en parametre
-	/*this._io = require('socket.io').listen(srv, function() {
-		console.log('    ---- Socket en ecoute sur port ' + port);
-	});*/
-	
-	// mise en ecoute de la socket sur le port passé en parametre
-/*	var allowedOrigins = "*:*";
-	var path ='/collab'; // you need this if you want to connect to something other than the default socket.io path
-
-	this._io = io(srv, {origins: allowedOrigins},function() {
-		console.log('    ---- Socket en ecoute sur port ' + port);
-	});
-*/	
-	console.log('       ---- Socket ok ');
-	
-	//this._io.origins('*:*');
 
 	
-/*	this._io = require('socket.io')(srv,function() {
-	
-		console.log('    ---- Socket en ecoute sur port ' + port);
-	});
-	*/
-	//this._io.origins('*:*');
-	//this._io.attach(srv);
-/*	
-	this._io.set('transports', [                     // enable all transports (optional if you want flashsocket)
-	                                                       'websocket'
-	                                                       , 'flashsocket'
-	                                                       , 'htmlfile'
-	                                                       , 'xhr-polling'
-	                                                       , 'jsonp-polling'
-	                                                     ]);
-	this._io.set('origins', '*:*');
-
-	
-
-*/
-
-	
-	// declenchement de la fonction de traitement à l'arrivee d'une demande de connexion CONSTANTE.EVT_ConnexionSocketZEP
+	// declenchement de la fonction de traitement à l'arrivee d'une demande de connexion de socket d'une tablette :CONSTANTE.EVT_ConnexionSocketZEP
 	this._io.sockets.on('connection', (function (socket) {
 		
-		console.log('    -----------------------------------------------------------------------');	    
-		console.log('    ---- Arrive demande Connection SOCKET ----- ID='+socket.id);
-		console.log('    -----------------------------------------------------------------------');
+		console.log('    --------------------------------------------------------------------------------');	    
+		console.log('    ---- Arrive d une demande de connection --- SOCKET ID='+socket.id+' ---');
+		console.log('    --------------------------------------------------------------------------------');
 		
 		this.traitementSurConnexion(socket);
 		
 		
-		
 	}).bind(this));
+	
 /* DEPRECATED
 	this._io.sockets.on('disconnect', (function() {
 
@@ -180,11 +99,16 @@ module.exports = Serveur;
 
 
 /**
-*/
+ *  retour l'identifiant de soket de la zone d'affichage
+ */
 Serveur.prototype.getSocketZA = function(){
 	return this.clientZAsocket;
 };
 
+
+/**
+ *  Indique si la ZA est connecté à la socket
+ */
 Serveur.prototype.isZAConnected = function() {
 	return (this.clientZAsocket !== 0);
 };
@@ -366,6 +290,8 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
  	
 	/*
 	 * 7 - demande de deconnexion
+	 *     cet evenement est envoye par une ZEp (tablette) lorsque qu'un utilisateur se deconnecte
+	 *     la ZE de l'utilisateur est alors supprime ainsi que tous les artefacts qu'elle contient
 	 */
 
 	socket.on(CONSTANTE.EVT_SuppressZEinZP, (function (pseudo, idZE) {
@@ -577,16 +503,16 @@ Serveur.prototype.envoiArtefacttoZP = function (socket,idAr,idZE,idZP)
 	var id= this.getZESocketId(idZE);
 	this._io.sockets.to(id).emit(CONSTANTE.EVT_EnvoieArtefactdeZEversZP, idAr,idZE );
 
-	
 };
 
 /**
- * cette fonction traite la recéption d'un artefact de la Zone d'Echange Personnelle vers la zone d'Echange
+ * cette fonction traite la reception d'un artefact de la Zone d'Echange Personnelle vers la zone d'Echange
  * 
  * @param {socket} socket
  * @param {string} idZEP
  * @param {string} IdZE
  * @param {string} artefactenjson
+ * 
  * @author philippe pernelle 
  */
 Serveur.prototype.receptionArtefactIntoZE = function(socket, pseudo, idZEP, idZE, artefactenjson) {
@@ -611,18 +537,18 @@ Serveur.prototype.receptionArtefactIntoZE = function(socket, pseudo, idZEP, idZE
 			console.log('    ---- socket : envoi à IHM [EVT_ReceptionArtefactIntoZE]  ('+idZE+") --->"+chaineJSON);
 			}	
 		else
-			{ console.log('    ---- socket : pas d IHM pour [EVT_ReceptionArtefactIntoZE] '); }
-		
+			{ console.log('    ---- socket : pas d IHM pour [EVT_ReceptionArtefactIntoZE] '); }		
 		}
 };
 
 /**
- * cette fonction traite la recéption d'un artefact de la Zone d'Echange Personnelle (ZEP) vers la zone de partage (ZP)
+ * cette fonction traite la réception d'un artefact de la Zone d'Echange Personnelle (ZEP) vers la zone de partage (ZP)
  * 
  * @param {socket} socket
  * @param {string} idZEP
  * @param {string} IdZE
  * @param {string} artefactenjson
+ * 
  * @author philippe pernelle 
  */
 Serveur.prototype.receptionArtefactIntoZP = function(socket, pseudo, idZEP, idZE,  artefactenjson) {
@@ -761,24 +687,29 @@ Serveur.prototype.suppresArtefactFromZP = function (socket, idAr)
 }
 
 
-/** cette fonction traite la deconnexion
+/** 
+ * Cette fonction traite la deconnexion d'une ZE . Elle supprime la ZE et tous les artefact contenu et 
+ * informe la ZA
  * 
+ * @param {socket} socket - identifiant de la socket connecté
+ * @param {string} pseudo - pseudo connecté
+ * @param {string} idZE - identifiant de la ZE à deconnecter
  * 
- * 
+ * @author philippe pernelle 
  */
 
 Serveur.prototype.deconnexion = function (socket,pseudo, idZE)
 
 {
-	// il faut liberer la zone echange 
-	
+
 	//je récupere la socket de la ZE recherché
 	//var idsock= getZESocketId(idZE);
-	
-	console.log("    ---- socket : suppresion de la liste des ZE de la ZP ZE=" +idZE);
+	var artifactsSendInfoEP = [];
+		
+	console.log("    ---- socket : suppresion de la liste des ZE pour la ZP courante de ZE=" +idZE);
 	this.ZP.destroyZE(idZE);
 	
-	console.log("    ---- socket : suppresion de la liste des ZE de la ZC ZE=" +idZE);
+	console.log("    ---- socket : suppresion de la liste des ZE pour la ZC de ZE=" +idZE);
 	this.removeZEbyId(idZE);
 
 	// envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
@@ -786,7 +717,11 @@ Serveur.prototype.deconnexion = function (socket,pseudo, idZE)
 	if (this.isZAConnected())
 
 		{
-		this._io.sockets.to(this.getSocketZA()).emit("EVT_Deconnexion", pseudo , idZE);
+		
+		// evenement a utiliser ou alors considerer la regle de gestion suivante pour la ZA : si suppression ZE alors tous les artefacts en EP
+		//this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_EnvoieArtefactdeZEversEP, pseudo , idZE);
+		
+		this._io.sockets.to(this.getSocketZA()).emit(CONSTANTE.EVT_SuppressZEinZP, pseudo , idZE);
 
 		console.log('    ---- socket : suppression de ZE POUR IHM ='+idZE+"---"+pseudo);
 
