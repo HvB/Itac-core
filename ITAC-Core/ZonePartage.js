@@ -31,16 +31,24 @@ var CONSTANTE = new Constantes();
  * constructeur de ZonePartage
  *
  * @param  {string} idZP - identifiant de la ZP à créée
+ * @param  {string} type - type de la ZP (ecran, table)
  * @param  {integer} ZEmin - nombre minimun de ZoneEchange
  * @param  {integer} ZEmax - nombre maximum de ZoneEchange
  */
-var ZonePartage = function(ZC, idZP, nbZEmin, nbZEmax, urlWebSocket, portWebSocket)
+var ZonePartage = function(ZC, idZP, typeZP, nbZEmin, nbZEmax, urlWebSocket, portWebSocket)
 {
 
 	console.log('      ===========================');
 
 	this.ZC = ZC;
 	this.idZP = idZP;
+	
+	/**
+	 * type d'affichage de la Zone de partage
+	 * 
+	 * @private
+	 */
+	this.typeZP = typeZP;
 	
 	/**
 	 * nombre minimum de Zone d'Echange que l'on doit créer sur la Zone de partage
@@ -69,7 +77,7 @@ var ZonePartage = function(ZC, idZP, nbZEmin, nbZEmax, urlWebSocket, portWebSock
 	this.listeZE = [];
 
 	
-	console.log('      === ZonePartage | ZC parent = ' + this.ZC.getId()+ ' | IdZP = ' + this.idZP+ ' | nbZEMin = ' + this.nbZEmin+ ' | nbZEMax = ' + this.nbZEmax+ ' | port = ' + this.portWebSocket);
+	console.log('      === ZonePartage | ZC parent = ' + this.ZC.getId()+ ' | IdZP = ' + this.idZP+  ' | typeZP = ' + this.typeZP+ ' | nbZEMin = ' + this.nbZEmin+ ' | nbZEMax = ' + this.nbZEmax+ ' | port = ' + this.portWebSocket);
 	console.log('      === ZonePartage : Creation serveur socket ');
 
     this.server = new Serveur(this,portWebSocket);
@@ -81,6 +89,14 @@ var ZonePartage = function(ZC, idZP, nbZEmin, nbZEmax, urlWebSocket, portWebSock
 
 module.exports = ZonePartage;
 
+/**
+ * Retourne le type de ZP
+ *
+ */
+ZonePartage.prototype.getTypeZP = function()
+{
+	return this.typeZP;
+};
 
 /**
  * Retourne 

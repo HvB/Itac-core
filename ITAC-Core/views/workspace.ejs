@@ -2,12 +2,18 @@
 <html>
   <head>
     <title><%= title %></title>
-	         <% include enteteWorkspace %>
-             <% include connexionApp %>
-		<!-- TC: Script javascript qui se charge de la gestion des artefacts -->
-    	<script language="JavaScript" type="text/javascript" src="/js/artefactsApp.js"></script>
-		<!-- TC: Script javascript qui se charge de la gestion des zones d échanges -->
-    	<script language="JavaScript" type="text/javascript" src="/js/zoneEchangeApp.js"></script>
+    
+    <!-- PP : le code suivant integre toutes les bibliotheque necessaire au workspace -->
+    <% include enteteWorkspace %>
+	         
+    <!-- PP : le code suivant gere la connexion au serveur et les traitement des evenements echange avec le serveur -->
+	<% include connexionApp %>
+	
+	<!-- TC: Script javascript qui se charge de la gestion des artefacts -->
+    <script language="JavaScript" type="text/javascript" src="/js/artefactsApp.js"></script>
+    
+	<!-- TC: Script javascript qui se charge de la gestion des zones d échanges -->
+    <script language="JavaScript" type="text/javascript" src="/js/zoneEchangeApp.js"></script>
   </head>               
   <body id="ZP">
  	 <div id="menu" class="menu hand"></div>

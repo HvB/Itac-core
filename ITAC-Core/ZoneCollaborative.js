@@ -136,6 +136,7 @@ var ZoneCollaborative = function(parametreZC) {
 
 		// creation des ZP
 		this.listeZP[i] = new ZonePartage(this, parametreZC.ZP[i].idZP,
+												parametreZC.ZP[i].typeZP,
 												parametreZC.ZP[i].nbZEmin, parametreZC.ZP[i].nbZEmax,
 												parametreZC.ZP[i].urlWebSocket, parametreZC.ZP[i].portWebSocket);
 	}
@@ -167,12 +168,12 @@ ZoneCollaborative.prototype.getJSON = function() {
 		};
 		*/
 	// la premiere ZP est toujours présente
-	var paramZP = JSON.stringify({idZP:this.listeZP[0].idZP, typeZP:'' , nbZEmin:this.listeZP[0].ZEmin, nbZEmax:this.listeZP[0].ZEmax,urlWebSocket:this.listeZP[0].urlWebSocket,portWebSocket:this.listeZP[0].portWebSocket});
+	var paramZP = JSON.stringify({idZP:this.listeZP[0].idZP, typeZP:this.listeZP[0].typeZP , nbZEmin:this.listeZP[0].ZEmin, nbZEmax:this.listeZP[0].ZEmax,urlWebSocket:this.listeZP[0].urlWebSocket,portWebSocket:this.listeZP[0].portWebSocket});
 
 	for (var i=1; i<this.getNbZP() ; i++)
 	{
 		//paramZP=merge(paramZP, {idZP:tab[i], nbZEmin:tab[i+1], nbZEmax:tab[i+2]});
-		ajout = {idZP:this.listeZP[i].idZP, typeZP:'' , nbZEmin:this.listeZP[i].ZEmin, nbZEmax:this.listeZP[i].ZEmax,urlWebSocket:this.listeZP[i].urlWebSocket,portWebSocket:this.listeZP[i].portWebSocket};
+		ajout = {idZP:this.listeZP[i].idZP, typeZP:this.listeZP[i].typeZP , nbZEmin:this.listeZP[i].ZEmin, nbZEmax:this.listeZP[i].ZEmax,urlWebSocket:this.listeZP[i].urlWebSocket,portWebSocket:this.listeZP[i].portWebSocket};
 		paramZP = paramZP+','+JSON.stringify(ajout);			
 		console.log('i='+i+'ZP'+paramZP);				
 	}

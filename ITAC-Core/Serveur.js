@@ -219,7 +219,7 @@ Serveur.prototype.traitementSurConnexion = function(socket) {
 	socket.on(CONSTANTE.EVT_DemandeConnexionZA,  (function(urldemande,zpdemande ) {
 	   	console.log('******** '+CONSTANTE.EVT_DemandeConnexionZA+' ***** ---- Demande de connexion d une ZA ( ' +urldemande +' ) avec IP= ' + clientIp +' et ZP demande= '+zpdemande);
 	    this.demandeConnexionZA(socket,urldemande,zpdemande);  	
-	    console.log('******** FIN TRAITEMENT DE :'+CONSTANTE.EVT_DemandeConnexionZEP+' ***** ');
+	    console.log('******** FIN TRAITEMENT DE :'+CONSTANTE.EVT_DemandeConnexionZA+' ***** ');
 	 }).bind(this));
 	
 	/* 

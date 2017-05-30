@@ -18,6 +18,9 @@
 var paramZAITAC = [];
 // contennu du tableau : taille en largeur , taille en hauteur, nb de ZE max en largeur, nb ZE max en hauteur, % de l'espacement , hauteur de la ZE 
 paramZAITAC['Table1'] = new Array(1920,1080,5,2,20,70); 
+paramZAITAC['Table2'] = new Array(1920,1080,5,2,20,70); 
+paramZAITAC['Table3'] = new Array(1920,1080,5,2,20,70); 
+paramZAITAC['Ecran1'] = new Array(1920,1080,5,2,20,70); 
  
 
 // nb de ZE à placer dans une hauteur et dans une largeur 
