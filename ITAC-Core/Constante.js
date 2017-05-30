@@ -81,9 +81,15 @@ Constante = function()
 	this.EVT_EnvoieArtefactdeZEversZP='EVT_Envoie_ArtefactdeZEversZP';
 	this.EVT_EnvoieArtefactdeZPversZE='EVT_Envoie_ArtefactdeZPversZE';
 	/**
-	 * evenement envoye par ZEP quand une on remet une 
+	 * evenement envoye par ZEP quand une on remet un artefact dans l espace personnelle
 	 */
 	this.EVT_EnvoieArtefactdeZEversEP='EVT_Envoie_ArtefactdeZEversEP';
+	
+	/**
+	 * evenement envoye par le serveur vers la ZA en ca de deconnexion
+	 */
+	this.EVT_EnvoieArtefactdeZEversEP='EVT_Envoie_TousLesArtefactdeZEversEP';
+	
 	
 	/**
 	 * 

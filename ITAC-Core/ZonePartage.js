@@ -233,20 +233,27 @@ return ret;
 };
 
 /**
- * suppresion  d'une Zone d'Echange (ZE) associée à une ZEP (tablette)
+ * suppression d'une Zone d'Echange (ZE) connectée qui est associée à une ZEP (tablette)
+ * et suppression de tous les artefacts contenu dans cette ZE
  * 
- * @param {string} idZEP identifiant de la tablette
+ * @param {string} idZE identifiant de la zone d'échange à supprimer
+ *
  * @autor philippe pernelle
  */
 
 ZonePartage.prototype.destroyZE = function(idZE) {
-	
-	for (var i=0; i  <this.listeZE.length ; i ++)
+		
+	for (var i=0; i <this.listeZE.length ; i ++)
 	{
-
 	if (this.listeZE[i].getId()===idZE)
 		{
+		// avant de supprimer la ZE, il faut supprimer les artefact
+		console.log('      === ZonePartage : suppression des artefacts d une ZE ('+idZE +')  ' );
+		this.ZC.suppresAllArtifactsInZE(idZE);
+		console.log('      === ZonePartage : suppression des artefacts d une ZE ('+idZE +')  [ok] ' );
+		
 		this.listeZE.splice(i,1);
+		console.log('      === ZonePartage : suppression d une ZE ('+idZE +')  nouveau nb de ZE=' +this.listeZE.length);
 		}
 	}
 }

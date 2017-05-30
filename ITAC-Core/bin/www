@@ -1,7 +1,9 @@
 //#!/usr/bin/env node
 
-
-
+console.log("*******************************************************");
+console.log("**************** application ITAC *********************");
+console.log("*******************************************************");
+console.log();
 /**
  * Module dependencies.
  */
@@ -16,8 +18,6 @@ var http = require('http');
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-
-console.log("************ ITAC *********************");
 
 
 /**
@@ -36,6 +36,8 @@ server.on('error', onError);
 server.on('listening', onListening);
 console.log("ITAC : serveur HTTP principal en ecoute sur port "+port);
 
+console.log("*******************************************************");
+console.log();
 /**
  * Normalize a port into a number, string, or false.
  */

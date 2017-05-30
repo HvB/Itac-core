@@ -1,3 +1,6 @@
+/**
+ * Application principale lancee sur le serveur HTTP 
+ */
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -43,6 +46,9 @@ app.all('*', function(req, res, next) {
 		res.header("Access-Control-Allow-Headers", "Authorization, X-Requested-With, Content-Type"); 
 	   next();
 	});
+
+
+/* Configuration des routes*/
 
 app.use('/', routes);
 app.use('/users', users);
