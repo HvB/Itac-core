@@ -4,20 +4,50 @@
     <title><%= title %></title>
     
     <!-- PP : le code suivant integre toutes les bibliotheque necessaire au workspace -->
-    <% include enteteWorkspace %>
+    <link rel="stylesheet"  href="/stylesheets/styleClientCollab.css">
+
+	<link rel="stylesheet" 	href="/javascripts/jquery-ui-1.11.4/jquery-ui.theme.css">
+	<link rel="stylesheet" 	href="/javascripts/jquery-ui-1.11.4/jquery-ui.structure.css">
+    
+    <script language="JavaScript" type="text/javascript" src="/jquery/dist/jquery.min.js"></script>
+  	<script language="JavaScript" type="text/javascript" src="/javascripts/jquery-ui-1.11.4/jquery-ui.js"></script>
+  	
+    <script language="JavaScript" type="text/javascript" src="/socket.io-client/socket.io.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/javascripts/interact.js"></script> 
+    <script language="JavaScript" type="text/javascript" src="/javascripts/html2canvas.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/javascripts/filesaver.min.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/javascripts/key-event.js"></script>
+    
+    <!-- tools générique utilisable sur toute les pages -->
+    <script language="JavaScript" type="text/javascript" src="/javascripts/toolsITAC.js"></script>
+
+    <script language="JavaScript" type="text/javascript" src="/js/menuApp.js"></script>
 	         
-    <!-- PP : le code suivant gere la connexion au serveur et les traitement des evenements echange avec le serveur -->
-	<% include connexionApp %>
+    <!-- PP : extrait les parametre passe  -->
+    <script>
+	    var urldemande = '<%= urldemande %>';
+		var zpdemande = '<%= myZP %>';
+		var rang= '<%= rangZP %>';
+		
+		var myZC = {};
+		var ZEmax= '<%= NbZEMax %>';;
+	</script>
+		
+
+	<!-- PP : le code suivant gere la connexion au serveur et les traitement des evenements echange avec le serveur -->
+	<script language="JavaScript" type="text/javascript" src="/js/connexionApp.js"></script>	
 	
 	<!-- TC: Script javascript qui se charge de la gestion des artefacts -->
     <script language="JavaScript" type="text/javascript" src="/js/artefactsApp.js"></script>
     
 	<!-- TC: Script javascript qui se charge de la gestion des zones d échanges -->
     <script language="JavaScript" type="text/javascript" src="/js/zoneEchangeApp.js"></script>
-  </head>               
+ 
+  </head>  
+  
   <body id="ZP">
  	 <div id="menu" class="menu hand"></div>
-   <!-- TC: Petite subtilité pour changer le fond: bouton invisible qui permet d'ouvrir une sélection de fichier lorsqu'on est sur le menu change-->
+ 	 	<!-- TC: Petite subtilité pour changer le fond: bouton invisible qui permet d'ouvrir une sélection de fichier lorsqu'on est sur le menu change-->
         <input id="file" style="display:none;" type="file" multiple/>   
   </body > 
 </html>

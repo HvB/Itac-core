@@ -74,8 +74,8 @@ Constante = function()
 	
 	this.EVT_ReponseOKConnexionZEP ='EVT_ReponseOKConnexionZEP';
 	this.EVT_ReponseNOKConnexionZEP ='EVT_ReponseNOKConnexionZEP';
-	this.EVT_ReceptionArtefactIntoZE ='EVT_ReceptionArtefactIntoZE';
-	this.EVT_ReceptionArtefactIntoZP ='EVT_ReceptionArtefactIntoZP';
+	
+	
 	this.EVT_ReceptionArtefactMessage ='EVT_ReceptionArtefactMessage';
 	this.EVT_ReceptionArtefactImage ='EVT_ReceptionArtefactImage';
 	this.EVT_EnvoieArtefactdeZEversZP='EVT_Envoie_ArtefactdeZEversZP';
@@ -96,7 +96,7 @@ Constante = function()
 	 */
 	this.EVT_ArtefactDeletedFromZE='EVT_ArtefactDeletedFromZE';
 
-	this.EVT_ReceptionArtefactIntoZE ='EVT_ReceptionArtefactIntoZE';
+	
 	
 	/**
 	 * cet evenement est envoyé par le serveur quand une nouvelle demande de connexion
@@ -113,11 +113,30 @@ Constante = function()
 	 * cet evenement est envoyé par le serveur quand une tablette se déconnecte 
 	 */	
 	this.EVT_SuppressZEinZP='EVT_Deconnexion';	
+	
 	/**
-	 * cet evenement est envoyé par le serveur quand un nouvelle artefact a été crée dans la ZE 
+	 * cet evenement est envoyé par la tablette quand un nouvel artefact a été crée (déposé) dans la ZE 
+	 * -> utilisé dans ITAC-Core-Android / app / src / main / java / fr / learning_adventure / android / itac / model / ItacConstant.java
 	 */		
 	this.EVT_NewArtefactInZE='EVT_NewArtefactInZE'; 
+	
+	/**
+	 * cet evenement est envoyé par le serveur de socket à la ZA quand un artefact est déposé dans la ZE 
+	 * il est aussi renvoyé à la tablette comme acquittement à EVT_NewArtefactInZE
+	 */	
+	this.EVT_ReceptionArtefactIntoZE ='EVT_ReceptionArtefactIntoZE';
+	
+	/**
+	 * cet evenement est envoyé par la tablette quand un nouvel artefact a été crée (déposé) dans la ZP
+	 * -> utilisé dans ITAC-Core-Android / app / src / main / java / fr / learning_adventure / android / itac / model / ItacConstant.java
+	 */		
 	this.EVT_NewArtefactInZP='EVT_NewArtefactInZP';
+	
+	/**
+	 * cet evenement est envoyé par le serveur de socket à la ZA quand un artefact est déposé dans la ZP 
+	 * il est aussi renvoyé à la tablette comme acquittement à EVT_NewArtefactInZP
+	 */	
+	this.EVT_ReceptionArtefactIntoZP ='EVT_ReceptionArtefactIntoZP';
 	
 	/**
 	 * cet evenement est envoyé par la ZA pour envoyer un artifact d'une ZP vers une autre ZP
