@@ -69,4 +69,7 @@ class UsmbLdapAuthenticator extends LdapAuthenticator {
 //var p1=ldapAuth.verifyCredential(ldapAuth.createCredential('stalb', 'password'));
 //var p2=ldapAuth.verifyCredential(ldapAuth.createCredential('Stephane Talbot', 'password'));
 //
+// Enregistrement de l'authentificateur
+UsmbLdapAuthenticator.registerAuthenticator(UsmbLdapAuthenticator)
+
 module.exports=UsmbLdapAuthenticator;

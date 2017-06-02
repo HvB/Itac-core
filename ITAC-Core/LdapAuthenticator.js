@@ -9,7 +9,7 @@
  * @author Stephane Talbot
  */
 const ldap = require('ldapjs');
-const BaseAuthentification = require("./authentication");
+const BaseAuthentication = require('./authentication');
 
 /**
  * Authentificateur associe a un annuaire LDAP. 
@@ -21,7 +21,7 @@ const BaseAuthentification = require("./authentication");
  * @augments {LoginPwdAuthenticator}
  * @author Stephane Talbot
  */
-class LdapAuthenticator extends BaseAuthentification.LoginPwdAuthenticator {
+class LdapAuthenticator extends BaseAuthentication.LoginPwdAuthenticator {
 	/**
 	 * Constructeur par defaut.
 	 * 
@@ -133,4 +133,8 @@ class LdapAuthenticator extends BaseAuthentification.LoginPwdAuthenticator {
 // xx1 = client2.search('ou=people,ou=uds,dc=agalan,dc=org', {filter:'(sn=carron)',scope:'one'},(x,v)=>{console.log(x);v.on('searchEntry', (r)=>{console.log(r.object);});})
 // xx2 = client2.bind('uid=stalb,ou=people,ou=uds,dc=agalan,dc=org', 'xxxx', (err)=>{console.log("xx: "+err);})
 // xx3 = client2.search('ou=people,ou=uds,dc=agalan,dc=org', {filter:'(&(sn=carron)(ou=iut-chy))',scope:'one',attributes:['dn','sn','cn']},(x,v)=>{console.log(x);v.on('searchEntry', (r)=>{console.log(r.object);});})
+
+//Enregistrement de l'authentificateur
+BaseAuthentication.Authenticator.registerAuthenticator(LdapAuthenticator)
+
 module.exports=LdapAuthenticator;
