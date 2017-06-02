@@ -432,8 +432,6 @@ var factory = function factory(config){
 	}
 }
 
-/*
-
 // enregistrement de la fabrique
 Authenticator.registerFactory(factory);
 
@@ -443,6 +441,8 @@ console.log('Factories: '+Authenticator.registredFactories());
 
 module.exports = {Authenticator, YesAuthenticator, LoginPwdCredential, 
 		LoginPwdAuthenticator, LoginPwdDB, FileLoginPwdAuthenticator};
+
+/*
 
 //Exemples d'utilisations : 
 
