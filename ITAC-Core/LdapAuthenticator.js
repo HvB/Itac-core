@@ -4,8 +4,9 @@ const BaseAuthentification = require("./authentication");
 class LdapAuthenticator extends BaseAuthentification.LoginPwdAuthenticator {
 	constructor(ldapConfig){
 		super();
-		this.ldapClient = ldap.createClient(ldapConfig.config);
+		//this.ldapClient = ldap.createClient(ldapConfig.config);
 		this.ldapBaseDN = ldapConfig.baseDn;
+		this.ldapConfig=ldapConfig.config;
 	}
 	/**
 	 * Methode permettant de verifier des informations d'authentifications (version synchrone).
@@ -24,25 +25,27 @@ class LdapAuthenticator extends BaseAuthentification.LoginPwdAuthenticator {
 	 * Methode permettant de verifier des informations d'authentifications (version asynchrone).
 	 * 
 	 * @method 
-	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier
-	 * @returns {Promise} une promesse contenant l'id de l'utilisteur en cas de succesn 
-	 * @throws {Error} si la verification synchrone n'est pas supportee.
+	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier (dn + password)
+	 * @returns {Promise} une promesse contenant le dn de l'utilisteur en cas de succes. 
 	 */
 	verifyCredential(credential ){
 		let promise =  new Promise((resolve, reject) => {
 			if ( credential instanceof BaseAuthentification.LoginPwdCredential){
 				if (credential.password){
 					//let dn = 'uid='+credential.login+','+this.ldapBaseDN;
+					let ldapClient = ldap.createClient(this.ldapConfig);
 					let dn = credential.login;
 					console.log('dn:'+dn)
 					let password = credential.password;
-					this.ldapClient.bind(dn, password, (err)=>{
+					// this.ldapClient.bind(dn, password, (err)=>{
+					ldapClient.bind(dn, password, (err)=>{
 						if (err ){
 							 console.log('*** error durinf LDAP credential verification :'+err);
 							 reject(err);
 						} else {
 							resolve(credential.login);
 						}
+						ldapClient.unbind();
 					});
 				} else {
 					console.log('*** LDAP authenticator, credential verification: empty password ');
@@ -55,6 +58,41 @@ class LdapAuthenticator extends BaseAuthentification.LoginPwdAuthenticator {
 		});
 		return promise;
 	}
+	/**
+	 * Methode permettant de rechercher des informations dans l'annuaire ldap.
+	 * 
+	 * @method 
+	 * @private
+	 * @param {string} request - requete LDAP
+	 * @returns {Promise} une promesse contenant la liste des dn correspondant au resultat de la requete. 
+	 */
+	search(request){
+		let promise =  new Promise((resolve, reject) => {
+			let res = [];
+			let ldapClient = ldap.createClient(this.ldapConfig);
+			ldapClient.search(this.ldapBaseDN, 
+					{	filter:request,
+						scope:'sub',
+						attributes:['dn']
+					},
+					(x,v)=>{
+						console.log(x);
+						v.on('searchEntry', (r)=>{console.log(r.object); res.push(r.object.dn); });
+						v.on('end', (r)=>{console.log('status: '+r);  ldapClient.unbind(); resolve(res); });
+						v.on('error', (err)=>{console.log('error: '+err); reject(err); });
+					});
+		});
+		return promise;
+	}
 }
-
+// var LdapAuthenticator=require("./LdapAuthenticator.js");
+// ldapAuth = new LdapAuthenticator({baseDn:'ou=people,ou=uds,dc=agalan,dc=org', config:{url:'ldap://ldap-bourget.univ-savoie.fr'}});
+// ldapAuth = new LdapAuthenticator({baseDn:'ou=people,ou=uds,dc=agalan,dc=org', config:{url:'ldaps://ldap-bourget.univ-savoie.fr', tlsOptions:{rejectUnauthorized:false,ciphers:"SSLv3"}}});
+// var p1=ldapAuth.verifyCredential(ldapAuth.createCredential('uid=stalb,ou=people,ou=uds,dc=agalan,dc=org', 'kk'));
+//
+// var ldapjs=require('ldapjs');
+// client2=ldapjs.createClient({url:'ldaps://ldap-bourget.univ-savoie.fr', tlsOptions:{rejectUnauthorized:false,ciphers:"SSLv3"}});
+// xx1 = client2.search('ou=people,ou=uds,dc=agalan,dc=org', {filter:'(sn=carron)',scope:'one'},(x,v)=>{console.log(x);v.on('searchEntry', (r)=>{console.log(r.object);});})
+// xx2 = client2.bind('uid=stalb,ou=people,ou=uds,dc=agalan,dc=org', 'xxxx', (err)=>{console.log("xx: "+err);})
+// xx3 = client2.search('ou=people,ou=uds,dc=agalan,dc=org', {filter:'(&(sn=carron)(ou=iut-chy))',scope:'one',attributes:['dn','sn','cn']},(x,v)=>{console.log(x);v.on('searchEntry', (r)=>{console.log(r.object);});})
 module.exports=LdapAuthenticator;
