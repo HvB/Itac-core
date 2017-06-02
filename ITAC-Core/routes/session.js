@@ -21,6 +21,11 @@ module.exports = function( ) {
 	  	 
 	    	
 	    	var name= req.params.name ;
+
+	    	var host = req.headers.host;
+			var splithost=host.split(":");    	
+	    	var url='http://'+splithost[0];
+
 	    	console.log('CLIENT session.js -> routage GET , session_name = '+name);	    	
 	    	
 	    	if (name) {
@@ -32,7 +37,7 @@ module.exports = function( ) {
 	    	}
 	
 	
-	  	  	res.render('collab', { title: 'Express', ipserver:'http://localhost:8080', zonecollab : session.context.zc.config });
+	  	  	res.render('collab', { title: 'Express', ipserver:url, zonecollab : session.context.zc.config });
 	  	} );
 	
 	
