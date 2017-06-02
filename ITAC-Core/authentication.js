@@ -1,11 +1,28 @@
+/**
+ * Module de base pour le support de l'authentification.
+ * 
+ * @module
+ * 
+ * @requires crypto
+ * @requires fs
+ * 
+ * @author Stephane Talbot
+ */
 const fs = require('fs');
 const crypto = require('crypto');
 
 /**
- * Class abstraite pour la representation des infos d'authentification. 
+ * Class abstraite pour la representation des infos d'authentification.
+ * 
+  * @abstract 
  * 
  */
 class Credential {
+	/**
+	 * Constructeur par defaut.
+	 * 
+	 * @throws {TypeError} c'est une classe abstraite.
+	 */
 	constructor(){
 		if (this.constructor === Credential) {
 			throw new TypeError('Abstract class "Credential" cannot be instantiated directly.'); 
@@ -17,8 +34,16 @@ class Credential {
 /**
  * Class pour la representation des infos d'authentification de type login/mot de passe. 
  * 
+ * @augments {Credential}
+ * 
  */
 class LoginPwdCredential extends Credential {
+	/**
+	 * Constructeur.
+	 * 
+	 * @param login - the login 
+	 * @param pwd - the password 
+	 */
 	constructor(login, pwd, uid){
 		super();
 		this.login = login;
@@ -35,15 +60,58 @@ let _registred_authenticator_factories = {};
 /**
  * Class abstraite pour les authentificateurs. 
  * 
+  * @abstract 
+ * 
  */
 class Authenticator {
+	/**
+	 * Constructeur par defaut.
+	 * 
+	 * @throws {TypeError} c'est une classe abstraite.
+	 */
 	constructor(){
 		if (this.constructor === Authenticator) {
 			throw new TypeError('Abstract class "Authentificator" cannot be instantiated directly.'); 
 		}
 	}
-	verifyCredential( credential){
+	/**
+	 * Methode permettant de verifier des informations d'authentifications (version synchrone).
+	 * 
+	 * @deprecated
+	 * @method 
+	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier
+	 * @returns id de l'utilisteur en cas de succes, undefined sinon 
+	 * @throws {Error} - si la verification synchrone n'est pas supportee.
+	 */
+	verifyCredentialSync( credential){
+		throw new Error('unsupported.');
 	}
+	/**
+	 * Methode permettant de verifier des informations d'authentifications (version asynchrone).
+	 * Par defaut la version asynchrone utilise la version synchrone...
+	 * 
+	 * @method 
+	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier
+	 * @returns {Promise} une promesse contenant l'id de l'utilisteur en cas de succesn 
+	 * @throws {Error} si la verification synchrone n'est pas supportee.
+	 */
+	verifyCredential( credential){
+		return new Promise((resolve, reject) => {
+			let res = this.verifyCredentialSync( credential);
+			if (res){
+				resolve(res);
+			} else {
+				reject(res);
+			}
+		});
+	}
+	/**
+	 * Methode statique d'enregistrer une ou plusieurs methodes d'authentification (an Authenticator).
+	 * 
+	 * @static
+	 * @method 
+	 * @param {Authenticator|Authenticator[]|Object.<key, Authenticator>} classes -classe ou liste de classes a enregistrer.
+	 */
 	static registerAuthenticator(classes){
 		if (classes && classes.prototype instanceof Authenticator){
 			_registred_authenticators[classes.name] = classes;
@@ -53,12 +121,34 @@ class Authenticator {
 			}
 		}
 	}
+	/**
+	 * Methode permettant d'obtenir la liste des methodes d'authentification enregistrées.
+	 * 
+	 * @method 
+	 * @static
+	 * @returns {string[]} la liste des methodes d'autentifications enregistrees
+	 */
 	static registredAuthenticators(){
 		return Object.keys(_registred_authenticators)
 	}
+	/**
+	 * Methode permettant d'obtenir une des methodes authentification enregistrées.
+	 * 
+	 * @method 
+	 * @static
+	 * @param {string} name - nom de la classes correspondant à la methode d'authentification
+	 * @returns {Authenticator}
+	 */
 	static getAuthenticator(name){
 		return _registred_authenticators[name]
 	}
+	/**
+	 * Methode statique d'enregistrer une ou plusieurs fabriques pour les methodes d'authentification.
+	 * 
+	 * @static
+	 * @method 
+	 * @param {function|function[]|Object.<key, function>} factories -fonction ou liste de fonctions a enregistrer.
+	 */
 	static registerFactory(factories){
 		if (factories && typeof factories == 'function'){
 			_registred_authenticator_factories[factories.name] = factories;
@@ -68,12 +158,36 @@ class Authenticator {
 			}
 		}
 	}
+	/**
+	 * Methode permettant d'obtenir la liste des fabriques enregistrées pour les methodes d'authentification.
+	 * 
+	 * @method 
+	 * @static
+	 * @returns {string[]} la liste des fabriques enregistrees
+	 */
 	static registredFactories(){
 		return Object.keys(_registred_authenticator_factories)
 	}
+	/**
+	 * Methode permettant d'obtenir une des fabriques enregistrées pour les methodes d'authentification.
+	 * 
+	 * @method 
+	 * @static
+	 * @param {string} name - nom de la fabrique recherche
+	 * @returns {function} la fabrique
+	 */
 	static getFactory(name){
 		return _registred_authenticator_factories[name]
 	}
+	/**
+	 * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications courrante..
+	 * 
+	 * @method 
+	 * @abstract
+	 * @param informations d'authentification
+	 * @returns {Credential} un credentaila adapté
+	 * @throws {Error} la classe est abtraite et la methode doit etre redefinie dans les sous classes.
+	 */
 	createCredential(){
 		throw new Error('Abstract method "createCredential" should be redefined in subclasses.');
 	}
@@ -82,16 +196,36 @@ class Authenticator {
 /**
  * Authentificateurs qui accepte tout. 
  * 
+ * @augments {Authenticator}
+ * 
  */
 class YesAuthenticator extends Authenticator {
 	
-	verifyCredential(credential ){
+	/**
+	 * Methode permettant de verifier des informations d'authentifications (version synchrone).
+	 * La reponse est toujours positive.
+	 * 
+	 * @deprecated
+	 * @method 
+	 * @override
+	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier
+	 * @returns 
+	 */
+	verifyCredentialSync(credential ){
 		if ( credential instanceof Credential){
 			return credential.uid;
 		} else {
 			throw new TypeError('Invalid credential: '+credential); 
 		}
 	}
+	/**
+	 * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications courrante..
+	 * 
+	 * @method 
+	 * @override
+	 * @param uid - informations d'authentification
+	 * @returns {Credential} un credential adapte
+	 */
 	createCredential(uid){
 		return new LoginPwdCredential(uid);
 	}
@@ -100,19 +234,38 @@ class YesAuthenticator extends Authenticator {
 /**
  * Authentificateurs qui refuse tout. 
  * 
+ * @augments {Authenticator}
  */
 class NoAuthenticator extends Authenticator {
 	
-	verifyCredential(credential ){
+	/**
+	 * Methode permettant de verifier des informations d'authentifications (version synchrone).
+	 * La reponse est toujours negative.
+	 * 
+	 * @deprecated
+	 * @method 
+	 * @override
+	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier
+	 * @returns 
+	 */
+	verifyCredentialSync(credential ){
 		return undefined;
 	}
+	/**
+	 * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications courrante..
+	 * 
+	 * @method 
+	 * @override 
+	 * @param uid - informations d'authentification
+	 * @returns {Credential} un credential adapté
+	 */
 	createCredential(uid){
 		return new LoginPwdCredential(uid);
 	}
 }
 
 /**
- * Classe pour le representation d'une base d'utilisateur de type login/mot de passe. 
+ * Classe pour la representation d'une base d'utilisateurs de type login/mot de passe. 
  * 
  */
 class LoginPwdDB {
@@ -158,8 +311,14 @@ class LoginPwdDB {
 /**
  * Authentificateur associe a une base de type login/mot de passe. 
  * 
+ * @augments {Authenticator}
  */
 class LoginPwdAuthenticator extends Authenticator {
+	/**
+	 * Constructeur par defaut.
+	 * 
+	 * @param {LoginPwdDB} userDB - fbase des couples login/mot de passe.
+	 */
 	constructor(userDB){
 		super();
 		if ( ! userDB instanceof LoginPwdDB) {
@@ -168,7 +327,17 @@ class LoginPwdAuthenticator extends Authenticator {
 			this.userDB = Object.freeze(userDB);
 		}
 	}
-	verifyCredential(credential ){
+	/**
+	 * Methode permettant de verifier des informations d'authentifications (version synchrone).
+	 * On verifie si le couple {login, password} du credential est dans la base d'utilisateurs.
+	 * 
+	 * @deprecated
+	 * @method 
+	 * @override
+	 * @param {LoginPwdCredential} credential - credential de l'utilisateur a authentifier
+	 * @returns 
+	 */
+	verifyCredentialSync(credential ){
 		if ( credential instanceof LoginPwdCredential){
 			var hash = this.userDB.getPwdHash(credential.login);
 			if (hash){
@@ -207,6 +376,15 @@ class LoginPwdAuthenticator extends Authenticator {
 			throw new TypeError('Invalid credential: '+credential); 
 		}
 	}
+	/**
+	 * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications.
+	 * 
+	 * @method 
+	 * @override
+	 * @param login - the login 
+	 * @param password - the password 
+	 * @returns {LoginPwdCredential} un credential adapté
+	 */
 	createCredential(login, password){
 		return new LoginPwdCredential(login, password);
 	}
@@ -215,11 +393,17 @@ class LoginPwdAuthenticator extends Authenticator {
 /**
  * Authentificateur associe a une base de type login/mot de passe, stockee dans un fichier. 
  * 
+ * @augments {LoginPwdAuthenticator}
  */
 class FileLoginPwdAuthenticator extends LoginPwdAuthenticator {
-	constructor(myfile){
-		console.log('password file : '+ myfile);
-		var data = fs.readFileSync(myfile, {flag:'r', encoding:'utf8'});
+	/**
+	 * Constructeur par defaut.
+	 * 
+	 * @param {string} path - fichier contenant la base des couples login/mot de passe (au format JSON).
+	 */
+	constructor(path){
+		console.log('password file : '+ path);
+		var data = fs.readFileSync(path, {flag:'r', encoding:'utf8'});
 		super(new LoginPwdDB(JSON.parse(data)));
 	}
 }
@@ -232,8 +416,8 @@ Authenticator.registerAuthenticator({ YesAuthenticator:  YesAuthenticator, NoAut
  * Factory for the authenticators. On cree l'autentificateur a partir du nom
  * de sa classe et de sa configuration.
  * 
- * @param {json}
- *            configuration de l'authenticator
+ * @function
+ * @param {json} configuration de l'authenticator
  * @return {Authenticator} instance cree
  */
 var factory = function factory(config){
@@ -247,6 +431,9 @@ var factory = function factory(config){
 		return new (Authenticator.getAuthenticator(classname))(params);
 	}
 }
+
+/*
+
 // enregistrement de la fabrique
 Authenticator.registerFactory(factory);
 
@@ -257,15 +444,17 @@ console.log('Factories: '+Authenticator.registredFactories());
 module.exports = {Authenticator, YesAuthenticator, LoginPwdCredential, 
 		LoginPwdAuthenticator, LoginPwdDB, FileLoginPwdAuthenticator};
 
-/*  Exemples d'utilisations : 
+//Exemples d'utilisations : 
 
 //creation d'un authenticator (qui dit tjs oui)
 var authenticator = new YesAuthenticator();
 //creation d'un jeton de connexion
 var credential = authenticator.createCredential('joe');
 //verification (on obtieni un id si c'est bon et undefined sinon -- normalement c'est tjs bon) 
-var id1 = authenticator.verifyCredential(new LoginPwdCredential('joe','xxx'));
+var id1 = authenticator.verifyCredentialSync(new LoginPwdCredential('joe','xxx'));
 console.log('joe: '+ id1);
+var p1 = authenticator.verifyCredential(new LoginPwdCredential('joe','xxx'));
+p1.then((res)=>{console.log('authentication OK - joe: '+ res);}).catch((err)=>{console.log('authentication KO - joe: '+ err);});  // OK
 
 //creation d'une liste d'utilisateurs
 var users =    [ { login: 'joe' }, {login: 'jeanne'} ];
@@ -277,16 +466,25 @@ var db = new LoginPwdDB(users);
 //creation d'un authenticator
 var authenticator2 = new LoginPwdAuthenticator(db);
 //verifications
-var id2 = authenticator2.verifyCredential(authenticator2.createCredential('joe','xxx')); // faux
-var id3 = authenticator2.verifyCredential(authenticator2.createCredential('jeanne','jeanne')); // vrai
+var id2 = authenticator2.verifyCredentialSync(authenticator2.createCredential('joe','xxx')); // faux
+var id3 = authenticator2.verifyCredentialSync(authenticator2.createCredential('jeanne','jeanne')); // vrai
 console.log('joe/xxx: '+ id2);
 console.log('jeanne/jeanne: '+ id3);
+var p2 = authenticator2.verifyCredential(authenticator2.createCredential('joe','xxx')); 
+var p3 = authenticator2.verifyCredential(authenticator2.createCredential('jeanne','jeanne')); 
+p2.then((res)=>{console.log('p2 authentication OK - joe: '+ res);}).catch((err)=>{console.log('p2 authentication KO - joe: '+ err);});  // KO
+p3.then((res)=>{console.log('p3 authentication OK - jeanne: '+ res);}).catch((err)=>{console.log('p3 authentication KO - jeanne: '+ err);});  // OK
+
 //avec une liste d'utilisateur dans un fichier
 var authenticator3 = new FileLoginPwdAuthenticator('./users.json');
 //verifications
-var id4 = authenticator3.verifyCredential(authenticator3.createCredential('joe','joe')); // vrai
-var id5 = authenticator3.verifyCredential(authenticator3.createCredential('jeanne','jeanne')); // faux
+var id4 = authenticator3.verifyCredentialSync(authenticator3.createCredential('joe','joe')); // vrai
+var id5 = authenticator3.verifyCredentialSync(authenticator3.createCredential('jeanne','jeanne')); // faux
 console.log('joe/joe: '+ id4);
 console.log('jeanne/jeanne: '+ id5);
+var p4 = authenticator3.verifyCredential(authenticator3.createCredential('joe','joe')); 
+var p5 = authenticator3.verifyCredential(authenticator3.createCredential('jeanne','jeanne')); 
+p4.then((res)=>{console.log('p4 authentication OK - joe: '+ res);}).catch((err)=>{console.log('p4 authentication KO - joe: '+ err);});  // OK
+p5.then((res)=>{console.log('p5 authentication OK - jeanne: '+ res);}).catch((err)=>{console.log('p5 authentication KO - jeanne: '+ err);});  // KO
 
 */
