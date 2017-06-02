@@ -1,7 +1,41 @@
+/**
+ * Module pour le support de l'authentification via un annuaire ldap.
+ * 
+ * @module
+ * 
+ * @requires ldapjs
+ * @requires authentication
+ * 
+ * @author Stephane Talbot
+ */
 const ldap = require('ldapjs');
 const BaseAuthentification = require("./authentication");
 
+/**
+ * Authentificateur associe a un annuaire LDAP. 
+ * 
+ * @example
+ * ldapAuth = new LdapAuthenticator({baseDn:'ou=people,ou=uds,dc=agalan,dc=org', config:{url:'ldaps://ldap-bourget.univ-savoie.fr', tlsOptions:{rejectUnauthorized:false,ciphers:"SSLv3"}}});
+ * p1=ldapAuth.verifyCredential(ldapAuth.createCredential('uid=jdoe,ou=people,ou=uds,dc=agalan,dc=org', 'myPassword'));
+ * 
+ * @augments {LoginPwdAuthenticator}
+ * @author Stephane Talbot
+ */
 class LdapAuthenticator extends BaseAuthentification.LoginPwdAuthenticator {
+	/**
+	 * Constructeur par defaut.
+	 * 
+	 * @param {Object} ldapConfig - config ldap: {baseDn: <base DN utilise  pour les recherches>, config:<ldapj config>}
+	 * 
+	 * @example 
+	 * // connexion non securisee au ldap de l'USBM
+	 * ldapAuth = new LdapAuthenticator({baseDn:'ou=people,ou=uds,dc=agalan,dc=org', config:{url:'ldap://ldap-bourget.univ-savoie.fr'}});
+	 * 
+	 * @example
+	 * // connection securisee au ldap de l'USBM
+	 * ldapAuth = new LdapAuthenticator({baseDn:'ou=people,ou=uds,dc=agalan,dc=org', config:{url:'ldaps://ldap-bourget.univ-savoie.fr', tlsOptions:{rejectUnauthorized:false,ciphers:"SSLv3"}}});
+	 *   
+	 */
 	constructor(ldapConfig){
 		super();
 		//this.ldapClient = ldap.createClient(ldapConfig.config);
@@ -27,6 +61,10 @@ class LdapAuthenticator extends BaseAuthentification.LoginPwdAuthenticator {
 	 * @method 
 	 * @param {Credential} credential - credential identifiant l'utilisateur a authentifier (dn + password)
 	 * @returns {Promise} une promesse contenant le dn de l'utilisteur en cas de succes. 
+	 * 
+	 * @example
+	 * var p1=ldapAuth.verifyCredential(ldapAuth.createCredential('uid=jdoe,ou=people,ou=uds,dc=agalan,dc=org', 'myPassword'));
+	 * 
 	 */
 	verifyCredential(credential ){
 		let promise =  new Promise((resolve, reject) => {
