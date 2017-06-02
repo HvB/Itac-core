@@ -6,22 +6,18 @@
     <!-- PP : le code suivant integre toutes les bibliotheque necessaire au workspace -->
     <link rel="stylesheet"  href="/stylesheets/styleClientCollab.css">
 
-	<link rel="stylesheet" 	href="/javascripts/jquery-ui-1.11.4/jquery-ui.theme.css">
-	<link rel="stylesheet" 	href="/javascripts/jquery-ui-1.11.4/jquery-ui.structure.css">
-    
-    <script language="JavaScript" type="text/javascript" src="/jquery/dist/jquery.min.js"></script>
-  	<script language="JavaScript" type="text/javascript" src="/javascripts/jquery-ui-1.11.4/jquery-ui.js"></script>
+    <% include entete %>
   	
     <script language="JavaScript" type="text/javascript" src="/socket.io-client/socket.io.js"></script>
-    <script language="JavaScript" type="text/javascript" src="/javascripts/interact.js"></script> 
-    <script language="JavaScript" type="text/javascript" src="/javascripts/html2canvas.js"></script>
-    <script language="JavaScript" type="text/javascript" src="/javascripts/filesaver.min.js"></script>
-    <script language="JavaScript" type="text/javascript" src="/javascripts/key-event.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/libs/interact.js"></script> 
+    <script language="JavaScript" type="text/javascript" src="/libs/html2canvas.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/libs/filesaver.min.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/libs/key-event.js"></script>
     
     <!-- tools générique utilisable sur toute les pages -->
     <script language="JavaScript" type="text/javascript" src="/javascripts/toolsITAC.js"></script>
 
-    <script language="JavaScript" type="text/javascript" src="/js/menuApp.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/javascripts/collab/menuCollabArea.js"></script>
 	         
     <!-- PP : extrait les parametre passe  -->
     <script>
@@ -35,13 +31,13 @@
 		
 
 	<!-- PP : le code suivant gere la connexion au serveur et les traitement des evenements echange avec le serveur -->
-	<script language="JavaScript" type="text/javascript" src="/js/connexionApp.js"></script>	
+	<script language="JavaScript" type="text/javascript" src="/javascripts/collab/connexionCollabArea.js"></script>	
 	
 	<!-- TC: Script javascript qui se charge de la gestion des artefacts -->
-    <script language="JavaScript" type="text/javascript" src="/js/artefactsApp.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/javascripts/collab/artefactsCollabArea.js"></script>
     
 	<!-- TC: Script javascript qui se charge de la gestion des zones d échanges -->
-    <script language="JavaScript" type="text/javascript" src="/js/zoneEchangeApp.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/javascripts/collab/zoneEchangeCollabArea.js"></script>
  
   </head>  
   

@@ -4,7 +4,7 @@
  */
 
 
-var menuITAC = ["hand", "trash","pen","change", "print"];
+var menuCollabArea = ["hand", "trash","pen","change", "print"];
 var contenuMenu = ["","","","",""];
 		
 
@@ -72,21 +72,21 @@ interact('.menu').on('tap',function (event) {
     //var classCSSCourante = $(event.currentTarget).classList;
 	console.log("menu ITAC -> classname = "+className);
 	console.log("menu ITAC -> listeclassName = "+listeclassName);
-	console.log("menu ITAC -> taille menu="+menuITAC.length);
-	for(var i=0; i<menuITAC.length; i++) { 
-		console.log("menu ITAC -> i courant="+i+" classmenu= "+menuITAC[i]);		
-		if (className == menuITAC[i]) {
+	console.log("menu ITAC -> taille menu="+menuCollabArea.length);
+	for(var i=0; i<menuCollabArea.length; i++) { 
+		console.log("menu ITAC -> i courant="+i+" classmenu= "+menuCollabArea[i]);		
+		if (className == menuCollabArea[i]) {
 			
-			if (menuITAC[i]=="ZP") (event.currentTarget).classList.toggle(contenuMenu[i]);
-	  		(event.currentTarget).classList.remove(menuITAC[i]); 
+			if (menuCollabArea[i]=="ZP") (event.currentTarget).classList.toggle(contenuMenu[i]);
+	  		(event.currentTarget).classList.remove(menuCollabArea[i]); 
 	  			  		
-	  		if (i==(menuITAC.length-1)) {j=0;}
+	  		if (i==(menuCollabArea.length-1)) {j=0;}
 	  		else {j=i+1;}
 	  		
-	  		console.log("menu ITAC -> je charge j="+j+" et menu="+menuITAC[j]);	
+	  		console.log("menu ITAC -> je charge j="+j+" et menu="+menuCollabArea[j]);	
 	  		
-	  		if (menuITAC[j]=="ZP") (event.currentTarget).classList.toggle(contenuMenu[j]);
-	  		(event.currentTarget).classList.toggle(menuITAC[j]);	
+	  		if (menuCollabArea[j]=="ZP") (event.currentTarget).classList.toggle(contenuMenu[j]);
+	  		(event.currentTarget).classList.toggle(menuCollabArea[j]);	
 		
 	  		$(function () {		        		
 		        		$("#menu").html(contenuMenu[j]);
@@ -230,3 +230,33 @@ interact('.print').on('hold', function (event) {
   })
  
 })  // fin hold pour print
+
+/* ----------------------------------------- 
+ * permet de changer le fond
+ * ----------------------------------------
+ */
+ interact('.change').on('hold', function (event) {
+    //alert("Appui long pour lancer le changement de fond!");
+  
+  var fileInput = document.querySelector('#file');
+  var fileName ="";
+      
+      // On force le déclenchement du bouton masqué sous le menu
+     fileInput.click();
+    
+      // On récupère le nom du fichier sélectionné (le multiple permet de récupérer éventuellement plusieurs fichiers: là ça n est pas nécessaire
+      // Mais qui peut le plus peut le moins...
+      fileInput.addEventListener('change', function() {
+        fileName = this.files[0].name;
+         
+         // On vérifie que l'utilisateur a bien sélectionné quelque chose
+         if (fileName != "") 
+      {  
+        // TC Pourri comme technique mais pas moyen de recup le PATH  
+          var longFileName= "/images/collab/fond/"+fileName;
+        //alert("nom de fichier long:"+longFileName);
+          document.getElementById("ZP").setAttribute('style', 'background-image:url("'+longFileName+'");');
+      }  
+    });
+ 
+  });
