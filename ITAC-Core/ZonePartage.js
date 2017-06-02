@@ -31,16 +31,24 @@ var CONSTANTE = new Constantes();
  * constructeur de ZonePartage
  *
  * @param  {string} idZP - identifiant de la ZP à créée
+ * @param  {string} type - type de la ZP (ecran, table)
  * @param  {integer} ZEmin - nombre minimun de ZoneEchange
  * @param  {integer} ZEmax - nombre maximum de ZoneEchange
  */
-var ZonePartage = function(ZC, idZP, nbZEmin, nbZEmax, urlWebSocket, portWebSocket)
+var ZonePartage = function(ZC, idZP, typeZP, nbZEmin, nbZEmax, urlWebSocket, portWebSocket)
 {
 
 	console.log('      ===========================');
 
 	this.ZC = ZC;
 	this.idZP = idZP;
+	
+	/**
+	 * type d'affichage de la Zone de partage
+	 * 
+	 * @private
+	 */
+	this.typeZP = typeZP;
 	
 	/**
 	 * nombre minimum de Zone d'Echange que l'on doit créer sur la Zone de partage
@@ -69,7 +77,7 @@ var ZonePartage = function(ZC, idZP, nbZEmin, nbZEmax, urlWebSocket, portWebSock
 	this.listeZE = [];
 
 	
-	console.log('      === ZonePartage | ZC parent = ' + this.ZC.getId()+ ' | IdZP = ' + this.idZP+ ' | nbZEMin = ' + this.nbZEmin+ ' | nbZEMax = ' + this.nbZEmax+ ' | port = ' + this.portWebSocket);
+	console.log('      === ZonePartage | ZC parent = ' + this.ZC.getId()+ ' | IdZP = ' + this.idZP+  ' | typeZP = ' + this.typeZP+ ' | nbZEMin = ' + this.nbZEmin+ ' | nbZEMax = ' + this.nbZEmax+ ' | port = ' + this.portWebSocket);
 	console.log('      === ZonePartage : Creation serveur socket ');
 
     this.server = new Serveur(this,portWebSocket);
@@ -81,6 +89,14 @@ var ZonePartage = function(ZC, idZP, nbZEmin, nbZEmax, urlWebSocket, portWebSock
 
 module.exports = ZonePartage;
 
+/**
+ * Retourne le type de ZP
+ *
+ */
+ZonePartage.prototype.getTypeZP = function()
+{
+	return this.typeZP;
+};
 
 /**
  * Retourne 
@@ -233,20 +249,27 @@ return ret;
 };
 
 /**
- * suppresion  d'une Zone d'Echange (ZE) associée à une ZEP (tablette)
+ * suppression d'une Zone d'Echange (ZE) connectée qui est associée à une ZEP (tablette)
+ * et suppression de tous les artefacts contenu dans cette ZE
  * 
- * @param {string} idZEP identifiant de la tablette
+ * @param {string} idZE identifiant de la zone d'échange à supprimer
+ *
  * @autor philippe pernelle
  */
 
 ZonePartage.prototype.destroyZE = function(idZE) {
-	
-	for (var i=0; i  <this.listeZE.length ; i ++)
+		
+	for (var i=0; i <this.listeZE.length ; i ++)
 	{
-
 	if (this.listeZE[i].getId()===idZE)
 		{
+		// avant de supprimer la ZE, il faut supprimer les artefact
+		console.log('      === ZonePartage : suppression des artefacts d une ZE ('+idZE +')  ' );
+		this.ZC.suppresAllArtifactsInZE(idZE);
+		console.log('      === ZonePartage : suppression des artefacts d une ZE ('+idZE +')  [ok] ' );
+		
 		this.listeZE.splice(i,1);
+		console.log('      === ZonePartage : suppression d une ZE ('+idZE +')  nouveau nb de ZE=' +this.listeZE.length);
 		}
 	}
 }
@@ -348,11 +371,19 @@ ZonePartage.prototype.sendArFromZEtoZP = function(idAr, idZP)
 
 
 /**
- * tr une Zone d'échange spécifique de la ZP
+ * ajoute un artifact envoyé d'une tablette (ZEP) vers une Zone d'échange spécifique de la ZP
+ *  - creation de l'artifact dans la ZC (ZC.addArtifactFromJSON)
+ *  - affectation de cet artifact dans la ZE (ZC.setArtifactIntoZE)
  * 
  * @public
- * @param {} idZEP
- * @return {ZE} Zone echange
+ * 
+ * @param {idZEP}   identifiant de la tablette ZEP 
+ * @param {idZE}    identifiant de la ZE associé à la ZEP
+ * @param {artefactenjson}   artefact en JSON
+ * 
+ * @return {IdArtefact} identifiant de l'artefact crée
+ * 
+ * @author philippe pernelle
  */
 ZonePartage.prototype.addArtifactFromZEPtoZE = function(pseudo, idZEP, idZE, artefactenjson) {
 
@@ -376,34 +407,28 @@ ZonePartage.prototype.addArtifactFromZEPtoZE = function(pseudo, idZEP, idZE, art
 		
 		}
 	// renvoie l'id de l'artifcat créé
+	console.log('      === ZonePartage : addArtifactFromZEPtoZE , renvoi IdArtefact utilise ='+IdArtefact);
 	return IdArtefact;
 
 };
 
 
-/**
- * envoi d'un Artefact depuis une ZEP (ZE) vers une EP
- * 
- * @public
- * @param {} idZE
- * @return {ZE} Zone echange
- */
-ZonePartage.prototype.sendArFromZEPtoEP = function(idAr, idZE,idZEP) 
-{
-	
-	this.ZC.setArtifactIntoEP(idAr,idZE,idZEP);
-
-};
-
-
 
 
 /**
- * tr une Zone d'échange spécifique de la ZP
+ * ajoute un artifact envoyé d'une tablette (ZEP) directement vers une Zone de partage ZP
+ *  - creation de l'artifact dans la ZC (ZC.addArtifactFromJSON)
+ *  - affectation de cet artifact dans la ZE (ZC.setArtifactIntoZE)
  * 
  * @public
- * @param {} idZEP
- * @return {ZE} Zone echange
+ * 
+ * @param {idZEP}   identifiant de la tablette ZEP 
+ * @param {idZP}    identifiant de la ZP
+ * @param {artefactenjson}   artefact en JSON
+ * 
+ * @return {IdArtefact} identifiant de l'artefact crée
+ * 
+ * @author philippe pernelle
  */
 
 ZonePartage.prototype.addArtifactFromZEPtoZP = function(pseudo, idZEP, idZE, artefactenjson) {
@@ -435,4 +460,24 @@ ZonePartage.prototype.addArtifactFromZEPtoZP = function(pseudo, idZEP, idZE, art
 	return IdArtefact;
 
 };
+
+
+/**
+ * envoi d'un Artefact depuis une ZEP (ZE) vers une EP
+ * 
+ * @public
+ * 
+ * @param {idAr}    artefact 
+ * @param {idZEP}   identifiant de la tablette ZEP 
+ * @param {idZE}    identifiant de la ZE associé à la ZEP
+ * 
+ * @author philippe pernelle
+ */
+ZonePartage.prototype.sendArFromZEPtoEP = function(idAr, idZE,idZEP) 
+{
+	
+	this.ZC.setArtifactIntoEP(idAr,idZE,idZEP);
+
+};
+
 

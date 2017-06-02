@@ -1,3 +1,6 @@
+/**
+ * Application principale lancee sur le serveur HTTP 
+ */
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -20,7 +23,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -44,10 +47,17 @@ app.all('*', function(req, res, next) {
 	   next();
 	});
 
+
+/* Configuration des routes*/
+
 app.use('/', routes);
 app.use('/users', users);
 app.use( '/collab/config', require( './routes/configcollab' )() );
+app.use( '/collab/sessionconfig', require( './routes/configsession' )() );
+app.use( '/collab/session/config', require( './routes/configsession' )() );
 app.use( '/collab', require( './routes/collab' )() );
+app.use( '/collab/session/:name', require( './routes/session' )() );
+app.use( '/collab/session/:name/load', require( './routes/session' )() );
 app.use( '/collab/:idZC/espacetravail/:rang/:idZP/:port/:minmax', require( './routes/workspace' )() );
 app.use( '/collab/preconfig/:numconfig', require( './routes/collab' )() );
 app.use( '/morpion', require( './routes/morpion' )() );

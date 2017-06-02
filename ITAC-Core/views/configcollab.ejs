@@ -2,8 +2,21 @@
 <html>
   <head>
    <title><%= title %></title>
+   <!-- PP : le code suivant integre toutes les bibliotheque necessaire au workspace -->
+   <link rel="stylesheet"  href="/stylesheets/styleClientCollab.css">
+
+
    <% include entete %>
-   <script language="JavaScript" type="text/javascript" src="/javascripts/formITAC.js"></script>
+  	
+    <script language="JavaScript" type="text/javascript" src="/socket.io-client/socket.io.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/libs/interact.js"></script> 
+    <script language="JavaScript" type="text/javascript" src="/libs/html2canvas.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/libs/filesaver.min.js"></script>
+    <script language="JavaScript" type="text/javascript" src="/libs/key-event.js"></script>
+    
+  
+   <script language="JavaScript" type="text/javascript" src="/javascripts/collab/toolsConfigCollab.js"></script>
+   
 </head>
 <body>
     <form action="" method="post" >
@@ -29,8 +42,10 @@
           	<input type="text" value="" id="input1" name="input1" />
           	<label for="type1">Type : </label>
           	<select type="select"  id="type1" name="type1" >
-          		<option value="Table">Table</option>
-  				<option value="Ecran">Ecran</option>
+          		<option value="Table1">Table AIP</option>
+          		<option value="Table2">Table HUCO</option>
+          		<option value="Table3">Table Microsoft</option>
+  				<option value="Ecran1">Ecran</option>
           	</select>
           	<label for="min1">Nb de connexion MIN : </label>
           	<input type="number" value="" id="min1" name="min1" />

@@ -1,5 +1,5 @@
 /**
- * Cette classe permet de créer une Zone d' Echange qui est associé à une Zone de Partage .
+ * Cette classe permet de créer une Zone d'Echange qui est associé à une Zone de Partage .
  * 
  * @requires ZonePartage
  * @requires Artifact

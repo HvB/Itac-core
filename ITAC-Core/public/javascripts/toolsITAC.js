@@ -14,30 +14,45 @@
  paramITAC['itacapp-quete'] = new Array('rond.png','quete.jpg','test.html');
  paramITAC['itacapp-morpix'] = new Array('morpion.png','morpix.jpg','morpion');
  
- /* taille de l'ecran */ 
-var ZA_Largeur = 1900;
-var ZA_Hauteur = 1000;
-
-/* nb max de ZE dans la largeur et dans la hauteur */
-var Nb_ZE_Max_Largeur = 3;
-var Nb_ZE_Max_Hauteur = 2;
  
+var paramZAITAC = [];
+// contennu du tableau : taille en largeur , taille en hauteur, nb de ZE max en largeur, nb ZE max en hauteur, % de l'espacement , hauteur de la ZE 
+paramZAITAC['Table1'] = new Array(1920,1080,5,2,20,70); 
+paramZAITAC['Table2'] = new Array(1920,1080,5,2,20,70); 
+paramZAITAC['Table3'] = new Array(1920,1080,5,2,20,70); 
+paramZAITAC['Ecran1'] = new Array(1920,1080,5,2,20,70); 
+ 
+
 // nb de ZE à placer dans une hauteur et dans une largeur 
 var NB_ZE_Largeur = 0;
 var NB_ZE_Hauteur = 0;
-var TailleZEenlargeur = 100;
-var TailleZEenhauteur = 100;
+var TailleZEenlargeur = 0;
+var TailleZEenhauteur = 0;
+var TailleEspaceenlargeur = 0;
+var TailleEspaceenhauteur = 0;
 
-function Calcule_Nb_ZE(Nb_ZE) {
+function calcule_Nb_ZE(nomZA, Nb_ZE) {
+	
+	
+	// on force la taille en fonction de l'objet screen
+	paramZAITAC[nomZA][0]=screen.availWidth  ;
+	paramZAITAC[nomZA][1]=screen.availHeight  ;
+	
+	 /* taille de l'ecran */ 
+	var ZA_Largeur = paramZAITAC[nomZA][0]-2*paramZAITAC[nomZA][5]; // je retire la taille fixe des ZE à droite et a gauche
+	var ZA_Hauteur = paramZAITAC[nomZA][1]-2*paramZAITAC[nomZA][5]; // je retire la taille fixe des ZE à droite et a gauche
+	
+	var Nb_ZE_Max_Largeur = paramZAITAC[nomZA][2];
+	var Nb_ZE_Max_Hauteur = paramZAITAC[nomZA][3];
 		
     // on calcul , pour la largeur, l'espace minimum entre deux ZE
-	var Espace_Largeur_Total = ((ZA_Largeur * 20) / 100);
+	var Espace_Largeur_Total = ((ZA_Largeur * paramZAITAC[nomZA][4]) / 100);
 	var Largeur_Dispo_Total = ZA_Largeur - Espace_Largeur_Total;
 	
-	var Espace_Hauteur_Total = ((ZA_Hauteur * 20) / 100);
+	var Espace_Hauteur_Total = ((ZA_Hauteur * paramZAITAC[nomZA][4]) / 100);
 	var Hauteur_Dispo_Total = ZA_Hauteur - Espace_Hauteur_Total;
 	
-	var rapportLH = ZA_Largeur / ZA_Hauteur;
+	var rapportLH = Math.round(ZA_Largeur / ZA_Hauteur);
 	
 	// R = nb ZE dans UNE largeur + une longueur
 	
@@ -51,8 +66,11 @@ function Calcule_Nb_ZE(Nb_ZE) {
 	
 
 	
-	TailleZEenlargeur = Math.round(Espace_Largeur_Total / NB_ZE_Largeur) ;
-	TailleZEenhauteur = Math.round(Espace_Hauteur_Total / NB_ZE_Largeur);
+	TailleZEenlargeur = Math.round(Largeur_Dispo_Total / NB_ZE_Largeur) ;
+	TailleZEenhauteur = Math.round(Hauteur_Dispo_Total / NB_ZE_Hauteur);
+	
+	TailleEspaceenlargeur = Math.round((ZA_Largeur -TailleZEenlargeur*NB_ZE_Largeur) / (NB_ZE_Largeur+1));
+	TailleEspaceenhauteur  = Math.round((ZA_Hauteur -TailleZEenhauteur*NB_ZE_Hauteur) / (NB_ZE_Hauteur+1));
 
 	/*
 	// dans ce cas tout tient dans la longueur	

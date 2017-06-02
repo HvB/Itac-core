@@ -10,7 +10,7 @@ body{
   		width: auto;
   		
   	/* à voir: problème du menu corrigé avec hauteur bloquée à max */	
-  		min-height: 1200px; 
+  		min-height: 1000px; 
 		background-repeat: repeat-y;
 }
 
@@ -34,7 +34,7 @@ img
 
 .draggable
 {
-    filter: alpha(opacity=60);
+   /* filter: alpha(opacity=60);   */
     opacity: 0.6;
 }
 
@@ -60,7 +60,7 @@ table.center{
 }
 
 .milieu{
-	text-align= left; vertical-align: top; 
+	text-align: left; vertical-align: top; 
 		background-image:url('../images/logoITAC.png');
 	/*background-image:url('../images/logoITAC.png');*/
 	/*height: 552px; width: 552px; */
@@ -68,14 +68,14 @@ table.center{
 }
 
 .menu {
-	 text-align= left; 
+	 text-align: left; 
 	 vertical-align: top; 
 	 height: 100px; 
 	 width: 160px; 
 }
 
 .info {
-	 text-align= center; vertical-align: top; height: 120px; 
+	 text-align: center; vertical-align: top; height: 120px; 
 }
 
 
