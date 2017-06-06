@@ -1,42 +1,8 @@
 /**
-
- * http://usejsdoc.org/
-
+ * Ensemble des constantes ITAC
  */
 
-
-
-/*var Constante = (function()
-
-		{
-
-		    var obj = {};
-
-		    obj.typeConteneur_ZE = 1;
-
-		    obj.typeConteneur_ZP = 0;
-
-		    obj.ALL = [obj.ZE, obj.ZP];
-
-		    return obj;
-
-		})();
-
-
-*/
-
-
-var /**
- * 
- */
-/**
- * 
- */
-/**
- * 
- */
-Constante = function()
-
+var Constante = function()
 {
 	this.typeConteneur_EP = 'EP';
 	this.typeConteneur_ZE = 'ZE';
@@ -78,8 +44,17 @@ Constante = function()
 	
 	this.EVT_ReceptionArtefactMessage ='EVT_ReceptionArtefactMessage';
 	this.EVT_ReceptionArtefactImage ='EVT_ReceptionArtefactImage';
+
+	/**
+	 * evenement envoyé par la ZA lorsque qu 'un artefact est sorti d'une ZE dans l'espace de travail ZP
+	 */
 	this.EVT_EnvoieArtefactdeZEversZP='EVT_Envoie_ArtefactdeZEversZP';
+
+    /**
+     * evenement envoyé par la ZA lorsque qu 'un artefact est depose dans une ZE depuis l'espace de travail ZP
+     */
 	this.EVT_EnvoieArtefactdeZPversZE='EVT_Envoie_ArtefactdeZPversZE';
+
 	/**
 	 * evenement envoye par ZEP quand une on remet un artefact dans l espace personnelle
 	 */
@@ -88,7 +63,7 @@ Constante = function()
 	/**
 	 * evenement envoye par le serveur vers la ZA en ca de deconnexion
 	 */
-	this.EVT_EnvoieArtefactdeZEversEP='EVT_Envoie_TousLesArtefactdeZEversEP';
+	this.EVT_EnvoieTousLesArtefactdeZEversEP='EVT_Envoie_TousLesArtefactdeZEversEP';
 	
 	
 	/**

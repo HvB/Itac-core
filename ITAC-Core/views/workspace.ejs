@@ -3,9 +3,10 @@
   <head>
     <title><%= title %></title>
     
-    <!-- PP : le code suivant integre toutes les bibliotheque necessaire au workspace -->
+
     <link rel="stylesheet"  href="/stylesheets/styleClientCollab.css">
 
+    <!-- PP : le code suivant integre toutes les bibliotheque necessaire au projet -->
     <% include entete %>
   	
     <script language="JavaScript" type="text/javascript" src="/socket.io-client/socket.io.js"></script>
@@ -38,6 +39,9 @@
     
 	<!-- TC: Script javascript qui se charge de la gestion des zones d échanges -->
     <script language="JavaScript" type="text/javascript" src="/javascripts/collab/zoneEchangeCollabArea.js"></script>
+
+    <!-- PP: Script javascript qui se charge de la gestion des zones de partage -->
+    <script language="JavaScript" type="text/javascript" src="/javascripts/collab/zonePartageCollabArea.js"></script>
  
   </head>  
   

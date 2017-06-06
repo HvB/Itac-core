@@ -485,7 +485,9 @@ Serveur.prototype.envoiArtefacttoZE = function (socket,idAr, idZE)
 };
 /**
  * cette fonction traite l'envoie d'un artefact d'une Zone d'Echange (ZE) vers la zone de partage (ZP)  
- * en fait l'artéfact reste dans sa zone collaborative mais change de conteneur
+ * en fait l'artéfact reste dans sa zone collaborative mais change de conteneur.
+ * cette fonction est déclanché par une interaction en ZA, il faut donc aussi informer
+ * la tablette
  * 
  * @param {socket} socket
  * @param {number} idAr
@@ -499,10 +501,12 @@ Serveur.prototype.envoiArtefacttoZP = function (socket,idAr,idZE,idZP)
 	this.ZP.sendArFromZEtoZP(idAr,  idZP);
 	
 	// il faut informer la ZEP qui doit le suprimer de son ZEP
-	//on recupere l'ID de la socket 
+	//on recupere l'ID de la socket ou la tablette est connecté
 	var id= this.getZESocketId(idZE);
-	this._io.sockets.to(id).emit(CONSTANTE.EVT_EnvoieArtefactdeZEversZP, idAr,idZE );
 
+	// dans ce cas on indique juste artefact et la ZE
+	// pas besoin de donner la ZP
+	this._io.sockets.to(id).emit(CONSTANTE.EVT_EnvoieArtefactdeZEversZP, idAr,idZE);
 };
 
 /**

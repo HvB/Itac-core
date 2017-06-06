@@ -77,7 +77,7 @@
 		      for(var i=0; i<myZC.nbZP; i++) { 
 		        if (i != rang) {
 		          console.log('PAGE : workspace.ejs -> menu App , push = '+myZC.ZP[i].idZP+" ZP" );
-		          menu.push("ZP" );
+                    menuCollabArea.push("ZP" );
 		          //classmenuITAC.push("menu ZP"+i);
 		          contenuMenu.push(myZC.ZP[i].idZP);
 		        }       

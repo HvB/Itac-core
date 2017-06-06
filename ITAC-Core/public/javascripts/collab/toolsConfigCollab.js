@@ -49,7 +49,7 @@ function dernierElement()
 
 function creerElement(ID)
 {
-  var listeType = ["Table","Ecran"];
+  var listeType = ["Table1","Table2","Table3","Ecran1"];
   
   var Conteneur = document.createElement('div');
   Conteneur.setAttribute('id', 'element' + ID);
