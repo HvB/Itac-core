@@ -1,0 +1,4 @@
+ [ { "login": "joe",
+      "hash": "pbkdf2$131072$32$sha256$yMVrt3MbyhlXefvxIf5k5K/NZngp3Ng9lhADc9UmvTM=$8bk2dWDPj5T9fwDSVpDfjdSeStdnZgjD9EEeHKrJiz8="
+    } 
+]
