@@ -4,13 +4,16 @@
  * @module
  * 
  * @requires ldapjs
+ * @requires bunyan
  * @requires authentication
  * 
  * @author Stephane Talbot
  */
 const ldap = require('ldapjs');
 const BaseAuthentication = require('./authentication');
+const bunyan = require('bunyan');
 
+var log = bunyan.createLogger({name: "LdapAuthenticator"});
 /**
  * Authentificateur associe a un annuaire LDAP. 
  * 
@@ -73,12 +76,12 @@ class LdapAuthenticator extends BaseAuthentication.LoginPwdAuthenticator {
 					//let dn = 'uid='+credential.login+','+this.ldapBaseDN;
 					let ldapClient = ldap.createClient(this.ldapConfig);
 					let dn = credential.login;
-					console.log('dn:'+dn)
+					log.debug('dn:'+dn);
 					let password = credential.password;
 					// this.ldapClient.bind(dn, password, (err)=>{
 					ldapClient.bind(dn, password, (err)=>{
 						if (err ){
-							 console.log('*** error durinf LDAP credential verification :'+err);
+							 log.info({err: err}, '*** error during LDAP credential verification :');
 							 reject(err);
 						} else {
 							resolve(credential.login);
@@ -86,11 +89,11 @@ class LdapAuthenticator extends BaseAuthentication.LoginPwdAuthenticator {
 						ldapClient.unbind();
 					});
 				} else {
-					console.log('*** LDAP authenticator, credential verification: empty password ');
-					throw new TypeError('Invalid credential: '+credential); 
+					log.info('*** LDAP authenticator, credential verification: empty password ');
+					throw new Error('Invalid credential: '+credential); 
 				}
 			} else {
-				console.log('*** LDAP authenticator, credential verification: invalid credential ');
+				log.warn('*** LDAP authenticator, credential verification: invalid credential ');
 				throw new TypeError('Invalid credential: '+credential); 
 			}
 		});
@@ -114,10 +117,12 @@ class LdapAuthenticator extends BaseAuthentication.LoginPwdAuthenticator {
 						attributes:['dn']
 					},
 					(x,v)=>{
-						console.log(x);
-						v.on('searchEntry', (r)=>{console.log(r.object); res.push(r.object.dn); });
-						v.on('end', (r)=>{console.log('status: '+r);  ldapClient.unbind(); resolve(res); });
-						v.on('error', (err)=>{console.log('error: '+err); reject(err); });
+						if (x) {
+							log.warn({err: x }, "error for ldap search request: "+request);
+						}
+						v.on('searchEntry', (r)=>{log.debug("request ("+request+") partial result: "+r.object); res.push(r.object.dn); });
+						v.on('end', (r)=>{log.debug("request ("+request+") finished with status: "+r);  ldapClient.unbind(); resolve(res); });
+						v.on('error', (err)=>{log.warn(err); reject(err); });
 					});
 		});
 		return promise;
