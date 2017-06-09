@@ -68,7 +68,7 @@ class LdapAuthenticator extends BaseAuthentication.LoginPwdAuthenticator {
 	 */
 	verifyCredential(credential ){
 		let promise =  new Promise((resolve, reject) => {
-			if ( credential instanceof BaseAuthentification.LoginPwdCredential){
+			if ( credential instanceof BaseAuthentication.LoginPwdCredential){
 				if (credential.password){
 					//let dn = 'uid='+credential.login+','+this.ldapBaseDN;
 					let ldapClient = ldap.createClient(this.ldapConfig);
