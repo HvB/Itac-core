@@ -2,6 +2,7 @@ var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 const BasicAuthentication = require('../authentication');
 const LdapAuthenticator = require('../LdapAuthenticator');
+const parseDN = require('ldapjs').parseDN;
 chai.use(chaiAsPromised);
 var expect = chai.expect;
 
@@ -294,5 +295,120 @@ describe("LDAP Authentication", function () {
 				return expect(authenticator.search('(uid=j*) & (o=acme)').catch(()=>{return [];})).to.eventually.be.empty;
 			});		
 		});
-	});	
+	});
+	describe("UsmbLdapAuthenticatior", function (){
+		var UsmbLdapAuthenticator = require('../UsmbLdapAuthenticator');;
+		describe("Constructor", function (){
+			it("Expect class Constructor to work", function(){
+				expect(new UsmbLdapAuthenticator()).to.exist;
+			});		
+		});
+		describe("Credential creation", function (){
+			it("Expect createCredential method to create a valide credential", function(){
+				expect((new UsmbLdapAuthenticator()).createCredential('Joe', "12345")).to.be.an.instanceof(BasicAuthentication.LoginPwdCredential);
+			});		
+		});
+		describe("Verifying credential", function (){
+			var authenticator;
+			before(function(){
+				authenticator = new UsmbLdapAuthenticator();
+				// on changes les infos de connection pour subtituer l'annuaire ldap de test
+				authenticator.ldapBaseDN = config.baseDn;
+				authenticator.ldapConfig = config.config;
+			})
+			it("Expect verify credential to respond OK with valid credential (valid uid: joe) - 1", function(){
+				let credential = authenticator.createCredential('joe', 'joe');
+				return expect(authenticator.verifyCredential(credential))
+				.to.eventually.exist
+				.and.to.satisfy((s)=>{return parseDN('uid=joe,o=acme,d=fr').equals(s);});
+			});		
+			it("Expect verify credential to respond OK with valid credential (valid uid: jeanne) - 2", function(){
+				let credential = authenticator.createCredential('jeanne', '12345');
+				return expect(authenticator.verifyCredential(credential))
+				.to.eventually.exist
+				.and.to.satisfy((s)=>{return parseDN('uid=jeanne,o=acme,d=fr').equals(s);});
+			});		
+			it("Expect verify credential to respond OK with valid credential (valid cn: 'Joe Black') - 3", function(){
+				let credential = authenticator.createCredential('Joe Black', 'joe');
+				return expect(authenticator.verifyCredential(credential))
+				.to.eventually.exist
+				.and.to.satisfy((s)=>{return parseDN('uid=joe,o=acme,d=fr').equals(s);});
+			});	
+			it("Expect verify credential to respond OK with valid credential (valid mail: Jeanne.Doe@acme.fr ) - 4", function(){
+				let credential = authenticator.createCredential('Jeanne.Doe@acme.fr', '12345');
+				return expect(authenticator.verifyCredential(credential))
+				.to.eventually.exist
+				.and.to.satisfy((s)=>{return parseDN('uid=jeanne,o=acme,d=fr').equals(s);});
+			});	
+			it("Expect verify credential to respond OK with valid credential (valid mail, multiple matches: *acme.fr ) - 5", function(){
+				let credential = authenticator.createCredential('*acme.fr', '12345');
+				return expect(authenticator.verifyCredential(credential))
+				.to.eventually.exist
+				.and.to.satisfy((s)=>{return parseDN('uid=jeanne,o=acme,d=fr').equals(s);});
+			});	
+			it("Expect verify credential to respond OK with valid credential (valid mail, multiple matches: *acme.fr ) - 6", function(){
+				let credential = authenticator.createCredential('*acme.fr', 'joe');
+				return expect(authenticator.verifyCredential(credential))
+				.to.eventually.exist
+				.and.to.satisfy((s)=>{return parseDN('uid=joe,o=acme,d=fr').equals(s);});
+			});	
+			it("Expect verify credential to fail with invalid credential (invalid password) - 1", function(){
+				let credential = authenticator.createCredential('joe', '12345');
+				return expect(authenticator.verifyCredential(credential)).to.be.rejected;
+			});		
+			it("Expect verify credential to fail with invalid credential (invalid password) - 2", function(){
+				let credential = authenticator.createCredential('jeanne', 'jeanne');
+				return expect(authenticator.verifyCredential(credential)).to.be.rejected;
+			});		
+			it("Expect verify credential to fail with invalid credential (invalid login)- 3", function(){
+				let credential = authenticator.createCredential('john', '12345');
+				return expect(authenticator.verifyCredential(credential)).to.be.rejected;
+			});		
+			it("Expect verify credential to fail with full dn as login", function(){
+				let credential = authenticator.createCredential('uid=joe,o=acme,d=fr','joe');
+				return expect(authenticator.verifyCredential(credential)).to.be.rejected;
+			});		
+			it("Expect verify credential to fail with empty password - 1", function(){
+				let credential = authenticator.createCredential('joe', '');
+				return expect(authenticator.verifyCredential(credential)).to.be.rejected;
+			});		
+			it("Expect verify credential to fail with empty password - 2", function(){
+				let credential = authenticator.createCredential('joe', undefined);
+				return expect(authenticator.verifyCredential(credential)).to.be.rejected;
+			});		
+			it("Expect verify credential to fail with empty password - 3", function(){
+				let credential = authenticator.createCredential('joe');
+				return expect(authenticator.verifyCredential(credential)).to.be.rejected;
+			});		
+			it("Expect verify credential to fail with no parameters", function(){
+				return expect(authenticator.verifyCredential()).to.be.rejected;
+			});		
+			it("Expect verify credential to fail with invalid parameters", function(){
+				return expect(authenticator.verifyCredential('joe', 'joe')).to.be.rejected;
+			});		
+		});
+		describe("Searching", function (){
+			var authenticator;
+			before(function(){
+				authenticator = new UsmbLdapAuthenticator();
+				// on changes les infos de connexion pour substituer l'annuaire ldap de test a celui de l'USMB
+				authenticator.ldapBaseDN = config.baseDn;
+				authenticator.ldapConfig = config.config;
+			})
+			it("Test search - one result", function(){
+				return expect(authenticator.search('uid=joe')).to.eventually.be.an('array').that.has.deep.members(['uid=joe, o=acme, d=fr']);
+			});		
+			it("Test search - several results", function(){
+				return expect(authenticator.search('mail=*@acme.fr'))
+					.to.eventually.be.an('array').that.has.deep.members(['uid=joe, o=acme, d=fr', 'uid=jeanne, o=acme, d=fr']);
+			});		
+			it("Test search - empty result", function(){
+				return expect(authenticator.search('uid=*Paul*'))
+					.to.eventually.be.an('array').that.is.empty;
+			});		
+			it("Test search - invalid query", function(){
+				return expect(authenticator.search('(uid=j*) & (o=acme)').catch(()=>{return [];})).to.eventually.be.empty;
+			});		
+		});
+	});
 });
