@@ -115,7 +115,7 @@ describe("Basic Authentication", function () {
 			});
 		});
 		describe("FileLoginPwdAuthenticator", function (){
-			var db = 'test/users.json'; 
+			var db = 'itac-collab/utility/test/users.json'; 
 			describe("Constructor", function (){
 				it("Expect class Constructor to work", function(){
 					expect(new BasicAuthentication.FileLoginPwdAuthenticator(db)).to.exist;
