@@ -3,13 +3,17 @@
  * 
  * @module
  * 
+ * @requires bunyan
  * @requires LdapAuthenticator
-  * @requires authentication
-  * 
+ * @requires authentication
+ * 
  * @author Stephane Talbot
  */
+const bunyan = require('bunyan');
 const BaseAuthentication = require('./authentication');
 const LdapAuthenticator = require('./LdapAuthenticator');
+
+var log = bunyan.createLogger({name: "UsmbLdapAuthenticator"});
 
 /**
  * Authentificateur associe a l'annuaire LDAP de l'USMB. 
@@ -52,7 +56,7 @@ class UsmbLdapAuthenticator extends LdapAuthenticator {
 	 */
 	verifyCredential(credential ){
 		if ( ! (credential instanceof BaseAuthentication.LoginPwdCredential)){
-			console.log('*** USMB LDAP authenticator, credential verification: invalid credential ');
+			log.warn('*** USMB LDAP authenticator, credential verification: invalid credential ');
 			return Promise.reject(new TypeError('Invalid credential: '+credential));
 		} else {
 			let login=credential.login;
@@ -61,13 +65,13 @@ class UsmbLdapAuthenticator extends LdapAuthenticator {
 			function firstResolved(l,foo){
 				let v = l.pop();
 				if (v) {
-					console.log('*** USMB LDAP authenticator, trying  matching user: dn='+v);
+					log.debug('*** USMB LDAP authenticator, trying  matching user: dn='+v);
 					return (foo(v).catch((err)=>{
-								console.log('dn: '+v+'-->'+err);
+								log.debug('*** USMB LDAP authenticator, authentication failed with matching user: dn='+v);
 								return firstResolved(l,foo);
 					}));
 				} else {
-					console.log('*** USMB LDAP authenticator, end of list or no matching user ');
+					log.debug('*** USMB LDAP authenticator, end of list or no matching user ');
 					return Promise.reject(new Error("invalid user or password"));
 				}
 			}
