@@ -4,9 +4,11 @@
  * @module
  * 
  * @requires LdapAuthenticator
- * 
+  * @requires authentication
+  * 
  * @author Stephane Talbot
  */
+const BaseAuthentication = require('./authentication');
 const LdapAuthenticator = require('./LdapAuthenticator');
 
 /**
@@ -49,19 +51,28 @@ class UsmbLdapAuthenticator extends LdapAuthenticator {
 	 * 
 	 */
 	verifyCredential(credential ){
-		let login=credential.login;
-		let password=credential.password;
-		let search = this.search('(|(uid='+login+')(mail='+login+')(cn='+login+'))');
-		function firstResolved(l,foo){
-			let v = l.pop();
-			if (v) {
-				console.log('dn: '+v)
-				return (foo(v).catch((err)=>{console.log('dn: '+v+'-->'+err);return firstResolved(l,foo);}));
-			} else {
-				return Promise.reject();
+		if ( ! (credential instanceof BaseAuthentication.LoginPwdCredential)){
+			console.log('*** USMB LDAP authenticator, credential verification: invalid credential ');
+			return Promise.reject(new TypeError('Invalid credential: '+credential));
+		} else {
+			let login=credential.login;
+			let password=credential.password;
+			let search = this.search('(|(uid='+login+')(mail='+login+')(cn='+login+'))');
+			function firstResolved(l,foo){
+				let v = l.pop();
+				if (v) {
+					console.log('*** USMB LDAP authenticator, trying  matching user: dn='+v);
+					return (foo(v).catch((err)=>{
+								console.log('dn: '+v+'-->'+err);
+								return firstResolved(l,foo);
+					}));
+				} else {
+					console.log('*** USMB LDAP authenticator, end of list or no matching user ');
+					return Promise.reject(new Error("invalid user or password"));
+				}
 			}
+			return search.then((l)=>{return firstResolved(l,(dn)=>{return super.verifyCredential(super.createCredential(dn,password));});});
 		}
-		return search.then((l)=>{return firstResolved(l,(dn)=>{return super.verifyCredential(super.createCredential(dn,password));});});
 	}
 }
 // var UsmbLdapAuthenticator=require("./LdapAuthenticator.js");
