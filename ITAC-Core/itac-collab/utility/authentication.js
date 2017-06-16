@@ -439,7 +439,7 @@ Authenticator.registerFactory(factory);
 console.log('Authenticators: '+Authenticator.registredAuthenticators());
 console.log('Factories: '+Authenticator.registredFactories());
 
-module.exports = {Authenticator, YesAuthenticator, LoginPwdCredential, 
+module.exports = {Authenticator, YesAuthenticator, NoAuthenticator, Credential, LoginPwdCredential, 
 		LoginPwdAuthenticator, LoginPwdDB, FileLoginPwdAuthenticator};
 
 /*

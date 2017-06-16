@@ -87,6 +87,7 @@ class Session {
 		var confZC = context.zc.config;
 		this.ZC =new ZoneCollaborative(confZC);
 		this.ZC.session=this;	
+		Session.registerSession(this);
 	}
 	
 	/**
@@ -153,10 +154,58 @@ class Session {
 	 * @returns {Session} la session sauvegardee
 	 */
 	static loadSession(name){
-		var filename = crypto.createHash('sha1').update(name,'utf8').digest('hex');
-		var data = fs.readFileSync("./session/"+filename);
-		return new Session(JSON.parse(data));
+		// on regarde d'abord si c'est une session existante
+		var session = Session.getSession(name);
+		// si ce n'est pa le cas on essaye de la charger
+		if (! session){
+			let filename = crypto.createHash('sha1').update(name,'utf8').digest('hex');
+			let data = fs.readFileSync(CONSTANTE.repSession+filename);
+			session = new Session(JSON.parse(data));
+		}
+		return session;
+	}
+	
+	/**
+	 * Methode statique d'enregistrer une session dans la liste des sessions actives.
+	 * 
+	 * @static
+	 * @private
+	 * @method 
+	 * @param {Session} session - session a enregistrer.
+	 */
+	static registerSession(session){
+		if (session instanceof Session)
+		// si necessaire initialisation de la liste des sessions
+		if (! Session.activesSessions){
+			Session.activesSessions = {};
+		} 
+		Session.activesSessions[session.name]=session;
+	}
+	
+	/**
+	 * Methode permettant d'obtenir une des sessions actives.
+	 * 
+	 * @method 
+	 * @static
+	 * @param {string} name - nom de la session recherchee
+	 * @returns {Session}
+	 */
+	static getSession(name){
+		return Session.activesSessions[name];
+	}
+
+	/**
+	 * Methode permettant d'obtenir la liste des sessions enregistrées.
+	 * 
+	 * @method 
+	 * @static
+	 * @returns {string[]} la liste des sessions enregistrees
+	 */
+	static registredSessions(){
+		return Object.keys(Session.activesSessions[name]);
 	}
 }
+// initialisation de la liste des sessions
+Session.activesSessions = {};
 
 module.exports=Session;
