@@ -162,7 +162,7 @@ module.exports = class ZoneCollaborative {
 
         for (var i = 1; i < this.getNbZP(); i++) {
             //paramZP=merge(paramZP, {idZP:tab[i], nbZEmin:tab[i+1], nbZEmax:tab[i+2]});
-            ajout = {
+            var ajout = {
                 idZP: this.listeZP[i].idZP,
                 typeZP: this.listeZP[i].typeZP,
                 nbZEmin: this.listeZP[i].ZEmin,
