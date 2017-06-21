@@ -209,7 +209,8 @@ socket.on('EVT_NewZEinZP', function (pseudo, idZE, idZP, posAvatar) {
     $(function () {
 
         // on rajoute l'avatar dans le div de la ZE
-        $("#" + idZE + "").html("<img id=avatar" + posAvatar + " class='avatar' style ='position:relative ; top: " + paramAffichageAvatarde[idZE][0] + "px ; left: " + paramAffichageAvatarde[idZE][1] + "px ; '></img> ")
+        // $("#" + idZE + "").html("<img id=avatar" + posAvatar + " class='avatar' style ='position:relative ; top: " + paramAffichageAvatarde[idZE][0] + "px ; left: " + paramAffichageAvatarde[idZE][1] + "px ; '></img> ")
+        $("#" + idZE + "").html("<img id=avatar" + posAvatar + " class='avatar' /> ")
 
         // La zone est prête : on peut la faire apparaître en glissant.
         $("#" + idZE + "").slideDown(1000);

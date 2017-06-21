@@ -162,6 +162,26 @@ background: linear-gradient(to left top, #283048 , #859398); /* W3C, IE 10+/ Edg
   border: 2px dashed #046ca3;
 }
 
+.avatar {
+	position : absolute;
+}
+
+[orientation=top] >.avatar {
+	right:0px;
+	bottom:0px;
+}
+[orientation=down] >.avatar {
+	right:0px;
+	top:0px;
+}
+[orientation=left] >.avatar {
+	right:0px;
+	bottom:0px;
+}
+[orientation=right] >.avatar {
+	left:0px;
+	bottom:0px;
+}
 .artefact {
 
   	display: inline-block;
