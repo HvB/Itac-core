@@ -131,7 +131,7 @@ interact('.ZP').dropzone({
         console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
         socket.on('EVT_ReponseOKEnvoie_ArtefactdeZPversZP', function (idart) {
             console.log("menu ITAC -> ZP.ondrop : transfert Artefact envoye et bien recu " + idart);
-            $(event.relatedTarget).fadeOut();
+            $(event.relatedTarget).remove();
         });
     },
 
@@ -176,7 +176,7 @@ interact('.trash').dropzone({
         var idAr = $(event.relatedTarget).context.attributes[0].value;
         console.log("menu ITAC -> suppresion ART = " + idAr);
         socket.emit('EVT_ArtefactDeletedFromZP', idAr);
-        $(event.relatedTarget).fadeOut();
+        $(event.relatedTarget).remove();
     },
 
     ondropdeactivate: function (event) {

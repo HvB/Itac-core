@@ -11,35 +11,31 @@ interact('#ZP').dropzone({
     // les evenement de drop
     ondropactivate: function (event) {
         // activer la zone de drop
-        event.target.classList.add('drop-active');
+        $(event.target).addClass('drop-active');
     },
 
     ondragenter: function (event) {
-        var draggableElement = event.relatedTarget,
-            zoneEchangeElement = event.target;
         // la possibilité de drop
-        zoneEchangeElement.classList.add('drop-target');
-        draggableElement.classList.add('can-drop');
+        $(event.target).addClass('drop-target');
+        $(event.relatedTarget).addClass('can-drop');
     },
 
     ondragleave: function (event) {
         //supprimer le feedback de drop
-        event.target.classList.remove('drop-target');
-        event.relatedTarget.classList.remove('can-drop');
-        event.relatedTarget.classList.remove('dropped');
-        event.relatedTarget.classList.add('artefact');
+        $(event.target).removeClass('drop-target');
+        $(event.relatedTarget).removeClass('can-drop dropped');
+        $(event.relatedTarget).addClass('artefact');
     },
 
     ondrop: function (event) {
         //les evenements aprés le drop
-        // event.relatedTarget.classList.add('dropped');
-        event.relatedTarget.classList.remove('can-drop');
-        event.relatedTarget.classList.add('artefact');
+        $(event.relatedTarget).removeClass('can-drop');
+        $(event.relatedTarget).addClass('artefact');
+        $(event.relatedTarget).remove().appendTo('#ZP');
     },
 
     ondropdeactivate: function (event) {
         //supprimer le drop-active class de la zone de drop
-        event.target.classList.remove('drop-active');
-        event.target.classList.remove('drop-target');
+        $(event.target).removeClass('drop-active drop-target');
     }
 });
