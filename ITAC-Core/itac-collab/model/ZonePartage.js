@@ -184,7 +184,7 @@ module.exports = class ZonePartage {
      * @param {string} idZEP identifiant de la tablette
      * @autor philippe pernelle
      */
-    createZE(idZEP) {
+    createZE(idZEP,pseudo,posAvatar) {
 
         var ret = null;
 
@@ -197,7 +197,7 @@ module.exports = class ZonePartage {
             var idze = this.getIdZEdispo();
 
             // création de la ZE et mise dans la liste
-            this.listeZE.push(new ZoneEchange(this, idze, idZEP, true));
+            this.listeZE.push(new ZoneEchange(this, idze, idZEP, true, pseudo,posAvatar));
 
             console.log('      === ZonePartage (' + this.idZP + ') : ZE créée = ' + idze + ' pour la ZEP = ' + idZEP);
             ret = idze;

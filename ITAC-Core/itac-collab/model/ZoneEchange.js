@@ -5,11 +5,13 @@
  */
 
 module.exports = class ZoneEchange {
-    constructor(ZP, idZE, idZEP, visible) {
+    constructor(ZP, idZE, idZEP, visible, pseudo, posAvatar) {
         this.ZP = ZP;
         this.idZE = idZE;
         this.idZEP = idZEP;
         this.visible = visible;
+        this.pseudo = pseudo;
+        this.posAvatar = posAvatar;
         console.log('   	 +++ Zone Echange créée : ZP parent = ' + this.ZP.idZP + ' | idZE = ' + this.idZE + ' | idZEP associé = ' + this.idZEP + ' | visibility = ' + this.visible);
     }
 
@@ -19,5 +21,13 @@ module.exports = class ZoneEchange {
 
     getIdZEP() {
         return this.idZEP;
+    }
+
+    getPseudo() {
+        return this.pseudo;
+    }
+
+    getPosAvatar() {
+        return this.posAvatar;
     }
 };
