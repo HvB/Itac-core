@@ -231,14 +231,14 @@ socket.on('EVT_ReceptionArtefactIntoZE', function (pseudo, idZE, chaineJSON) {
     art = JSON.parse(chaineJSON)
 
     // en fonction du type d'artefact, on crée la DIV correspondante "image" ou "texte"
-    if (art.typeArtefact == "image") {
-        art.contenu = (art.contenu).replace(/(\r\n|\n|\r)/gm, ""); //supprimer les caractères spéciaux
+    if (art.type == "image") {
+        art.content = (art.content).replace(/(\r\n|\n|\r)/gm, ""); //supprimer les caractères spéciaux
 
-        var target = $("<div id=" + art.idAr + " class='draggable artefact img dropped-image' style='background-image: url(data:image/png;base64," + art.contenu + ")'> </div>");
+        var target = $("<div id=" + art.id + " class='draggable artefact img dropped-image' style='background-image: url(data:image/png;base64," + art.content + ")'> </div>");
     }
     else {
-        art.contenu = (art.contenu).replace(/(\r\n|\n|\r)/gm, "</br>"); //pour le saut de ligne
-        var target = $("<div id=" + art.idAr + " class='draggable artefact dropped-msg'>  <h1> " + art.titre + " </h1> <p style ='display: none'> " + art.contenu + " </p> </div>");
+        art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "</br>"); //pour le saut de ligne
+        var target = $("<div id=" + art.id + " class='draggable artefact dropped-msg'>  <h1> " + art.title + " </h1> <p style ='display: none'> " + art.content + " </p> </div>");
     }
 
     target.appendTo("#" + idZE + "");
@@ -255,14 +255,14 @@ socket.on('EVT_ReceptionArtefactIntoZP', function (pseudo, idZP, chaineJSON) {
 
     art = JSON.parse(chaineJSON)
 
-    if (art.typeArtefact == "image") {
-        art.contenu = (art.contenu).replace(/(\r\n|\n|\r)/gm, "");
-        var target = $("<div id=" + art.idAr + " class='draggable artefact img' style='left:50%; top:50%; position: relative; background-image: url(data:image/png;base64," + art.contenu + ")'> </div>");
+    if (art.type == "image") {
+        art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "");
+        var target = $("<div id=" + art.id + " class='draggable artefact img' style='left:50%; top:50%; position: relative; background-image: url(data:image/png;base64," + art.content + ")'> </div>");
     }
     else {
 
-        art.contenu = (art.contenu).replace(/(\r\n|\n|\r)/gm, "</br>");
-        var target = $("<div id=" + art.idAr + " class='draggable artefact' style='left:50%; top:50% ;position: relative;'>  <h1> " + art.titre + " </h1> <p> " + art.contenu + " </p> </div>");
+        art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "</br>");
+        var target = $("<div id=" + art.id + " class='draggable artefact' style='left:50%; top:50% ;position: relative;'>  <h1> " + art.title + " </h1> <p> " + art.content + " </p> </div>");
     }
     target.appendTo("#ZP");
 })
