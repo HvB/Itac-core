@@ -540,7 +540,7 @@ module.exports = class ZoneCollaborative {
             path = path + '.txt';
             logger.info('=> addArtifactFromJSON : creation artifact : creation text ' + path);
 
-            fs.writeFile(path, monArtifact.contenu, "UTF-8", function (err) {
+            fs.writeFile(path, monArtifact.content, "UTF-8", function (err) {
                 logger.error(err); // writes out file without error, but it's not a valid image
             });
 
