@@ -558,6 +558,11 @@ module.exports = class Serveur {
             logger.info("=> envoiArtefacttoEP : sendArFromZEPtoEP avec idArt " + idAr + " de ZE = " + idZE + " ---  vers " + idZEP);
             // en fait on efface l artefact de la ZP, ZE
             this.ZP.sendArFromZEPtoEP(idAr, idZE, idZEP);
+
+            // acquittement pour stepahen
+            socket.emit(EVENT.ArtefactDeletedFromZE, pseudo, idZE, idAr);
+            logger.info('=> envoiArtefacttoEP : envoi à ZEP ['+EVENT.ArtefactDeletedFromZE+']  (' + this.ZP.getId() + ") --> artefact id= "+idAr );
+
             // envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
             if (this.isZAConnected()) {
                 this._io.sockets.to(this.getSocketZA()).emit(EVENT.ArtefactDeletedFromZE, idAr, idZE, idZEP);
