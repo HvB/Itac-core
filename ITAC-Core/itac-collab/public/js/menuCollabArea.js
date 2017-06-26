@@ -129,10 +129,7 @@ interact('.ZP').dropzone({
         console.log("menu ITAC -> ZP.ondrop : transfert ART = " + idAr + " de ZP=" + idZPsource + " vers ZP=" + idZPcible);
         socket.emit('EVT_Envoie_ArtefactdeZPversZP', idAr, idZPsource, idZPcible);
         console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
-        socket.on('EVT_ReponseOKEnvoie_ArtefactdeZPversZP', function (idart) {
-            console.log("menu ITAC -> ZP.ondrop : transfert Artefact envoye et bien recu " + idart);
-            $(event.relatedTarget).remove();
-        });
+        $(event.relatedTarget).remove();
     },
 
     ondropdeactivate: function (event) {
