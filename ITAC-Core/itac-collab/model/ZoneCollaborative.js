@@ -527,7 +527,7 @@ module.exports = class ZoneCollaborative {
 
             path = path + '.png';
             logger.info('=> addArtifactFromJSON : creation artifact : creation image ' + path);
-            var base64Data = monArtifact.contenu.replace(/^data:image\/png;base64,/, "");
+            var base64Data = monArtifact.content.replace(/^data:image\/png;base64,/, "");
             base64Data += base64Data.replace('+', ' ');
             var binaryData = new Buffer(base64Data, 'base64').toString('binary');
 
