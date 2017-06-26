@@ -489,16 +489,17 @@ module.exports = class ZoneCollaborative {
         logger.info('=> addArtifactFromJSON : ajout artefact a partir du JSON' );
 
         var temp = JSON.parse(artifact_json_string);
-
+        var id;
         // cas ou l'identifiant n'existe pas, c'est un nouveau artefact
         if (temp.id == null ||  temp.id == '') {
             // calcul d'un nouvel identifiant
-            var id = this.setIdAr();
+            id = this.setIdAr();
             logger.info('=> addArtifactFromJSON : calcul nouveau IdArtifact = ' + id);
         }
         // cas ou l'identifiant existe , il faut reprendre
         else {
             //var id = parseInt(temp.idAr);
+            id=temp.id;
             logger.info('=> addArtifactFromJSON : il s agit d un artefact avec un id : reprise  IdArtifact = ' + id);
             this.delArtifact(id);
             logger.info('=> addArtifactFromJSON : suppresion de l ancien  IdArtifact = ' + id);
