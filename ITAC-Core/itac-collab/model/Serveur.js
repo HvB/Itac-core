@@ -7,9 +7,10 @@ var constant = require('../constant');
 var ERROR = constant.error;
 var EVENT = constant.event;
 
-// utilisation loggeu
-const bunyan = require('bunyan');
-var logger = bunyan.createLogger({name: "Serveur"});
+// utilisation logger
+const itacLogger = require('../utility/loggers').itacLogger;
+
+var logger = itacLogger.child({component: 'Serveur'});
 
 var idZEP = 0;
 
