@@ -24,6 +24,7 @@
     "mocha": "*",
     "chai-as-promised": "*",
     "chai": ">= 2.1.2 < 4 ",
+    "bunyan": "*",
     "uuid": "*"
   }
 }
