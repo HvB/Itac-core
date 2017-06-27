@@ -1,242 +1,183 @@
 /**
- * cette classe représente un Artefact qui va être echangé
-
- * 
- * 
- */
-//var Constantes=require('./Constante');
-
-//var CONSTANTE = new Constantes();
-
-/**
- * constructeur de la classe Artifact
- * 
- * @constructor
- * @param {Number} idAr Identifiant de l'artifact
- * @param {String} creator nom du createur de l'artifact
- *          
+ * classe Artifact
+ *
+ *
  * @author philippe pernelle
  */
 
+// utilisation loggeu
+const bunyan = require('bunyan');
+var logger = bunyan.createLogger({name: "Artefact"});
 
-var Artifact= function (idAr,createur,typeArtefact,idConteneur,typeConteneur,modificateurs,titre,contenu){	
-	
-	
-	console.log('    ---- creation Artefact recu'+' | idAr = '+idAr+' | creator = '+createur+' | typeArtefact = '+typeArtefact+
-			' | idConteneur = '+idConteneur+' | typeConteneur = '+typeConteneur);
-	
-	this.idAr=idAr;
-	this.createur=createur;
-	this.proprietaire=createur;
-	this.typeArtefact=typeArtefact;
-	this.idConteneur=idConteneur;
-	this.typeConteneur=typeConteneur;
-	this.dateCreation = Date.now();
-	this.derniereModification = Date.now();
-	this.modificateurs = [];
-	this.titre = titre;
-	this.contenu = contenu;
-	
-	console.log('    ---- creation Artefact'+' | idAr = '+this.idAr+' | creator = '+this.createur+' | typeArtefact = '+this.typeArtefact+
-			' | idConteneur = '+this.idConteneur+' | typeConteneur = '+this.typeConteneur);
-	
-	
-	// ajouter la sauvegarde de l'articat dans un repertoire temporaire
-	
-	
-};
+module.exports = class Artifact {
+    constructor(id, creator, owner, type, idContainer, typeContainer, dateCreation, history, title, content) {
 
+        this.id = id;
+        this.creator = creator;
+        this.owner = owner;
+        this.type = type;
+        this.idContainer  = idContainer;
+        this.typeContainer  = typeContainer;
+        this.dateCreation = dateCreation;  // Date.now();
+        this.history = history;  //[];
+        this.title  = title;
+        this.content  = content;
+        logger.info('creation Artefact recu' + ' | id = ' + id + ' | creator = ' + creator + ' | type = ' + type +
+            ' | idContainer = ' + idContainer + ' | typeContainer = ' + typeContainer);
 
+        // ajouter la sauvegarde de l'articat dans un repertoire temporaire
+    }
 
+    isInto(idContainer, typeContainer) {
+        return ((this.typeContainer === typeContainer) && (this.idContainer === idContainer));
+    }
 
-Artifact.fromJSON = function(artifact_json_string,idAr) {
-	console.log('    ---- creation Artefact from JSON : CHAINE ='+artifact_json_string);
-	console.log('    ---- creation Artefact from JSON : OBJ ='+JSON.parse(artifact_json_string));
-	
-	var temp = JSON.parse(artifact_json_string);
-    var art = new Artifact(idAr, temp.createur, temp.typeArtefact, temp.idConteneur, temp.typeConteneur, temp.modificateurs,temp.titre,temp.contenu);
-     art.idAr=idAr;
-     return art;
-};
+    /**
+     * retourne l'identifiant de l'artefact
+     * @return {String} Id Artefact
+     */
+    getId() {
+        return this.id;
+    }
 
+    /**
+     * retourne le createur de l'artefact
+     * @return {String} creator
+     */
+    getCreator() {
+        return this.creator;
+    };
 
-module.exports=  Artifact;
+    /**
+     * retourne l'identifiant de l'artefact
+     * @return {String} Id Artefact
+     */
+    getIdContainer() {
+        return this.idContainer;
+    };
 
+    /**
+     * retourne l'identifiant de l'artefact
+     * @return {String} Id Artefact
+     */
+    getTypeContainer() {
+        return this.typeContainer;
+    };
 
+    /**
+     * indique si l'artefact à un propriétaire
+     * @return {Boolean} Id Artefact
+     */
+    hasOwner() {
+        return this.owner !== null;
+    };
 
+    /**
+     * retourne le properietaire de l'artefact
+     * @return {String} owner
+     */
 
-Artifact.prototype.isInto = function(idConteneur,typeConteneur) {
-	return ((this.typeConteneur === typeConteneur) && (this.idConteneur=== idConteneur));
-};
+    getOwner() {
+        return this.owner;
+    };
 
+    /**
+     * retourne le typle de l'artefact
+     * @return {String} type
+     */
+    getType() {
+        return this.type;
+    };
 
+    sizeHistory() {
+        return this.history.length;
+    };
 
-/**
- * retourne l'identifiant de l'artefact
- * @return {String} Id Artefact
- */
-Artifact.prototype.getId=function()
-{
-	return this.idAr;
-};
+    /**
+     * retourne si lartefact est modifeir ou non
+     * @return {Boolean}
+     */
+    hasModifier(modifier) {
+        for (var i = 0; i < this.modificateurs.length; i++) {
+            if (this.modificateurs[i].equals(modifier)) {
+                return true;
+            }
+        }
+        return false;
+    };
 
-/**
- * retourne le createur de l'artefact
- * @return {String} creator
- */
-Artifact.prototype.getCreateur = function() {
-	return this.createur;
-};
+    /**
+     * retourne les artefaacts modifiers
+     *
+     */
+    getModifier(n) {
+        return this.modificateurs[n];
+    };
 
-/**
- * retourne l'identifiant de l'artefact
- * @return {String} Id Artefact
- */
-Artifact.prototype.getIdConteneur=function()
-{
-	return this.idConteneur;
-};
+    addModifier(modifier) {
+        if (!modifier.equals(this.creator) && !this.hasModifier(modifier)) {
+            this.modificateurs.push(modifier);
+        }
+        this.derniereModification = Date.now();
+    };
 
-/**
- * retourne l'identifiant de l'artefact
- * @return {String} Id Artefact
- */
-Artifact.prototype.getTypeConteneur=function()
-{
-	return this.typeConteneur;
-};
+    /**
+     * indique si l'artefact à un titre
+     * @return {Boolean} title
+     */
+    hasTitle(title) {
+        return this.title == title;
+    };
 
-/**
- * indique si l'artefact à un propriétaire
- * @return {Boolean} Id Artefact
- */
-Artifact.prototype.hasOwner = function() {
-	return this.proprietaire !== null;
-};
+    /**
+     * retourne le titre de l'artefact
+     * @return {String} title
+     */
+    getTitle() {
+        return this.title;
+    };
 
-/**
- * retourne le properietaire de l'artefact
- * @return {String} owner
- */
-
-Artifact.prototype.getOwner=function()
-{
-return this.proprietaire;	
-};
-
-
-/**
- * retourne le typle de l'artefact
- * @return {String} type
- */ 
-Artifact.prototype.getTypeArtefact=function()
-{
-	return this.typeArtefact;
-};
-
-
-Artifact.prototype.sizeModifier = function() {
-	return this.modificateurs.length;
-};
-
-/**
- * retourne si lartefact est modifeir ou non
- * @return {Boolean} 
- */ 
-Artifact.prototype.hasModifier = function(modifier) {
-	for (var i = 0; i < this.modificateurs.length; i++) {
-		if (this.modificateurs[i].equals(modifier)) {
-			return true;
-		}
-	}
-	return false;
-};
-
-/**
- * retourne les artefaacts modifiers
- * 
- */
-Artifact.prototype.getModifier = function(n) {
-	return this.modificateurs[n];
-};
-
-Artifact.prototype.addModifier = function(modifier) {
-	if (!modifier.equals(this.creator) && !this.hasModifier(modifier)) {
-		this.modificateurs.push(modifier);
-	}
-	this.derniereModification = Date.now();
-};
-
-/**
- * indique si l'artefact à un titre
- * @return {Boolean} title
- */
-
-Artifact.prototype.hasTitle = function(titre) {
-	return this.titre == titre;
-};
-
-/**
- * retourne le titre de l'artefact
- * @return {String} title 
- */
-Artifact.prototype.getTitle = function() {
-	return this.titre;
-};
-
-/**
- * set le titre de l'artefact
- * @return {String} title
- */
-Artifact.prototype.setTitle = function(titre) {
-	this.titre = titre;
-};
-
-
-Artifact.prototype.setOldTitle = function(oldTitle) {
-	this.oldTitle = oldTitle;
-};
-
-
-/**
- * retourne le createur de l'artefact
- * @return {String} creator
- */
+    /**
+     * set le titre de l'artefact
+     * @return {String} title
+     */
+    setTitle(title) {
+        this.titre = title;
+    };
 
 
 
-/**
- * set  le message de l'artefact
- * @return {String} message
- */ 
-
-Artifact.prototype.setMessage = function(message) {
-	this.message = message;
-};
+     setId(id) {
+         this.id=id;
+    }
 
 
-/**
- * mettre l'artefact dans la ZE
- * @return {number} idConteneur
- *  * @return {number} typeConteneur
- */
+    /**
+     * mettre l'artefact dans la ZE
+     * @return {number} idConteneur
+     *  * @return {number} typeConteneur
+     */
+    setIntoZone(idConteneur, typeConteneur) {
+        logger.info('changement de zone pour  Artefact (' + this.getId() + ') SRC type= ' + this.getTypeContainer() + ' id=' + this.getIdContainer()+' DEST type= ' + typeConteneur + ' id =' + idConteneur);
+        this.idContainer = idConteneur;
+        this.typeContainer = typeConteneur;
+    };
 
-Artifact.prototype.setIntoZone=function(idConteneur,typeConteneur)
-{
-	console.log('    ---- changement de zone pour  Artefact ('+this.getId()+') conteneur de type source = '+this.getTypeConteneur()+ ' idconteneur source ='+this.getIdConteneur());
-	console.log('    ---- changement de zone pour  Artefact ('+this.getId()+') conteneur de type cible = '+typeConteneur+ ' idconteneur cible ='+idConteneur);
-	this.idConteneur=idConteneur;
-	this.typeConteneur=typeConteneur;
-};
+    /**
+     * comparaison entre 2 art pour voir s'il ya une modification
+     * @return {Boolean}
+     */
+    equals(artefact) {
+        return this.idAr == artefact.getId();
+    };
 
+    static fromJSON(artifact_json_string, id) {
+        logger.debug('creation Artefact from JSON : CHAINE =' + artifact_json_string);
+        logger.debug('creation Artefact from JSON : OBJ =' + JSON.parse(artifact_json_string));
 
-
-
-/**
- * comparaison entre 2 art pour voir s'il ya une modification
- * @return {Boolean} 
- */
-
-Artifact.prototype.equals = function(artefact) {
-	return this.idAr == artefact.getId();
+        var temp = JSON.parse(artifact_json_string);
+        var art = new Artifact(id, temp.creator, temp.owner,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.content);
+        art.setId(id) ;
+        return art;
+    }
 };

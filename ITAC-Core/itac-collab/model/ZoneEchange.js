@@ -1,37 +1,33 @@
 /**
  * Cette classe permet de créer une Zone d'Echange qui est associé à une Zone de Partage .
- * 
- * @requires ZonePartage
- * @requires Artifact
- * @requires Serveur
- * @requires Constantes
- * 
+ *
  * @author philippe pernelle
- * 
  */
-var Artifact = require('./Artifact');
-var ZP = require('./ZonePartage');
 
-var ZoneEchange = function(ZP, idZE, idZEP, visible) {
-	
-	this.ZP = ZP;
-	this.idZE = idZE;
-	this.idZEP = idZEP; 
-	this.visible = true;
-	console.log('   	 +++ Zone Echange créée : ZP parent = ' + this.ZP.idZP+' | idZE = ' + this.idZE +' | idZEP associé = ' + this.idZEP+' | visibility = ' + this.visible);
-};
+module.exports = class ZoneEchange {
+    constructor(ZP, idZE, idZEP, visible, pseudo, posAvatar) {
+        this.ZP = ZP;
+        this.idZE = idZE;
+        this.idZEP = idZEP;
+        this.visible = visible;
+        this.pseudo = pseudo;
+        this.posAvatar = posAvatar;
+        console.log('   	 +++ Zone Echange créée : ZP parent = ' + this.ZP.idZP + ' | idZE = ' + this.idZE + ' | idZEP associé = ' + this.idZEP + ' | visibility = ' + this.visible);
+    }
 
-module.exports = ZoneEchange;
+    getId() {
+        return this.idZE;
+    }
 
+    getIdZEP() {
+        return this.idZEP;
+    }
 
-ZoneEchange.prototype.getId = function() {
-	return this.idZE;
-};
+    getPseudo() {
+        return this.pseudo;
+    }
 
-ZoneEchange.prototype.getIdZEP = function() {
-	return this.idZEP;
-};
-
-ZoneEchange.prototype.SetVisibility = function(ZEmin, ZEmax) {
-	return this.visible;
+    getPosAvatar() {
+        return this.posAvatar;
+    }
 };

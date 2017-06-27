@@ -14,9 +14,7 @@ const ZoneCollaborative = require('./ZoneCollaborative');
 const BaseAuthentification = require("../utility/authentication");
 const crypto = require('crypto');
 const fs = require('fs');
-const Constantes=require('../Constante');
-
-const CONSTANTE = new Constantes();
+const DIRECTORY = require('../constant').directory.session;
 
 /**
  * Class pour la representation des Sessions. 
@@ -75,12 +73,12 @@ class Session {
 	 * 
 	 * @param {json} context: contexte de la session
 	 */
-	constructor(context){
+    constructor(context) {
 		this.context = context;
 		this.name = context.session.name;
 		// creation dispositif d'authetification
 		var confAuth = context.authentification;
-		console.log("factory: "+confAuth.factory);
+        console.log("factory: " + confAuth.factory);
 		var factory = BaseAuthentification.Authenticator.getFactory(confAuth.factory);
 		this.auth = factory(confAuth.config);
 		// creation de la ZC
@@ -95,10 +93,12 @@ class Session {
 	 * 
 	 * @returns {Array} : liste des ids des articles de la ZC
 	 */
-	get artifactIds(){
-		var listIds=[];
-		if(this.ZC){
-			listIds = this.ZC.getAllArtifacts().map((a)=>{return a.getId()});
+    get artifactIds() {
+        var listIds = [];
+        if (this.ZC) {
+            listIds = this.ZC.getAllArtifacts().map((a)=> {
+                return a.getId()
+            });
 		}
 		return listIds; 
 	}
@@ -120,26 +120,26 @@ class Session {
 	 * 
 	 * @returns {Promise} Si elle est tenue, la valeur de la promesse correspond au nom nom du fichier de sauvegarde
 	 */
-	saveSession(){
+    saveSession() {
 		return new Promise((resolve, reject) => {
-			console.log('\n*** traitement de la demande de sauvegarde de sauvegarde la session='+this.name);		
-			console.log('*** creation du dossier de sauvegarde des sessions='+CONSTANTE.repSession);
-			fs.mkdir(CONSTANTE.repSession, (err) => {
-				if (err && err.code !== 'EEXIST'){
-					 console.log('*** erreur lor de la creation du dossier sauvegarde pour les sessions :'+err.code);
+            console.log('\n*** traitement de la demande de sauvegarde de sauvegarde la session=' + this.name);
+            console.log('*** creation du dossier de sauvegarde des sessions=' + DIRECTORY);
+            fs.mkdir(DIRECTORY, (err) => {
+                if (err && err.code !== 'EEXIST') {
+                    console.log('*** erreur lor de la creation du dossier sauvegarde pour les sessions :' + err.code);
 					 reject(err);
 				} else {
-					  if (err) console.log('*** dossier de sauvegarde pour les sessions existe : '+err.code);
+                    if (err) console.log('*** dossier de sauvegarde pour les sessions existe : ' + err.code);
 					  else console.log('*** dossier de sauvegarde pour les sessions cree');
-					  var filename = crypto.createHash('sha1').update(this.name,'utf8').digest('hex');
-					  console.log('*** debut de la sauvegarde de la session '+this.name+' : '+CONSTANTE.repSession+filename);
-					  fs.writeFile(CONSTANTE.repSession+filename, JSON.stringify(this, null, 2), "utf8", 
+                    var filename = crypto.createHash('sha1').update(this.name, 'utf8').digest('hex');
+                    console.log('*** debut de la sauvegarde de la session ' + this.name + ' : ' + DIRECTORY + filename);
+                    fs.writeFile(DIRECTORY + filename, JSON.stringify(this, null, 2), "utf8",
 							  (err) => { 
 								  if (err) {
-									  console.log('*** erreur lor de la sauvegarde de la sessions '+this.name+' :'+err.code);
+                                console.log('*** erreur lor de la sauvegarde de la sessions ' + this.name + ' :' + err.code);
 									  reject(err);
 								  } else {
-									  console.log('*** fin de la sauvegarde de la sessions '+this.name+' : '+CONSTANTE.repSession+filename);
+                                console.log('*** fin de la sauvegarde de la sessions ' + this.name + ' : ' + DIRECTORY + filename);
 									  resolve(filename)
 								  }
 								});
@@ -147,6 +147,7 @@ class Session {
 			});
 		});
 	}
+
 	/**
 	 * Chargement d'une session precedente.
 	 * 
@@ -159,7 +160,7 @@ class Session {
 		// si ce n'est pa le cas on essaye de la charger
 		if (! session){
 			let filename = crypto.createHash('sha1').update(name,'utf8').digest('hex');
-			let data = fs.readFileSync(CONSTANTE.repSession+filename);
+			let data = fs.readFileSync(DIRECTORY+filename);
 			session = new Session(JSON.parse(data));
 		}
 		return session;
@@ -208,4 +209,4 @@ class Session {
 // initialisation de la liste des sessions
 Session.activesSessions = {};
 
-module.exports=Session;
+module.exports = Session;
