@@ -7,6 +7,8 @@
  * @requires ZoneEchange
  * @requires Artifact
  * @requires constant
+ * @requires bunyan
+ * @requires loggers
  *
  * @author philippe pernelle
  */
@@ -22,9 +24,11 @@ var fs = require("fs");
 
 const uuidv4 = require('uuid/v4');
 
-// utilisation loggeu
-const bunyan = require('bunyan');
-var logger = bunyan.createLogger({name: "ZoneCollaborative"});
+// utilisation logger
+const itacLogger = require('../utility/loggers').itacLogger;
+
+var logger = itacLogger.child({component: 'ZoneCollaborative'});
+
 
 /**
  * constructeur de la classe ZoneCollaborative

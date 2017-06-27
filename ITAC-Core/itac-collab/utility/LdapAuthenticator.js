@@ -5,15 +5,17 @@
  * 
  * @requires ldapjs
  * @requires bunyan
+ * @requires loggers
  * @requires authentication
  * 
  * @author Stephane Talbot
  */
 const ldap = require('ldapjs');
 const BaseAuthentication = require('./authentication');
-const bunyan = require('bunyan');
+const itacLogger = require('./loggers').itacLogger;
 
-var log = bunyan.createLogger({name: "LdapAuthenticator"});
+var log = itacLogger.child({component: 'LdapAuthenticator'});
+
 /**
  * Authentificateur associe a un annuaire LDAP. 
  * 
