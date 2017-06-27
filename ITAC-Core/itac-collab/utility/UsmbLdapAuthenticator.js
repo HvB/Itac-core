@@ -5,8 +5,8 @@
  * 
  * @requires bunyan
  * @requires LdapAuthenticator
-  * @requires authentication
-  * 
+ * @requires authentication
+ * 
  * @author Stephane Talbot
  */
 const bunyan = require('bunyan');
