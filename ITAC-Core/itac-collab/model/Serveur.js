@@ -320,11 +320,9 @@ module.exports = class Serveur {
                 {
                     logger.info('   ***  DECONNECT SOCKET *** --> attention il s agit de la ZA [Ok]');
                     // une deconnexion ZA avec des ZE encore connecté est probablement non souhaite
-                    if (this.ZP.getNbZE() > 0)
-                    {
-                        this.setClientZAreconnect(true);
-                        logger.info('   ***  DECONNECT SOCKET *** --> activation de la reconnnection ZA [Ok]');
-                    }
+
+                    this.setClientZAreconnect(true);
+                    logger.info('   ***  DECONNECT SOCKET *** --> activation de la reconnnection ZA [Ok]');
                 }
                 else
                     logger.info('   ***  DECONNECT SOCKET *** --> pas de traitement, ZE déjà supprimer');
