@@ -292,7 +292,7 @@ module.exports = class ZonePartage {
      * @param {idZE}    Zone d'Echange cible
      */
     sendArFromZPtoZE(idAr, idZE) {
-        this.ZC.setArtifactIntoZE(idAr, idZE);
+         return(this.ZC.setArtifactIntoZE(idAr, idZE));
     };
 
     /**
@@ -337,7 +337,9 @@ module.exports = class ZonePartage {
             IdArtefact = this.ZC.addArtifactFromJSON(artefactenjson);
 
             // affectation de l'artifact à la zone ZE
-            this.ZC.setArtifactIntoZE(IdArtefact, idZE);
+            if ( ! (this.ZC.setArtifactIntoZE(IdArtefact, idZE)) ) {
+                logger.debug('=> addArtifactFromZEPtoZE : pas denvoi en ZE car ZE existe');
+            };
         }
         // renvoie l'id de l'artifcat créé
         logger.debug('=> addArtifactFromZEPtoZE : renvoi IdArtefact utilise =' + IdArtefact);
