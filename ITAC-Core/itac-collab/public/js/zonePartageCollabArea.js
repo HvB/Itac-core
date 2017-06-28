@@ -28,13 +28,6 @@ interact('#ZP').dropzone({
     },
 
     ondrop: function (event) {
-        // on recupeère les identifiant
-        var idAr = event.relatedTarget.id, idZE = event.target.id;
-        console.log('ondragleave d un Artefact (' + idAr + ') de la ZE= ' + idZE + ' vers la ZP= ' + zpdemande);
-        console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP] idSocket =' + socket.id + ' idAR=' + idAr + ' idZE=' + idZE + ' zpdemande=' + zpdemande);
-        socket.emit('EVT_Envoie_ArtefactdeZEversZP', idAr, idZE, zpdemande);
-        console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP] ');
-
         //les evenements aprés le drop
         $(event.relatedTarget).removeClass('can-drop');
         $(event.relatedTarget).addClass('artefact');
