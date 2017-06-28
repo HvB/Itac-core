@@ -137,5 +137,10 @@ module.exports = {
             ZE: 'ZE',
             ZP: 'ZP'
         }
+    },
+    log: {
+        level : {
+            itac : 'debug'
+        }
     }
 };

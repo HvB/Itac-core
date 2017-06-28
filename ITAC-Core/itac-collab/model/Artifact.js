@@ -2,12 +2,15 @@
  * classe Artifact
  *
  *
+ * @requires bunyan
+ * @requires loggers
+ * 
  * @author philippe pernelle
  */
 
-// utilisation loggeu
-const bunyan = require('bunyan');
-var logger = bunyan.createLogger({name: "Artefact"});
+// utilisation logger
+const itacLogger = require('../utility/loggers').itacLogger;
+var logger = itacLogger.child({component: 'Artefact'});
 
 module.exports = class Artifact {
     constructor(id, creator, owner, type, idContainer, typeContainer, dateCreation, history, title, content) {

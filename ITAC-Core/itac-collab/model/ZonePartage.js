@@ -7,6 +7,8 @@
  * @requires ZoneEchange
  * @requires Artifact
  * @requires Serveur
+ * @requires bunyan
+ * @requires loggers
  *
  * @author philippe pernelle
  *
@@ -18,9 +20,10 @@ var Art = require('./Artifact');
 var Serveur = require('./Serveur');
 var fs = require("fs");
 
-// utilisation loggeu
-const bunyan = require('bunyan');
-var logger = bunyan.createLogger({name: "ZonePartage"});
+//utilisation logger
+const itacLogger = require('../utility/loggers').itacLogger;
+
+var logger = itacLogger.child({component: 'ZonePartage'});
 
 /**
  * constructeur de ZonePartage

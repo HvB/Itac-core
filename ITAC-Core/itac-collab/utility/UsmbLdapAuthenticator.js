@@ -4,16 +4,17 @@
  * @module
  * 
  * @requires bunyan
+ * @requires loggers
  * @requires LdapAuthenticator
-  * @requires authentication
-  * 
+ * @requires authentication
+ * 
  * @author Stephane Talbot
  */
-const bunyan = require('bunyan');
 const BaseAuthentication = require('./authentication');
 const LdapAuthenticator = require('./LdapAuthenticator');
+const itacLogger = require('./loggers').itacLogger;
 
-var log = bunyan.createLogger({name: "UsmbLdapAuthenticator"});
+var log = itacLogger.child({component: 'UsmbLdapAuthenticator'});
 
 /**
  * Authentificateur associe a l'annuaire LDAP de l'USMB. 
