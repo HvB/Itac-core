@@ -69,7 +69,7 @@ interact('.ZP').dropzone({
 
     ondrop: function (event) {
         // bizarre bug js ? pour relatedTarget il faut le value et pas pour target
-        var idAr = $(event.relatedTarget).context.attributes[0].value;
+        var idAr = $(event.relatedTarget).attr('id');
         var idZPsource = zpdemande;
         var idZPcible = $(event.target).attr('data-ZP');
         console.log("menu ITAC -> ZP.ondrop : transfert ART = " + idAr + " de ZP=" + idZPsource + " vers ZP=" + idZPcible);
