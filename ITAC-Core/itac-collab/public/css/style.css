@@ -216,6 +216,10 @@ p {
     background-image: url("../img/menu-print.png");
 }
 
+.background {
+    background-image: url("../img/fond/fondITAC3.jpg");
+}
+
 .trash-target {
     background: -webkit-linear-gradient(to left, #3CA55C, #B5AC49); /* Chrome 10-25, Safari 5.1-6 */
     border-color: #fff;

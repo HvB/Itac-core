@@ -2,8 +2,8 @@
  * parametre globale du menu
  * -------------------------
  */
-var menuCollabArea = ["hand", "trash", "pen", "change", "print"];
-var contenuMenu = ["", "", "", "", ""];
+var menuCollabArea = ["hand", "trash", "pen", "change", "print", "background"];
+var contenuMenu = ["", "", "", "", "", ""];
 
 //fonction de glissement toujours appeler lorsque on fait le drag and drop
 function dragMoveListener(event) {
@@ -153,7 +153,7 @@ interact('.trash').dropzone({
     ondragenter: function (event) {
         var draggableElement = event.relatedTarget;   // l'objet ddeplacé
         var dropzoneElement = event.target;			  // le conteneur
-        
+
         //$(event.relatedTarget)
         // on masque l'élément
         $(event.relatedTarget).find("h1").hide();
@@ -234,4 +234,46 @@ interact('.change').on('hold', function (event) {
             document.getElementById("ZP").setAttribute('style', 'background-image:url("' + longFileName + '");');
         }
     });
+});
+
+/* -----------------------------------------
+ * permet de changer le fond avec un artefact de type image
+ * ----------------------------------------
+ */
+
+interact('.background').dropzone({
+    //accepter que les elements avec ce CSS selector
+    accept: '.artefact.img',
+    // il faut 10% de l'element overlap pour que le drop soit possible
+    overlap: 0.1,
+    // les evenements de drop:
+    ondragenter: function (event) {
+        event.target.classList.add('trash-target');
+        event.relatedTarget.classList.add('can-delete');
+    },
+
+    ondragleave: function (event) {
+        event.target.classList.remove('trash-target');
+        event.relatedTarget.classList.remove('can-delete');
+    },
+
+    ondrop: function (event) {
+        $('#ZP').css('background-image', $(event.relatedTarget).css('background-image'));
+        $('#ZP').css('background-position', 'center');
+        $('#ZP').css('background-repeat', 'no-repeat');
+        $('#ZP').css('background-size', 'contain');
+        event.target.classList.remove('trash-target');
+        event.relatedTarget.classList.remove('can-delete');
+    }
+});
+
+/* -----------------------------------------
+ * permet de revenir au fond original
+ * ----------------------------------------
+ */
+interact('.background').on('hold', function (event) {
+    $('#ZP').css('background-image', '');
+    $('#ZP').css('background-position', '');
+    $('#ZP').css('background-repeat', '');
+    $('#ZP').css('background-size', '');
 });
