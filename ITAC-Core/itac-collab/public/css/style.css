@@ -183,37 +183,47 @@ p {
     transform: rotate(180deg);
 }
 
-.menu {
-    -moz-box-shadow: inset 0 0 10px #000000;
-    -webkit-box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
-    box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
+/*
+    MENU
+*/
+
+ul.menu {
     position: fixed;
-    width: 120px;
+    width: 120px !important;
     height: 120px;
     right: 0;
-    background-size: 100% 100%;
-    border-radius: 50%;
     z-index: 1001;
 }
 
-.hand {
-    background-image: url("../img/menu-main.png");
+ul.menu li {
+    padding-top: 15px;
+    width: 120px !important;
+    height: 105px !important;
+    box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
+    background-color: #ffffff;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 60%;
+    border-radius: 50% !important;
 }
 
-.trash {
-    background-image: url("../img/menu-poubelle.png");
+ul.menu li.hand {
+    background-image: url("../img/icon/hand.png");
+    background-size: 100%;
 }
 
-.pen {
-    background-image: url("../img/menu-pen.png");
+ul.menu li.trash {
+    background-image: url("../img/icon/trash.png");
 }
 
-.change {
-    background-image: url("../img/menu-change.png");
+ul.menu li.background {
+    background-image: url("../img/icon/background.png");
 }
 
-.print {
-    background-image: url("../img/menu-print.png");
+ul.menu li.send {
+    background-image: url("../img/icon/send.png");
+    background-position: center 70%;
+    background-size: 40%;
 }
 
 .trash-target {
