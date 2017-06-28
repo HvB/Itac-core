@@ -1,94 +1,40 @@
 /* ------------------------- 
- * parametre globale du menu
- * -------------------------
- */
-var menuCollabArea = ["hand", "trash", "pen", "change", "print", "background"];
-var contenuMenu = ["", "", "", "", "", ""];
-
-//fonction de glissement toujours appeler lorsque on fait le drag and drop
-function dragMoveListener(event) {
-    var target = event.target,
-    // stocker la position dans les attributs data-x/data-y
-        x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-        y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-    // translation de l'element
-    target.style.webkitTransform =
-        target.style.transform =
-            'translate(' + x + 'px, ' + y + 'px)';
-
-    // mis � jour de la position 
-    target.setAttribute('data-x', x);
-    target.setAttribute('data-y', y);
-}
-
-window.dragMoveListener = dragMoveListener;
-
-
-/* ------------------------- 
  * le menu est draggable
  * -------------------------
  */
-interact('.menu').draggable(
-    {
-        inertia: true,
-        //l element reste dans sa zone limite , il peut pas sortir de son parent 
-        restrict: {
-            restriction: "parent",
-            endOnly: true,
-            elementRect: {top: 0, left: 0, bottom: 1, right: 1}
-        },
-        // activer autoScroll
-        autoScroll: true,
-        //appeler cette fonction a chaque action de glissement 
-        onmove: dragMoveListener,
-        //appeler cette fontion a chaque fin de l'action de glissement 
-        onend: function (event) {
-            // beeeeh : 
-            console.log("on lance onend mais on ne sait pas pourquoi");
-        }
-    }
-);
+interact('.menu').draggable({
+    inertia: true,
+    //l element reste dans sa zone limite , il peut pas sortir de son parent
+    restrict: {
+        restriction: "parent",
+        endOnly: true,
+        elementRect: {top: 0, left: 0, bottom: 1, right: 1}
+    },
+    // activer autoScroll
+    autoScroll: true,
+    //appeler cette fonction a chaque action de glissement
+    onmove: function (event) {
+        var target = event.target,
+        // stocker la position dans les attributs data-x/data-y
+            x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+            y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
+        // translation de l'element
+        target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+
+        // mis � jour de la position
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+    }
+});
 
 /* --------------------------------- 
- * permet de switcher sur les menus
+ * permet d'ouvrir et fermer le menu
  * ---------------------------------
  */
-
-interact('.menu').on('tap', function (event) {
-    console.log("menu ITAC -> top");
-    // detection du menu toper
-
-    var listeclassName = $(event.currentTarget).attr('class').split(" ");
-    var className = listeclassName[listeclassName.length - 1];
-    var j = 0;
-    //var classCSSCourante = $(event.currentTarget).classList;
-    console.log("menu ITAC -> classname = " + className);
-    console.log("menu ITAC -> listeclassName = " + listeclassName);
-    console.log("menu ITAC -> taille menu=" + menuCollabArea.length);
-    for (var i = 0; i < menuCollabArea.length; i++) {
-        console.log("menu ITAC -> i courant=" + i + " classmenu= " + menuCollabArea[i]);
-        if (className == menuCollabArea[i]) {
-            if (menuCollabArea[i] == "ZP") (event.currentTarget).classList.toggle(contenuMenu[i]);
-            (event.currentTarget).classList.remove(menuCollabArea[i]);
-
-            if (i == (menuCollabArea.length - 1)) {
-                j = 0;
-            } else {
-                j = i + 1;
-            }
-            console.log("menu ITAC -> je charge j=" + j + " et menu=" + menuCollabArea[j]);
-
-            if (menuCollabArea[j] == "ZP") (event.currentTarget).classList.toggle(contenuMenu[j]);
-            (event.currentTarget).classList.toggle(menuCollabArea[j]);
-            $(function () {
-                $("#menu").html(contenuMenu[j]);
-            });
-
-        }
-    }
-})
+interact('.hand').on('tap', function() {
+    $('.menu').circleMenu($('ul').hasClass('circleMenu-open') ? 'close' : 'open');
+});
 
 /* ----------------------------------------- 
  * permet d'envoyer un artefact vers une ZP
@@ -125,7 +71,7 @@ interact('.ZP').dropzone({
         // bizarre bug js ? pour relatedTarget il faut le value et pas pour target
         var idAr = $(event.relatedTarget).context.attributes[0].value;
         var idZPsource = zpdemande;
-        var idZPcible = $(event.target).context.classList[1];
+        var idZPcible = $(event.target).attr('data-ZP');
         console.log("menu ITAC -> ZP.ondrop : transfert ART = " + idAr + " de ZP=" + idZPsource + " vers ZP=" + idZPcible);
         socket.emit('EVT_Envoie_ArtefactdeZPversZP', idAr, idZPsource, idZPcible);
         console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
