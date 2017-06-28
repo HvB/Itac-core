@@ -441,12 +441,16 @@ module.exports = class Serveur {
      */
     envoiArtefacttoZE(socket, idAr, idZE) {
         // cette fonction traite un changement de conteneur d'une ZP vers une ZE
-        this.ZP.sendArFromZPtoZE(idAr, idZE);
-        // il faut informer aussi la ZEP qui doit ajouter cet Artifact a sa zone
-        // on recupere la socket de associe a la ZE
-        var id = this.getZESocketId(idZE);
-        var artifactenjson = JSON.stringify(this.ZP.ZC.getArtifact(idAr));
-        this._io.sockets.to(id).emit(EVENT.EnvoieArtefactdeZPversZE, artifactenjson);
+        if (this.ZP.sendArFromZPtoZE(idAr, idZE))
+        {
+            // il faut informer aussi la ZEP qui doit ajouter cet Artifact a sa zone
+            // on recupere la socket de associe a la ZE
+            var id = this.getZESocketId(idZE);
+            var artifactenjson = JSON.stringify(this.ZP.ZC.getArtifact(idAr));
+            this._io.sockets.to(id).emit(EVENT.EnvoieArtefactdeZPversZE, artifactenjson);
+
+        };
+
     };
 
     /**
@@ -561,7 +565,7 @@ module.exports = class Serveur {
             this.ZP.sendArFromZEPtoEP(idAr, idZE, idZEP);
 
             // acquittement pour stepahen
-            socket.emit(EVENT.ArtefactDeletedFromZE, pseudo, idZE, idAr);
+            socket.emit(EVENT.ArtefactDeletedFromZE, idZE, idAr);
             logger.info('=> envoiArtefacttoEP : envoi à ZEP ['+EVENT.ArtefactDeletedFromZE+']  (' + this.ZP.getId() + ") --> artefact id= "+idAr );
 
             // envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté

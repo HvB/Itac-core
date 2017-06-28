@@ -3,7 +3,7 @@
  */
  var paramITAC = [];
 
- paramITAC['itacapp-collab'] = new Array('collab.png','collaboration.jpg','collab/config');
+ paramITAC['itacapp-collab'] = new Array('collab.png','collaboration.jpg','collab/session/config');
  paramITAC['itacapp-collab-config1'] = new Array('collab.png','collaboration.jpg','collab/preconfig/1');
  paramITAC['itacapp-vide'] = new Array('rond.png','vide.jpg','test.html');
  paramITAC['itacapp-check'] = new Array('rond.png','check.jpg','test.html');

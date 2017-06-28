@@ -565,12 +565,21 @@ module.exports = class ZoneCollaborative {
      */
     setArtifactIntoZE(id, IdZE) {
 
+        var ret= true;
         logger.debug('=> setArtifactIntoZE : deplacement artifact(' + id + ') vers ZE =' + IdZE);
         var monArtifact = this.getArtifact(id);
 
-        logger.debug('=> setArtifactIntoZE : recuperation artifact' + monArtifact.id);
-        monArtifact.setIntoZone(IdZE, TYPE.container.ZE);
-        logger.info('=> setArtifactIntoZE : artifact =' + monArtifact.id + ' vers ZE =' + IdZE + '[OK]');
+        if (monArtifact.isInto(IdZE, TYPE.container.ZE) ) {
+            logger.debug('=> setArtifactIntoZE : déja en ZE' + monArtifact.id);
+            ret=false;
+        }
+        else {
+            logger.debug('=> setArtifactIntoZE : recuperation artifact' + monArtifact.id);
+            monArtifact.setIntoZone(IdZE, TYPE.container.ZE);
+            logger.info('=> setArtifactIntoZE : artifact =' + monArtifact.id + ' vers ZE =' + IdZE + '[OK]');
+        }
+        return ret;
+
     };
 
     /**
