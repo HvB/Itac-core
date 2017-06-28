@@ -69,19 +69,18 @@ socket.on('EVT_ReponseOKConnexionZA', function (ZC) {
     myZC = ZC;
 
     console.log('PAGE : workspace.ejs -> ZC =' + JSON.stringify(myZC));
-    console.log('PAGE : workspace.ejs -> menu App initial : ' + menu);
+    // console.log('PAGE : workspace.ejs -> menu App initial : ' + menu);
     console.log('PAGE : workspace.ejs -> ajout des ZP , total =' + myZC.nbZP);
 
     for (var i = 0; i < myZC.nbZP; i++) {
         if (i != rang) {
             console.log('PAGE : workspace.ejs -> menu App , push = ' + myZC.ZP[i].idZP + " ZP");
-            menuCollabArea.push("ZP");
-            //classmenuITAC.push("menu ZP"+i);
-            contenuMenu.push(myZC.ZP[i].idZP);
+            $('.menu').append('<li class="send ZP" data-ZP="' + myZC.ZP[i].idZP + '">' + myZC.ZP[i].idZP + '</li>');
         }
     }
+    $('.menu').circleMenu({circle_radius: 150, direction: 'full', trigger: 'none'});
 
-    console.log('PAGE : workspace.ejs -> menu App en cours : ' + menu);
+    // console.log('PAGE : workspace.ejs -> menu App en cours : ' + menu);
 
     alert('Zone collaborative active : ' + myZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + myZC.ZP[rang].idZP + '\n\n');
     console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= ' + myZC.ZP[rang].idZP);
