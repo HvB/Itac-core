@@ -1,8 +1,8 @@
 $(document).ready(function () {
     $('ul').circleMenu({
-        circle_radius: 200,
+        circle_radius: 150,
         direction: 'full',
-        trigger: 'click',
+        trigger: 'none',
         open: function () {
             console.log('menu opened');
         },
@@ -45,5 +45,8 @@ $(document).ready(function () {
             target.setAttribute('data-x', x);
             target.setAttribute('data-y', y);
         }
+    });
+    interact('li.hand').on('tap', function(event) {
+        $('ul').circleMenu($('ul').hasClass('circleMenu-open') ? 'close' : 'open');
     });
 });
