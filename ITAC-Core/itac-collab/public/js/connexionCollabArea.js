@@ -82,7 +82,7 @@ socket.on('EVT_ReponseOKConnexionZA', function (ZC) {
 
     // console.log('PAGE : workspace.ejs -> menu App en cours : ' + menu);
 
-    alert('Zone collaborative active : ' + myZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + myZC.ZP[rang].idZP + '\n\n');
+    console.log('Zone collaborative active : ' + myZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + myZC.ZP[rang].idZP + '\n\n');
     console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= ' + myZC.ZP[rang].idZP);
 
     // l�-dessous on a typeZP qui n'apparait pas

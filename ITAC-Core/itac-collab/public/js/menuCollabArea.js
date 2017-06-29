@@ -4,27 +4,31 @@
  */
 interact('.menu').draggable({
     inertia: true,
-    //l element reste dans sa zone limite , il peut pas sortir de son parent
-    restrict: {
-        restriction: "parent",
-        endOnly: true,
-        elementRect: {top: 0, left: 0, bottom: 1, right: 1}
-    },
-    // activer autoScroll
+    restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
-    //appeler cette fonction a chaque action de glissement
     onmove: function (event) {
-        var target = event.target,
-        // stocker la position dans les attributs data-x/data-y
-            x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-            y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-        // translation de l'element
-        target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
-
-        // mis � jour de la position
-        target.setAttribute('data-x', x);
-        target.setAttribute('data-y', y);
+        var $element = $(event.target),
+            x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
+            y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
+            angle = parseFloat($element.attr('data-a'));
+        $element.css('transform', 'translate(' + x + 'px, ' + y + 'px)' + (angle ? ' rotate(' + angle + 'deg)' : ''));
+        $element.attr('data-x', x);
+        $element.attr('data-y', y);
+    }
+}).gesturable({
+    inertia: true,
+    restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
+    autoScroll: true,
+    onmove: function (event) {
+        console.log(event.dx, event.dy, event.ds, event.da)
+        var $element = $(event.target),
+            x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
+            y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
+            angle = (parseFloat($element.attr('data-a')) || 0) + event.da;
+        $element.css('transform', 'translate(' + x + 'px, ' + y + 'px) rotate(' + angle + 'deg)');
+        $element.attr('data-x', x);
+        $element.attr('data-y', y);
+        $element.attr('data-a', angle);
     }
 });
 
@@ -32,7 +36,7 @@ interact('.menu').draggable({
  * permet d'ouvrir et fermer le menu
  * ---------------------------------
  */
-interact('.hand').on('tap', function() {
+interact('.hand').on('tap', function () {
     $('.menu').circleMenu($('ul').hasClass('circleMenu-open') ? 'close' : 'open');
 });
 
@@ -41,7 +45,7 @@ interact('.hand').on('tap', function() {
  * ----------------------------------------
  */
 
-interact('.ZP').dropzone({
+interact('.circleMenu-open .ZP').dropzone({
     //accepter que les elements avec ce CSS selector
     accept: '.artefact',
     // il faut 10% de l'element overlap pour que le drop soit possible
@@ -90,7 +94,7 @@ interact('.ZP').dropzone({
  * ----------------------------------------
  */
 
-interact('.trash').dropzone({
+interact('.circleMenu-open .trash').dropzone({
     //accepter que les elements avec ce CSS selector
     accept: '.artefact',
     // il faut 10% de l'element overlap pour que le drop soit possible
@@ -134,7 +138,7 @@ interact('.trash').dropzone({
  * ----------------------------------------
  */
 
-interact('.print').on('hold', function (event) {
+interact('.circleMenu-open .print').on('hold', function (event) {
     alert("Appui long pour lancer le screenshot!");
     // event.preventDefault();  (TC: test pour mieux différencier du simple tap mais non probant)
 
@@ -161,7 +165,7 @@ interact('.print').on('hold', function (event) {
  * permet de changer le fond
  * ----------------------------------------
  */
-interact('.change').on('hold', function (event) {
+interact('.circleMenu-open .change').on('hold', function (event) {
     //alert("Appui long pour lancer le changement de fond!");
     var fileInput = document.querySelector('#file');
     var fileName = "";
@@ -187,7 +191,7 @@ interact('.change').on('hold', function (event) {
  * ----------------------------------------
  */
 
-interact('.background').dropzone({
+interact('.circleMenu-open .background').dropzone({
     //accepter que les elements avec ce CSS selector
     accept: '.artefact.img',
     // il faut 10% de l'element overlap pour que le drop soit possible
@@ -217,7 +221,7 @@ interact('.background').dropzone({
  * permet de revenir au fond original
  * ----------------------------------------
  */
-interact('.background').on('hold', function (event) {
+interact('.circleMenu-open .background').on('hold', function (event) {
     $('#ZP').css('background-image', '');
     $('#ZP').css('background-position', '');
     $('#ZP').css('background-repeat', '');
