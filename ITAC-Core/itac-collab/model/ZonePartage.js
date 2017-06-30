@@ -224,7 +224,8 @@ module.exports = class ZonePartage {
             if (this.listeZE[i].getId() === idZE) {
                 // avant de supprimer la ZE, il faut supprimer les artefact
                 logger.info('=> destroyZE : suppression des artefacts d une ZE (' + idZE + ')  ');
-                this.ZC.suppresAllArtifactsInZE(idZE);
+                //this.ZC.suppresAllArtifactsInZE(idZE);
+                this.ZC.tansfertAllArtifactsInZP(idZE,this.getId());
                 this.listeZE.splice(i, 1);
                 logger.info('=> destroyZE : suppression d une ZE (' + idZE + ')  nouveau nb de ZE=' + this.listeZE.length);
             }

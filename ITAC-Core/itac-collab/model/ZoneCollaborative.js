@@ -385,6 +385,29 @@ module.exports = class ZoneCollaborative {
 
     };
 
+    /**
+     * supprime de la zone collaborative, tous les artefacts contenu dans une Zone d'Echange (ZE)
+     *
+     * @public
+     * @param {String} idZE - identifiant de la ZE a supprimer
+     * @author philippe pernelle
+     */
+
+    tansfertAllArtifactsInZP(idZE,idZP) {
+
+        logger.info('=>tansfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE);
+        for (var i = 0; i < this.getNbArtifact(); i++) {
+
+            if (this.artifacts[i].isInto(idZE, TYPE.container.ZE)) {
+                logger.info('=> tansfertAllArtifactsInZP : suppression artefacts Id=' + this.artifacts[i].getId());
+
+                this.setArtifactIntoZP(this.artifacts[i].getId(),idZP)
+            }
+        }
+        logger.info('=> tansfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE + ' [ok]');
+
+    };
+
 
     /**
      * retourne le nombre de Zone de Partage (ZP) associé à la zone collaborative
