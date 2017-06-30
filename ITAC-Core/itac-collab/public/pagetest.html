@@ -10,7 +10,8 @@
 <h1>ok</h1>
 <p>Welcome to ITAC</p>
 <script>
-    var socket0 = io.connect('http://localhost:8080', {transports: ['websocket']});
+    var url = 'localhost:8080';
+    var socket0 = io.connect(url, {transports: ['websocket']});
     socket0.emit('EVT_DemandeConnexionZEP', 'pseudo0', '0');
     socket0.on('EVT_ReponseOKConnexionZEP', function (idZE, idZEP) {
         socket0.emit('EVT_NewArtefactInZE', 'pseudo0', idZEP, idZE, JSON.stringify({
@@ -26,19 +27,19 @@
         console.log('Artefact envoye et bien recu pour la ZE=' + idZE + ' idART=' + idAr);
     });
 
-    var socket1 = io.connect('http://localhost:8080', {transports: ['websocket']});
+    var socket1 = io.connect(url, {transports: ['websocket']});
     socket1.emit('EVT_DemandeConnexionZEP', 'pseudo1', '1');
 
-    var socket2 = io.connect('http://localhost:8080', {transports: ['websocket']});
+    var socket2 = io.connect(url, {transports: ['websocket']});
     socket2.emit('EVT_DemandeConnexionZEP', 'pseudo2', '2');
 
-    var socket3 = io.connect('http://localhost:8080', {transports: ['websocket']});
+    var socket3 = io.connect(url, {transports: ['websocket']});
     socket3.emit('EVT_DemandeConnexionZEP', 'pseudo3', '3');
 
-    var socket4 = io.connect('http://localhost:8080', {transports: ['websocket']});
+    var socket4 = io.connect(url, {transports: ['websocket']});
     socket4.emit('EVT_DemandeConnexionZEP', 'pseudo4', '4');
 
-    var socket5 = io.connect('http://localhost:8080', {transports: ['websocket']});
+    var socket5 = io.connect(url, {transports: ['websocket']});
     socket5.emit('EVT_DemandeConnexionZEP', 'pseudo5', '5');
 </script>
 </body>
