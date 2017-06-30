@@ -256,12 +256,10 @@ socket.on('EVT_ReceptionArtefactIntoZP', function (pseudo, idZP, chaineJSON) {
 
     if (art.type == "image") {
         art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "");
-        var target = $('<div id="' + art.id + '" class="draggable artefact img" style="transform: translate(50%, 50%); background-image: url(data:image/png;base64,' + art.content + ')"> </div>');
-    }
-    else {
-
+        var target = $('<div id="' + art.id + '" data-x="300" data-y="300" class="draggable artefact img" style="transform: translate(300px, 300px); background-image: url(data:image/png;base64,' + art.content + ')"> </div>');
+    } else {
         art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "</br>");
-        var target = $('<div id="' + art.id + '" class="draggable artefact" style="transform: translate(50%, 50%);"><h1>' + art.title + '</h1><p>' + art.content + '</p></div>');
+        var target = $('<div id="' + art.id + '" data-x="300" data-y="300" class="draggable artefact" style="transform: translate(300px, 300px);"><h1>' + art.title + '</h1><p>' + art.content + '</p></div>');
     }
     target.appendTo("#ZP");
 })
