@@ -5,11 +5,12 @@ interact('.artefact').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
-    onstart: function(event) {
+    onstart: function (event) {
         var $element = $(event.target),
             offset = $element.offset();
-        $element.attr('data-offset-x', offset.left).attr('data-offset-y', offset.top);
-        $element.attr('data-x', 0).attr('data-y', 0);
+        if ($(event.target).hasClass('dropped-msg') || $(event.target).hasClass('dropped-image')) {
+            $element.attr('data-x', offset.left).attr('data-y', offset.top);
+        }
         var maxZ = Math.max.apply(null,
             $.map($('body > *'), function (e, n) {
                 if ($(e).css('position') != 'static')
@@ -23,8 +24,7 @@ interact('.artefact').draggable({
             y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
             scale = parseFloat($element.attr('data-s')) || 1,
             angle = parseFloat($element.attr('data-a')) || 0;
-        $element.css('transform', 'translate(' + (x + parseFloat($element.attr('data-offset-x'))) + 'px, '
-            + (y + parseFloat($element.attr('data-offset-y'))) + 'px) scale(' + scale + ') rotate(' + angle + 'deg)');
+        $element.css('transform', 'translate(' + x + 'px, ' + y + 'px) scale(' + scale + ') rotate(' + angle + 'deg)');
         $element.attr('data-x', x);
         $element.attr('data-y', y);
     }
@@ -32,11 +32,12 @@ interact('.artefact').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
-    onstart: function() {
+    onstart: function (event) {
         var $element = $(event.target),
             offset = $element.offset();
-        $element.attr('data-offset-x', offset.left).attr('data-offset-y', offset.top);
-        $element.attr('data-x', 0).attr('data-y', 0);
+        if ($(event.target).hasClass('dropped-msg') || $(event.target).hasClass('dropped-image')) {
+            $element.attr('data-x', offset.left).attr('data-y', offset.top);
+        }
         var maxZ = Math.max.apply(null,
             $.map($('body > *'), function (e, n) {
                 if ($(e).css('position') != 'static')
@@ -50,8 +51,7 @@ interact('.artefact').draggable({
             y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
             scale = (parseFloat($element.attr('data-s')) || 1) + event.ds,
             angle = (parseFloat($element.attr('data-a')) || 0) + event.da;
-        $element.css('transform', 'translate(' + (x + parseFloat($element.attr('data-offset-x'))) + 'px, '
-            + (y + parseFloat($element.attr('data-offset-y'))) + 'px) scale(' + scale + ') rotate(' + angle + 'deg)');
+        $element.css('transform', 'translate(' + x + 'px, ' + y + 'px) scale(' + scale + ') rotate(' + angle + 'deg)');
         $element.attr('data-x', x);
         $element.attr('data-y', y);
         $element.attr('data-s', scale);
