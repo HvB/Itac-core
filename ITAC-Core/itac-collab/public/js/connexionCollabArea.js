@@ -283,50 +283,11 @@ socket.on('EVT_ArtefactDeletedFromZE', function (idAr, idZE, idZEP) {
 // c'est en fait EVT_SuppressZEinZP
 socket.on('EVT_Deconnexion', function (pseudo, idZE) {
     $("#" + idZE + "").fadeOut();
-
-    $(function () {
-        $("#" + idZE + "").children("div", "img").each(function () {
-            var className = $(this).attr('class');
-            var idAr = $(this).attr('id');
-
-            var position = $(this).position()
-
-            function getRotationDegrees(obj) { //stocker l'angle de la rotation
-                var matrix = obj.css("-webkit-transform") ||
-                    obj.css("-moz-transform") ||
-                    obj.css("-ms-transform") ||
-                    obj.css("-o-transform") ||
-                    obj.css("transform");
-                if (matrix !== 'none') {
-                    var values = matrix.split('(')[1].split(')')[0].split(',');
-                    var a = values[0];
-                    var b = values[1];
-                    var angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
-                } else {
-                    var angle = 0;
-                }
-                return angle;
-            }
-
-            angle1 = getRotationDegrees($(this));
-            alert(angle1);
-
-            if (className == "draggable artefact") {
-
-                var titre = $(this).find("h1").text();
-                var message = $(this).find("p").text();
-
-                var target = $("<div id=" + idAr + " class='draggable artefact' style='left:" + position.left + "; top:" + position.top + " ;position: absolute; transform: rotate(" + angle1 + "deg)'>  <h1> " + titre + " </h1> <p> " + message + " </p> </div>");
-            }
-            else {
-                var bg = $(this).css('background-image'); //l'image
-                bg = bg.replace('url(', '').replace(')', '');
-                var target = $("<div id=" + idAr + " class='draggable artefact img' style='left:" + position.left + "; top:" + position.top + " position: absolute; transform: rotate(" + angle1 + "deg)'> </div>").css("background-image", "url(" + bg + ")");
-            }
-            target.appendTo("#ZP");
-        });
+    $("#" + idZE + "").children('.artefact').each(function (index, element) {
+        $(element).removeClass('dropped-image dropped-msg left right top');
+        $(element).find("p").show();
+        $(element).remove().appendTo('#ZP');
     });
-
 });
 
 /* ------------------------------------------------ */
