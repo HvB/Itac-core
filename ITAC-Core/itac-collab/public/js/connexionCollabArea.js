@@ -79,6 +79,7 @@ socket.on('EVT_ReponseOKConnexionZA', function (ZC) {
         }
     }
     $('.menu').circleMenu({circle_radius: 150, direction: 'full', trigger: 'none'});
+    $('.overlay').hide();
 
     // console.log('PAGE : workspace.ejs -> menu App en cours : ' + menu);
 
@@ -294,6 +295,14 @@ socket.on('EVT_Deconnexion', function (pseudo, idZE) {
 
 socket.on('EVT_ReponseOKEnvoie_ArtefactdeZPversZP', function (idart) {
     console.log("menu ITAC -> ZP.ondrop : transfert Artefact envoye et bien recu " + idart);
+});
+
+/* ------------------------------ */
+/* ----- Deconnexion d'une ZA ----*/
+/* ------------------------------ */
+
+socket.on('disconnect', function() {
+    $('.overlay').show();
 });
 
 
