@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www | bunyan -l debug",
-    "test": "mocha itac-collab/utility/test"
+    "test": "mocha --recursive | bunyan -l debug"
   },
   "dependencies": {
     "body-parser": "~1.15.1",

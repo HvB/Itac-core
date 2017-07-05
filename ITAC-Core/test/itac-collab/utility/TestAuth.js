@@ -1,6 +1,6 @@
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
-const BasicAuthentication = require('../authentication');
+const BasicAuthentication = require('../../../itac-collab/utility/authentication');
 	
 chai.use(chaiAsPromised);
 var expect = chai.expect;
@@ -115,7 +115,7 @@ describe("Basic Authentication", function () {
 			});
 		});
 		describe("FileLoginPwdAuthenticator", function (){
-			var db = 'itac-collab/utility/test/users.json'; 
+			var db = 'test/itac-collab/utility/users.json';
 			describe("Constructor", function (){
 				it("Expect class Constructor to work", function(){
 					expect(new BasicAuthentication.FileLoginPwdAuthenticator(db)).to.exist;
