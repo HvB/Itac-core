@@ -45,7 +45,7 @@ interact('.hand').on('tap', function () {
  * ----------------------------------------
  */
 
-interact('.circleMenu-open .ZP').dropzone({
+interact('.circleMenu-open .send').dropzone({
     //accepter que les elements avec ce CSS selector
     accept: '.artefact',
     // il faut 10% de l'element overlap pour que le drop soit possible
@@ -133,59 +133,6 @@ interact('.circleMenu-open .trash').dropzone({
     }
 });
 
-/* ----------------------------------------- 
- * permet de faire une copie d'ecran (appui long)
- * ----------------------------------------
- */
-
-interact('.circleMenu-open .print').on('hold', function (event) {
-    alert("Appui long pour lancer le screenshot!");
-    // event.preventDefault();  (TC: test pour mieux différencier du simple tap mais non probant)
-
-    // TC: pour plus tard : ajouter un son d'appareil photo
-    //var soundfile="../sound/polaroid.wav" //ici le chemin du fichier son
-    //$("<bgsound src="+soundfile+" id=soundeffect loop=1 autostart=true />").appendTo("#ZP");
-
-    html2canvas(document.body, {
-        onrendered: function (canvas) {
-            // traitement à faire pour ajouter le fond...
-            document.body.appendChild(canvas);
-            canvas.id = "screenshot";
-            canvas.style = "display: none";
-            canvas.toBlob(function (blob) {
-                saveAs(blob, "screenshot.png");
-            }, "image/png");
-            // on n'oublie pas de retirer l'élément canvas contenant le screenshot de la page
-            document.body.removeChild(canvas);
-        }
-    })
-});  // fin hold pour print
-
-/* ----------------------------------------- 
- * permet de changer le fond
- * ----------------------------------------
- */
-interact('.circleMenu-open .change').on('hold', function (event) {
-    //alert("Appui long pour lancer le changement de fond!");
-    var fileInput = document.querySelector('#file');
-    var fileName = "";
-    // On force le déclenchement du bouton masqué sous le menu
-    fileInput.click();
-
-    // On récupère le nom du fichier sélectionné (le multiple permet de récupérer éventuellement plusieurs fichiers: là ça n est pas nécessaire
-    // Mais qui peut le plus peut le moins...
-    fileInput.addEventListener('change', function () {
-        fileName = this.files[0].name;
-        // On vérifie que l'utilisateur a bien sélectionné quelque chose
-        if (fileName != "") {
-            // TC Pourri comme technique mais pas moyen de recup le PATH  
-            var longFileName = "/images/collab/fond/" + fileName;
-            //alert("nom de fichier long:"+longFileName);
-            document.getElementById("ZP").setAttribute('style', 'background-image:url("' + longFileName + '");');
-        }
-    });
-});
-
 /* -----------------------------------------
  * permet de changer le fond avec un artefact de type image
  * ----------------------------------------
@@ -208,10 +155,11 @@ interact('.circleMenu-open .background').dropzone({
     },
 
     ondrop: function (event) {
-        $('#ZP').css('background-image', $(event.relatedTarget).css('background-image'));
-        $('#ZP').css('background-position', 'center');
-        $('#ZP').css('background-repeat', 'no-repeat');
-        $('#ZP').css('background-size', 'contain');
+        $('.ZP')
+            .css('background-image', $(event.relatedTarget).css('background-image'))
+            .css('background-position', 'center')
+            .css('background-repeat', 'no-repeat')
+            .css('background-size', 'contain');
         event.target.classList.remove('trash-target');
         event.relatedTarget.classList.remove('can-delete');
     }
@@ -222,8 +170,9 @@ interact('.circleMenu-open .background').dropzone({
  * ----------------------------------------
  */
 interact('.circleMenu-open .background').on('hold', function (event) {
-    $('#ZP').css('background-image', '');
-    $('#ZP').css('background-position', '');
-    $('#ZP').css('background-repeat', '');
-    $('#ZP').css('background-size', '');
+    $('.ZP')
+        .css('background-image', '')
+        .css('background-position', '')
+        .css('background-repeat', '')
+        .css('background-size', '');
 });

@@ -3,22 +3,24 @@
 <head>
     <title><%= title %></title>
     <link rel="stylesheet" href="/collab/css/style.css">
+    <link rel="stylesheet" href="/collab/css/rule.css">
 </head>
-<body id="ZP">
-<ul class="menu">
-    <li class="hand"></li>
-    <li class="trash"></li>
-    <li class="background"></li>
-</ul>
-<!-- TC: Petite subtilité pour changer le fond: bouton invisible qui permet d'ouvrir une sélection de fichier lorsqu'on est sur le menu change-->
-<input id="file" style="display:none;" type="file" multiple/>
+<body>
+<div class="ZP">
+    <ul class="menu">
+        <li class="hand"></li>
+        <li class="trash"></li>
+        <li class="background"></li>
+    </ul>
+</div>
+<div class="overlay">En cours de connexion...</div>
+<div class="template">
+    <div class="ZE"><img class="avatar"/></div>
+</div>
 <script type="text/javascript" src="/js/lib/jquery.min.js"></script>
 <script type="text/javascript" src="/js/lib/jquery-ui.min.js"></script>
 <script type="text/javascript" src="/collab/js/lib/socket.io.js"></script>
 <script type="text/javascript" src="/collab/js/lib/interact.min.js"></script>
-<script type="text/javascript" src="/collab/js/lib/html2canvas.js"></script>
-<script type="text/javascript" src="/collab/js/lib/filesaver.min.js"></script>
-<script type="text/javascript" src="/collab/js/lib/key-event.js"></script>
 <script type="text/javascript" src="/collab/js/lib/circle-menu.min.js"></script>
 <script type="text/javascript" src="/collab/js/toolsITAC.js"></script>
 <script type="text/javascript" src="/collab/js/menuCollabArea.js"></script>
@@ -40,7 +42,3 @@
 <script type="text/javascript" src="/collab/js/zonePartageCollabArea.js"></script>
 </body>
 </html>
-
- 	
-  
-  
