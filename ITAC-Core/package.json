@@ -6,6 +6,11 @@
     "start": "node ./bin/www | bunyan -l debug",
     "test": "mocha --recursive | bunyan -l debug"
   },
+  "devDependencies": {
+    "mocha": "*",
+    "chai-as-promised": "*",
+    "chai": ">= 2.1.2 < 4 "
+  },
   "dependencies": {
     "body-parser": "~1.15.1",
     "cookie-parser": "~1.4.3",
@@ -21,9 +26,6 @@
     "merge": "*",
     "nodemailer": "~2.3",
     "ldapjs": "*",
-    "mocha": "*",
-    "chai-as-promised": "*",
-    "chai": ">= 2.1.2 < 4 ",
     "bunyan": "*",
     "uuid": "*"
   }
