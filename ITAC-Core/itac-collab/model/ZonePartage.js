@@ -402,6 +402,22 @@ module.exports = class ZonePartage {
     sendArFromZEPtoEP(idAr, idZE, idZEP) {
         this.ZC.setArtifactIntoEP(idAr, idZE, idZEP);
     };
+
+    close(callback){
+        let server = this.server;
+        let idZP = this.idZP;
+        logger.info('=> fermeture ZP %s', idZP);
+        this.server.close((err)=>{
+            if (err){
+                logger.err(err, '=> erreur lors fermeture ZP %s', idZP);
+            } else {
+                logger.info('=> fermeture ZP %s', idZP);
+            }
+            if (callback && callback instanceof Function) {
+                callback(err);
+            }
+        });
+    }
 };
 
 

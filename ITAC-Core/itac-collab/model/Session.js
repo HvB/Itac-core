@@ -189,20 +189,48 @@ class Session {
     }
 
     /**
-     * Methode statique d'enregistrer une session dans la liste des sessions actives.
-     * 
+     * Methode permettant de fermer une session.
+     * On ferme la ZC associée et toutes ses ZPs.
+     *
+     * @method
+     */
+    close(){
+        console.log('=> fermeture session %s', this.name);
+        Session.unregisterSession(this);
+        let zc = this.ZC;
+        if (zc) zc.close();
+    }
+
+    /**
+     * Methode statique permettant d'enregistrer une session dans la liste des sessions actives.
+     *
      * @static
      * @private
-     * @method 
+     * @method
      * @param {Session} session - session a enregistrer.
      */
     static registerSession(session){
-        if (session instanceof Session)
+        if (session instanceof Session){
             // si necessaire initialisation de la liste des sessions
             if (! Session.activesSessions){
                 Session.activesSessions = {};
-            } 
+            }
+        }
         Session.activesSessions[session.name]=session;
+    }
+
+    /**
+     * Methode statique de supprimer une session dans la liste des sessions actives.
+     *
+     * @static
+     * @private
+     * @method
+     * @param {Session} session - session a de-enregistrer.
+     */
+    static unregisterSession(session) {
+        if (session && Session.activesSessions && session instanceof Session && session === Session.activesSessions[session.name]){
+            delete Session.activesSessions[session.name];
+        }
     }
 
     /**
@@ -228,6 +256,7 @@ class Session {
         return Object.keys(Session.activesSessions[name]);
     }
 }
+
 //initialisation de la liste des sessions
 Session.activesSessions = {};
 

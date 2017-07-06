@@ -664,6 +664,21 @@ module.exports = class Serveur {
             logger.debug('=> Deconnexion : pas d IHM pour [EVT_Deconnexion] ');
         }
     };
+
+    close(callback){
+        let port = this.port;
+        logger.info('=> fermeture de la socket sur le port %d', port);
+        this._io.close((err)=>{
+            if (err){
+                logger.err(err, '=> erreur lors fermeture de la socket sur le port %d', port);
+            } else {
+                logger.info('=> fermeture de la socket sur le port %d : 0K', port);
+            }
+            if (callback && callback instanceof Function) {
+                callback(err);
+            }
+        });
+    }
 };
 	
 

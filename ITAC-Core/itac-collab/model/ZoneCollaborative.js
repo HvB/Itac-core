@@ -839,6 +839,16 @@ module.exports = class ZoneCollaborative {
         }
     };
     */
+
+    close(){
+        let server = this.server;
+        let idZC = this.idZC;
+        logger.info('=> fermeture ZC %s', idZC);
+        let zps = this.getAllZP();
+        for (var i in zps){
+            zps[i].close();
+        }
+    }
 };
 
 
