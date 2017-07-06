@@ -12,7 +12,7 @@ const Session = require("../../../itac-collab/model/Session.js");
 describe("Server connection", function(){
     var session;
     var url = 'http://localhost:8080';
-    var socketParams = {forceNew: true, autoConnect: false, transports: ['websocket']};
+    var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
     var config = {
         "session": {
             "name": "Session_Test",
@@ -53,14 +53,18 @@ describe("Server connection", function(){
     after(function (done){
         session.close();
         // on attend 1s que le serveur s'arrete
-        this.timeout(2000);
-        setTimeout(done, 1000);
+        this.timeout(5000);
+        setTimeout(done, 4000);
     });
     describe("Connection ZA", function(){
         describe("Connection ZA OK", function (){
             it("Expect connection success",function(done){
                 var socket0 = io(url, socketParams);
-                socket0.on('EVT_ReponseOKConnexionZA', ()=>{done()});
+                socket0.on('EVT_ReponseOKConnexionZA', ()=>{
+                    socket0.off('disconnect');
+                    socket0.off('connect_error');
+                    done()
+                });
                 socket0.on('EVT_ReponseNOKConnexionZA', ()=>{done(new Error("connection refused by server"))});
                 socket0.on('disconnect', (reason)=>{done(new Error(reason))});
                 socket0.on('connect_error', (err)=>{done(new Error(err))});
@@ -77,7 +81,11 @@ describe("Server connection", function(){
         describe("Connection 1st ZE OK", function (){
             it("Expect connection success",function(done){
                 var socket0 = io(url, socketParams);
-                socket0.on('EVT_ReponseOKConnexionZEP', ()=>{done();});
+                socket0.on('EVT_ReponseOKConnexionZEP', ()=>{
+                    socket0.off('disconnect');
+                    socket0.off('connect_error');
+                    done();
+                });
                 socket0.on('EVT_ReponseNOKConnexionZEP', ()=>{done(new Error("connection refused by server"));});
                 socket0.on('disconnect', (reason)=>{done(new Error(reason));});
                 socket0.on('connect_error', (err)=>{done(new Error(err));});
@@ -92,7 +100,11 @@ describe("Server connection", function(){
             describe("Connection 2nd ZE", function (){
                 it("Expect connection success",function(done){
                     var socket0 = io(url, socketParams);
-                    socket0.on('EVT_ReponseOKConnexionZEP', ()=>{done();});
+                    socket0.on('EVT_ReponseOKConnexionZEP', ()=>{
+                        socket0.off('disconnect');
+                        socket0.off('connect_error');
+                        done();
+                    });
                     socket0.on('EVT_ReponseNOKConnexionZEP', ()=>{done(new Error("connection refused by server"));});
                     socket0.on('disconnect', (reason)=>{done(new Error(reason));});
                     socket0.on('connect_error', (err)=>{done(new Error(err));});
@@ -109,7 +121,11 @@ describe("Server connection", function(){
                 it("Expect connection fails",function(done){
                     var socket0 = io(url, socketParams);
                     socket0.on('EVT_ReponseOKConnexionZEP', ()=>{done(new Error("Should not connect"));});
-                    socket0.on('EVT_ReponseNOKConnexionZEP', ()=>{done();});
+                    socket0.on('EVT_ReponseNOKConnexionZEP', ()=>{
+                        socket0.off('disconnect')
+                        socket0.off('connect_error')
+                        done();
+                    });
                     socket0.on('disconnect', (reason)=>{done(new Error(reason));});
                     socket0.on('connect_error', (err)=>{done(new Error(err));});
                     socket0.on('connect',()=>{
@@ -126,7 +142,7 @@ describe("Server connection", function(){
 describe("Artifact transfer", function(){
     var session;
     var url = 'http://localhost:8080';
-    var socketParams = {forceNew: true, autoConnect: false, transports: ['websocket']};
+    var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
     var config = {
         "session": {
             "name": "Session_Test",
@@ -173,8 +189,8 @@ describe("Artifact transfer", function(){
         socketZA = io(url, socketParams);
         //socketZA.on('EVT_ReponseOKConnexionZA', ()=>{done()});
         socketZA.on('EVT_ReponseNOKConnexionZA', ()=>{done(new Error("connection refused by server"))});
-        socketZA.on('disconnect', (reason)=>{done(new Error(reason))});
-        socketZA.on('connect_error', (err)=>{done(new Error(err))});
+        //socketZA.on('disconnect', (reason)=>{done(new Error(reason))});
+        //socketZA.on('connect_error', (err)=>{done(new Error(err))});
         socketZA.on('connect',()=>{
             socketZA.emit('EVT_DemandeConnexionZA', '', 'Table1');
         });
@@ -185,8 +201,8 @@ describe("Artifact transfer", function(){
         // on demarre le test quand le ze se connecte
         socketZE0.on('EVT_ReponseOKConnexionZEP', (ze, zep)=>{idZE = ze; idZEP = zep; done();});
         socketZE0.on('EVT_ReponseNOKConnexionZEP', ()=>{done(new Error("connection refused by server"));});
-        socketZE0.on('disconnect', (reason)=>{done(new Error(reason));});
-        socketZE0.on('connect_error', (err)=>{done(new Error(err));});
+        //socketZE0.on('disconnect', (reason)=>{done(new Error(reason));});
+        //socketZE0.on('connect_error', (err)=>{done(new Error(err));});
         socketZE0.on('connect',()=>{
             socketZE0.emit('EVT_DemandeConnexionZEP', 'pseudo1', '1');
         });
@@ -196,15 +212,15 @@ describe("Artifact transfer", function(){
             socketZA.open();
         }, 4000);
         setTimeout(function (){
-            socketZE.open();
+            socketZE0.open();
         }, 4500);
 
     });
     after(function (done){
         session.close();
         // on attend 1s que le serveur s'arrete
-        this.timeout(2000);
-        setTimeout(done, 1000);
+        this.timeout(5000);
+        setTimeout(done, 4000);
     });
 
     describe("Transfer artefact EP -> ZE", function(){
@@ -226,6 +242,30 @@ describe("Artifact transfer", function(){
                 if (messageToZA && messageToZE) done();
             });
             socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage));
+            this.timeout(500);
+        });
+    });
+
+    describe("Transfer artefact EP -> ZP", function(){
+        it('Expect connection success', function(){
+            var idZP = 'Table1';
+            var messageToZE = false;
+            var messageToZA = false;
+            socketZE0.on("EVT_ReceptionArtefactIntoZP", function (pseudo, zp, idArt){
+                expect(pseudo).to.be('pseudo1');
+                expect(zp).to.be(idZP);
+                expect(idArt).to.be(art.id);
+                messageToZE = true;
+                if (messageToZA && messageToZE) done();
+            });
+            socketZA.on('EVT_ReceptionArtefactIntoZP', function (pseudo, zp, chaineJSON){
+                expect(pseudo).to.be('pseudo1');
+                expect(zp).to.be(idZP);
+                expect(JSON.parse(chaineJSON)).to.deep.equal(artifactMessage);
+                messageToZA = true;
+                if (messageToZA && messageToZE) done();
+            });
+            socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage));
             this.timeout(500);
         });
     });
