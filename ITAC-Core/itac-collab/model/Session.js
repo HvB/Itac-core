@@ -7,6 +7,7 @@
  * @requires Constante
  * @requires crypto
  * @requires fs
+ * @requires mkdirp
  * 
  * @author Stephane Talbot
  */
@@ -14,6 +15,7 @@ const ZoneCollaborative = require('./ZoneCollaborative');
 const BaseAuthentification = require("../utility/authentication");
 const crypto = require('crypto');
 const fs = require('fs');
+const mkdirp = require('mkdirp');
 const DIRECTORY = require('../constant').directory.session;
 
 /**
@@ -107,11 +109,15 @@ class Session {
      * Repertoire de sauvegarde des artefacts.
      * 
      * Chemin vers le repertoire de sauvegarde de la configuration de la sesion et des artefacts
+     * Si le repertoire n'existe pas on essaye de le creer.
      * 
      * @return {string} : chemin vers le repertoire de sauvegarde des artefact
      */
     get pathArtifacts(){
-        return DIRECTORY + crypto.createHash('sha1').update(this.name, 'utf8').digest('hex') + "/";
+        let path = DIRECTORY + crypto.createHash('sha1').update(this.name, 'utf8').digest('hex') + "/";
+        // creation des repertoires
+        mkdirp.sync(path);
+        return path;
     }
     /**
      * Exportation JSON : en fait on exporte le contexte
@@ -137,7 +143,8 @@ class Session {
             var configFilename = sessionDirName + "config.json";
             console.log('\n*** traitement de la demande de sauvegarde de sauvegarde la session=' + this.name);
             console.log('*** creation du dossier de sauvegarde de la session=' + sessionDirName);
-            fs.mkdir(sessionDirName, (err) => {
+            //fs.mkdir(sessionDirName, (err) => {
+            mkdirp(sessionDirName, (err) => {
                 if (err && err.code !== 'EEXIST') {
                     console.log('*** erreur lors de la creation du dossier sauvegarde pour les sessions :' + err.code);
                     reject(err);
