@@ -134,12 +134,16 @@ socket.on('connect', function () {
     /* ----- Deconnexion d'une ZE ----*/
     /* ------------------------------ */
 // c'est en fait EVT_SuppressZEinZP
-    socket.on('EVT_Deconnexion', function (pseudo, idZE) {
+    socket.on('EVT_Deconnexion', function (login, idZE) {
         var $element = $('#' + idZE);
         $element.children('.artefact').each(function (index, element) {
-            $(element).removeClass('dropped-image dropped-msg left right top');
-            $(element).find("p").show();
-            $(element).remove().appendTo('.ZP');
+            var $element = $(element);
+            $element.removeClass('dropped-image dropped-msg left right top');
+            $element.find('p').show();
+            $element.remove().appendTo('.ZP');
+            var x = ($('.ZP').width() - $element.width()) / 2,
+                y = ($('.ZP').height() - $element.height()) / 2;
+            $element.attr('data-x', x).attr('data-y', y).css('transform', 'translate(' + x + 'px, ' + y + 'px)');
         });
         $element.remove();
     });
