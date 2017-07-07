@@ -44,7 +44,7 @@ module.exports = class ZoneCollaborative {
          *
          * @private
          */
-        this.artifacts = [];
+        this.artifacts = new Map();
 
         /**
          * indique le numero d'identification pour la creation de l'artefact
@@ -278,7 +278,7 @@ module.exports = class ZoneCollaborative {
      * @author philippe pernelle
      */
     getNbArtifact() {
-        return this.artifacts.length;
+        return this.artifacts.size;
     };
 
     /**
@@ -294,96 +294,28 @@ module.exports = class ZoneCollaborative {
         return this.artifacts;
     };
 
-    /**
-     * retourne la liste des artefacts associés à une ZP de la ZC
-     *
-     * @public
-     * @returns {Number} Nb de AR
-     * @author philippe pernelle
-     */
-    getAllArtifactsInZP(idZP) {
-        var artifactsInZP = [];
-        // parcours de tous les artefacts
-        for (var i = 0; i < this.getNbArtifact(); i++) {
-            // test si l'artéfact est dans la ZP
-            if (this.artifacts[i].isInto(idZP, TYPE.container.ZP)) {
-                // ajout à la liste
-                artifactsInZP.push(this.artifacts[i]);
-            }
-        }
-        // retourne la liste constituée
-        return artifactsInZP;
-    };
+
 
     /**
      * retourne un artefact identifié par son id
      *
      * @public
-     * @returns {Number} Nb de AR
+     * @returns {object} artefact recherché
      * @author philippe pernelle
      */
 
     getArtifact(id) {
 
-        var ret = null;
+        var ret = this.artifacts.get(id);
 
-        for (var i = 0; i < this.getNbArtifact(); i++) {
-            if (this.artifacts[i].getId() == id) {
-                ret = this.artifacts[i];
-                logger.info('=> getArtifact : recherche arifact dans la ZC [OK] idArtefact trouve=' + ret.getId());
-            }
-        }
         if (ret == null) logger.info('=> getArtifact : recherche arifact dans la ZC [NOK] idArtefact(' + id + ') nontrouve');
+        else logger.info('=> getArtifact : recherche arifact dans la ZC [OK] idArtefact trouve=' + ret.getId());
+
         return ret;
     };
 
 
-    /**
-     * retourne les artefacts de la zone collaborative associés à une zone d'echange (ZE)
-     *
-     * @public
-     * @param {String} idZE - identifiant de la ZE
-     * @returns {Artefact[]} tableau des artefact de la ZE
-     * @author philippe pernelle
-     */
 
-    getAllArtifactsInZE(idZE) {
-
-        var artifactsInZE = [];
-
-        //console.log('   ***  recherche artifact pour ZE='+idZE);
-        for (var i = 0; i < this.getNbArtifact(); i++) {
-
-            if (this.artifacts[i].isInto(idZE, TYPE.container.ZE)) {
-                artifactsInZE.push(this.artifacts[i]);
-            }
-        }
-        return artifactsInZE;
-
-    };
-
-    /**
-     * supprime de la zone collaborative, tous les artefacts contenu dans une Zone d'Echange (ZE)
-     *
-     * @public
-     * @param {String} idZE - identifiant de la ZE a supprimer
-     * @author philippe pernelle
-     */
-
-    suppresAllArtifactsInZE(idZE) {
-
-        console.log('    *** ZC : recherche pour suppression, tous les artefacts de ZE=' + idZE);
-        for (var i = 0; i < this.getNbArtifact(); i++) {
-
-            if (this.artifacts[i].isInto(idZE, TYPE.container.ZE)) {
-                logger.info('=> suppresAllArtifactsInZE : suppression artefacts Id=' + this.artifacts[i].getId());
-
-                this.artifacts.splice(i, 1);
-            }
-        }
-        logger.info('=> suppresAllArtifactsInZE : recherche pour suppression, tous les artefacts de ZE=' + idZE + ' [ok]');
-
-    };
 
     /**
      * supprime de la zone collaborative, tous les artefacts contenu dans une Zone d'Echange (ZE)
@@ -396,14 +328,15 @@ module.exports = class ZoneCollaborative {
     tansfertAllArtifactsInZP(idZE,idZP) {
 
         logger.info('=>tansfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE);
-        for (var i = 0; i < this.getNbArtifact(); i++) {
 
-            if (this.artifacts[i].isInto(idZE, TYPE.container.ZE)) {
-                logger.info('=> tansfertAllArtifactsInZP : suppression artefacts Id=' + this.artifacts[i].getId());
+        this.artifacts.forEach((function (item, key, mapObj) {
+            if (item.isInto(idZE, TYPE.container.ZE)) {
+                logger.info('=> tansfertAllArtifactsInZP : suppression artefacts Id=' + item.getId());
 
-                this.setArtifactIntoZP(this.artifacts[i].getId(),idZP)
+                this.setArtifactIntoZP(item.getId(),idZP)
             }
-        }
+        }).bind(this));  // nodejs c'est de la merde si t'oublei e le bind change le referentielle du this
+
         logger.info('=> tansfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE + ' [ok]');
 
     };
@@ -433,53 +366,13 @@ module.exports = class ZoneCollaborative {
 
     setIdAr() {
 
-        /*	DEPRECATED
-         if (this.getNbArtifact() !== 0) {
-         // on récupere le dernier IdArtefact du tableau et on ajoute 1
-         ret = this.artifacts[this.idArt].getId() + 1;
-         }
-         */
-        /*	DEPRECATED
-        var ret = this.idArtifactNext;
-        this.idArtifactNext = this.idArtifactNext + 1;
-        */
+
         var ret=uuidv4();
 
         return ret;
     };
 
 
-    /**
-     * ajoute un nouveau artefact dans un conteneur de la zone collaborative
-     *
-     * @public
-     * @param {String} creator - pseudo du créateur de l'artifact
-     * @param {String} typeArtifact - type de l artefact ajouté
-     * @param {String} idConteneur - identifiant du conteneur
-     * @param {String} typeConteneur - type du conteneur ZE ou ZP
-     * @param {JSON } contenu - contenu de l'artifact
-     *
-     * @author philippe pernelle
-
-
-    addArtifact(creator, typeArtifact, idConteneur, typeConteneur, contenu) {
-
-        // calcul d'un nouvel identifiant
-        var id = this.setIdAr();
-        console.log('    *** ZC : calcul nouveau IdArtifact = ' + id);
-
-
-        // création de l'artifact
-        var monArtifact = new Artifact(id, creator, typeArtifact, idConteneur, typeConteneur, contenu);
-        console.log('    *** ZC : creation artifact' + monArtifact.getId());
-
-        // ajout à la liste de tous les artefact de la ZC
-        this.artifacts.push(monArtifact);
-
-        console.log('    *** ZC : total artifact =' + this.artifacts.length);
-
-    };
-     */
 
     /**
      * supprime un artefact de la zone collaborative
@@ -487,19 +380,14 @@ module.exports = class ZoneCollaborative {
      * @public
      * @param {String} id - identifiant de l'artafcat a supprimer
      * @returns {boolean} - indique si l'artefact a été supprimé
+     *
      * @author philippe pernelle
      */
     delArtifact(id) {
-        var ret = false;
 
-        for (var i = 0; i < this.getNbArtifact(); i++) {
-            if (this.artifacts[i].getId() == id) {
-                ret = true;
-                this.artifacts.splice(i, 1);
-                logger.info('=> delArtifact : recherche artefact pour suppression [OK] idArtefact trouve=' + id);
-            }
-        }
-        if (!ret) logger.info('=> delArtifact : recherche artefact  pour suppression [NOK] idArtefact(' + id + ') nontrouve');
+        var ret =  this.artifacts.delete(id);
+        if (ret) logger.info('=> delArtifact : recherche artefact pour suppression [OK] idArtefact trouve=' + id);
+            else logger.info('=> delArtifact : recherche artefact  pour suppression [NOK] idArtefact(' + id + ') nontrouve');
         return ret;
     };
 
@@ -540,8 +428,9 @@ module.exports = class ZoneCollaborative {
 
 
         // ajout à la liste
-        this.artifacts.push(monArtifact);
-        logger.info('=> addArtifactFromJSON : total artifact =' + this.artifacts.length);
+        // DEPRECATED this.artifacts.push(monArtifact);
+        this.artifacts.set(id,monArtifact);
+        logger.info('=> addArtifactFromJSON : total artifact =' + this.artifacts.size);
 
         //sauvegarde du fichier JSON
         var chaine = JSON.stringify(monArtifact);
@@ -643,202 +532,7 @@ module.exports = class ZoneCollaborative {
         if (this.delArtifact(idAr)) logger.info('=> setArtifactIntoEP : : suppression art avec Id=' + idAr + '  idZE= ' + idZE);
     };
 
-    /**
-     * envoyer un artefact vers la zone de partage
-     *
-     * @param {string} idZP - id de la zone de partage
-     * @param {number} idAr - id de l'artefact à envoyer
-     *
-     * @author philippe pernelle
-     */
-    /*
-    addArtifactFromZEPToZP(idZP, id) {
-        // pas moi qui est fait ca , interet de la chose ?
-        this.idZP = idZP;
-        //this.idAr = idAr;
 
-        for (i = 0; i < this.artifacts.length; i++) {
-            if (this.artifacts[i].id == id) // && (this.listeZP[i].idZP===
-            // idZP)) //chercher lartifact ayant l'id correspendante
-            {
-                // ajoute l'artefact dans la liste de la ZP
-                this.artifactsInZP.push(this.artifacts[i]);
-                console.log(this.artifacts);
-                this.artifacts.splice(i, 1);//effacer l'artefact déja ajouter à la zone partage
-                console.log('    *** ZC : ajout artefact numéro # ' + this.idAr + ' est ajouté à la  ZP (' + idZP + ') , total = ' + this.artifactsInZP.length);
-
-                console.log();
-                console.log(this.artifactsInZP[i]);
-                console.log();
-
-                (this.newID = this.setIdAr() + i);
-
-                console.log('-- new id =  ' + this.newID);
-            }
-        }
-        console.log('========================================================================');
-        console.log('les artifacts envoyés vers la zone de partage sont : \n');
-        console.log(this.artifactsInZP);
-        console.log('========================================================================');
-    };
-     */
-    /**
-     * Envoie d'artefacts from ZEP to ZE
-     *
-     * @param {string} idZE - id de la zone d'echange
-     * @param {number} idAr - id de l'artefact à envoyer
-     */
-    /*
-    addArtifactFromZEPToZE(idZE, id) {
-        this.idZE = idZE;
-        //this.idAr = idAr;
-
-        for (i = 0; i < this.artifacts.length; i++) {
-            if (this.artifacts[i].id == id) // && (this.listeZE[i].idZE===
-            // idZE)) //chercher lartifact ayant l'id correspendante
-            {
-                this.artifactsInZE.push(this.artifacts[i]);
-                console.log('*** Artifact ajouté à la zone dechange , total = ' + this.artifactsInZE.length);
-                console.log();
-                console.log(this.artifactsInZE[i]);
-                console.log();
-
-                (this.newArID = this.setIdAr() + i);
-
-                console.log('-- new id =  ' + this.newArID);
-
-            }
-
-        }
-        console.log('========================================================================');
-        console.log('les artifacts envoyés vers les zones dechanges sont : \n');
-        console.log(this.artifactsInZE);
-        console.log('========================================================================');
-    };
-    */
-    /**
-     * Envoie d'artefacts from ZE to ZEP
-     *
-     * @param {string} idZEP - id de la zone personnelle
-     * @param {number} idAr - id de l'artefact à envoyer
-     */
-    /*
-    addArtifactFromZEtoZEP(idZEP, idAr) {
-        this.idZEP = idZEP;
-        this.idAr = idAr;
-
-        console.log('========================================================================')
-        for (i = 0; i < this.artifactsInZE.length; i++) {
-            if (this.artifactsInZE[i].idAr == idAr) {
-                this.artifacts.push(this.artifactsInZE[i]);
-                console.log('*** Artifact ajouté à la zone personnelle , total = ' + this.artifacts.length);
-                console.log();
-                console.log(this.artifacts[i]);
-                console.log();
-            }
-        }
-
-        console.log('........................................................................')
-        console.log('========================================================================')
-        console.log('les artifacts envoyés vers les zones personnelles sont : \n')
-        console.log(this.artifacts);
-        console.log('========================================================================')
-        console.log('========================================================================')
-
-    };
- */
-
-    /**
-     * Envoie d'artefacts from ZP to ZE
-     *
-     * @param {string } idZE - id de la zone de partage
-     * @param {number } idAr - id de l'artefact
-     */
-    /*
-    addArtifactFromZPtoZE(idZE, idAr) {
-        this.idAr = idAr;
-        this.idZE = idZE;
-        this.artifactsInZE = [];
-        this.artifactsInZP = ZoneCollaborative.artifactsInZP;
-        for (var i = 0; i < this.artifactsInZP.length; i++) {
-            if (this.artifactsInZP[i].idAr == idAr) {
-                this.artifactsInZE.push(this.artifactsInZP[i]);
-                console.log(' *** artefact numéro # ' + this.idAr + ' est ajouté à la zone d echange ayant idZE = ' + this.idZE);
-                console.log('........................................................................')
-                console.log(this.artifactsInZE);
-                console.log('========================================================================')
-                console.log('========================================================================')
-            }
-        }
-    };
-   */
-    /**
-     * Envoie d'artefacts from ZE to ZP
-     *
-     * @param {string } idZP - id de la zone de partage
-     * @param {number } idAr - id de l'artefact
-     */
-    /*
-    addArtifactFromZEtoZP(idZP, idAr) {
-        this.idAr = idAr;
-        this.idZP = idZP;
-        this.artifactsInZP = [];
-        this.artifactsInZE = ZoneCollaborative.artifactsInZE;
-        for (var i = 0; i < this.artifactsInZE.length; i++) {
-            if (this.artifactsInZP[i].idAr == idAr) {
-                this.artifactsInZP.push(this.artifactsInZE[i]);
-                console.log(' *** artefact numéro # ' + this.idAr + ' est ajouté à la zone de partage ayant idZP = ' + this.idZP);
-                console.log('........................................................................')
-                console.log(this.artifactsInZP);
-                console.log('========================================================================')
-                console.log('========================================================================')
-            }
-        }
-    };
-
-*/
-    /*
-    consoleArtifacts() {
-        // charge la liste de ZP
-        var liste = [];
-        liste = this.getAllArtifacts();
-        // affiche  la liste total des artifact
-        console.log('    ******************************************************');
-        console.log('    liste totale d artifact de ZC (' + this.getId() + ') ');
-        for (var i = 0; i < liste.length; i++) {
-            console.log('         - Artefact Id=' + liste[i].getId() + ' | conteneur=' + liste[i].getIdContainer() + ' | TypeConteneur=' + liste[i].getTypeContainer());
-        }
-        console.log('    *******************************************************');
-        console.log('    ZC (' + this.getId() + ')  possede ' + this.getNbZP() + ' ZP ');
-
-
-        var liste2 = [];
-        var listeZE = [];
-        // liste des ZP
-        liste2 = this.getAllZP();
-
-        for (i = 0; i < liste2.length; i++) {
-            // liste des artifacts par ZP
-            liste = this.getAllArtifactsInZP(liste2[i].getId());
-            console.log('         *****   Contenu de ZP (' + liste2[i].getId() + ') : Nb artifact trouve = ' + liste.length + ' ****');
-            for (var j = 0; j < liste.length; j++) {
-                console.log('                    - Artefact Id=' + liste[j].getId() + ' | conteneur=' + liste[j].getIdContainer() + ' | TypeConteneur=' + liste[j].getTypeContainer());
-            }
-
-            // liste des ZE par ZP
-            listeZE = liste2[i].getAllZE();
-            console.log('         *****   Contenu de ZP (' + liste2[i].getId() + ') : Nb ZE trouve = ' + listeZE.length);
-
-            for (j = 0; j < listeZE.length; j++) {
-                liste = this.getAllArtifactsInZE(listeZE[j].getId());
-                console.log('                 --> Contenu de ZE (' + listeZE[j].getId() + ')  Nb artifact trouve = ' + liste.length + ' <---');
-                for (var k = 0; k < liste.length; k++) {
-                    console.log('                    - Artefact =' + liste[k].getId());
-                }
-            }
-        }
-    };
-    */
 
     close(){
         let server = this.server;
