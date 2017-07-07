@@ -103,7 +103,7 @@ module.exports = class ZonePartage {
     };
 
     /**
-     * Retourne
+     * Retourne un identiant
      *
      */
     getIdZEdispo() {
@@ -167,7 +167,7 @@ module.exports = class ZonePartage {
      * @author philippe pernelle
      */
     getALLArtifacts() {
-        return listArtifacts;
+        return this.ZC.getAllArtifacts();
     };
 
     /**
@@ -185,7 +185,12 @@ module.exports = class ZonePartage {
     /**
      * creation d'une Zone d'Echange (ZE) associée à une ZEP (tablette)
      *
-     * @param {string} idZEP identifiant de la tablette
+     * @param {string} idZEP identifiant de la tablette (son adresse IP)
+     * @param {string} pseudo identifiant de la tablette (son adresse IP)
+     * @param {number} posAvatar identifiant de la tablette (son adresse IP)
+     *
+     * @return {string} idZE identifiant de la ZE
+     *
      * @autor philippe pernelle
      */
     createZE(idZEP,pseudo,posAvatar) {

@@ -387,6 +387,7 @@ module.exports = class Serveur {
         var pseudo;
         var posAvatar;
         var lesZE;
+        var lesArtifacts;
         // on arjoute le cas ou la ZA s'est accidentellement déconnecté
         if (!this.isZAConnected() || this.isClientZAreconnect()) {
 
@@ -416,6 +417,46 @@ module.exports = class Serveur {
                     logger.info('=> demandeConnexionZA : envoi d un evenement a la ZA (' + this.getSocketZA() + ') pour lui indique la reconnexion   Evenement envoyé= ' + EVENT.NewZEinZP);
 
                 }
+
+
+                lesArtifacts = this.ZP.getALLArtifacts();
+                logger.info('=> demandeConnexionZA : demande de connexion ZA (une demande de reconnexion) -> re activation des artefact nb='+lesArtifacts.size);
+
+                lesArtifacts.forEach((function (item, key, mapObj) {
+
+
+
+                    var chaineJSON = JSON.stringify(item);
+                    // à la place de la chaine on envoie l'idard dans acquittement pour la tablette
+                    if (item.isInto(this.ZP.getId(),constant.type.ZP))
+                        socket.emit(EVENT.ReceptionArtefactIntoZP, "", this.ZP.getId(),chaineJSON);
+                    // il faut emmetre à la ZA la nouvelle connexion
+                    else {
+                        for (var j = 0; j < lesZE.length; j++) {
+                            if (item.isInto(lesZE[j].getId(), constant.type.ZE))
+                                socket.emit(EVENT.ReceptionArtefactIntoZE, "", lesZE[j].getId(), chaineJSON);
+                        }
+                    }
+
+                    /*
+                    if (item.isInto(idZE, TYPE.container.ZE)) {
+                        logger.info('=> tansfertAllArtifactsInZP : suppression artefacts Id=' + item.getId());
+
+                        this.setArtifactIntoZP(item.getId(),idZP)
+                    }
+                    */
+                }).bind(this));
+
+
+
+
+
+
+
+                    logger.info('=> demandeConnexionZA : envoi d un evenement a la ZA (' + this.getSocketZA() + ') pour lui indique la reconnexion   Evenement envoyé= ' + EVENT.ReceptionArtefactIntoZP);
+
+
+
 
             }
 
