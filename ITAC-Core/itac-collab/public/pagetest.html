@@ -14,7 +14,7 @@
     socket0.emit('EVT_DemandeConnexionZEP', 'pseudo0', '0');
     socket0.on('EVT_ReponseOKConnexionZEP', function (idZE, idZEP) {
         socket0.emit('EVT_NewArtefactInZE', 'pseudo0', idZEP, idZE, JSON.stringify({
-            "id": "54h54gh", "creator": "philippe", "owner": "philippe", "type": "message", "idContainer": "ZE1",
+            "creator": "philippe", "owner": "philippe", "type": "message", "idContainer": "ZE1",
             "typeContainer": "ZE", "dateCreation": "2017-06-29T15:08:12.765Z", "history": [], "title": "Message", "content": "test de contenu"
         }));
     });

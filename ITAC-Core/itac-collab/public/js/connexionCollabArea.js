@@ -79,7 +79,7 @@ socket.on('connect', function () {
         var $element = $('.template .ZE').clone();
         nbZE = $('.ZP > .ZE').length;
         $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
-        $element.addClass('n' + (nbZE + 1)).attr('id', 'ZE' + (nbZE + 1)).appendTo('.ZP');
+        $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
         $element.find('img').attr('id', 'avatar' + posAvatar);
     });
 
