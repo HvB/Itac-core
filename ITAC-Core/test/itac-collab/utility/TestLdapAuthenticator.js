@@ -1,7 +1,7 @@
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
-const BasicAuthentication = require('../authentication');
-const LdapAuthenticator = require('../LdapAuthenticator');
+const BasicAuthentication = require('../../../itac-collab/utility/authentication');
+const LdapAuthenticator = require('../../../itac-collab/utility/LdapAuthenticator');
 const parseDN = require('ldapjs').parseDN;
 chai.use(chaiAsPromised);
 var expect = chai.expect;
@@ -297,7 +297,7 @@ describe("LDAP Authentication", function () {
 		});
 	});
 	describe("UsmbLdapAuthenticatior", function (){
-		var UsmbLdapAuthenticator = require('../UsmbLdapAuthenticator');;
+		var UsmbLdapAuthenticator = require('../../../itac-collab/utility/UsmbLdapAuthenticator');;
 		describe("Constructor", function (){
 			it("Expect class Constructor to work", function(){
 				expect(new UsmbLdapAuthenticator()).to.exist;

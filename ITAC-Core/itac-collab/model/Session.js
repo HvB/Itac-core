@@ -7,6 +7,7 @@
  * @requires Constante
  * @requires crypto
  * @requires fs
+ * @requires mkdirp
  * 
  * @author Stephane Talbot
  */
@@ -14,6 +15,7 @@ const ZoneCollaborative = require('./ZoneCollaborative');
 const BaseAuthentification = require("../utility/authentication");
 const crypto = require('crypto');
 const fs = require('fs');
+const mkdirp = require('mkdirp');
 const DIRECTORY = require('../constant').directory.session;
 
 /**
@@ -107,11 +109,15 @@ class Session {
      * Repertoire de sauvegarde des artefacts.
      * 
      * Chemin vers le repertoire de sauvegarde de la configuration de la sesion et des artefacts
+     * Si le repertoire n'existe pas on essaye de le creer.
      * 
      * @return {string} : chemin vers le repertoire de sauvegarde des artefact
      */
     get pathArtifacts(){
-        return DIRECTORY + crypto.createHash('sha1').update(this.name, 'utf8').digest('hex') + "/";
+        let path = DIRECTORY + crypto.createHash('sha1').update(this.name, 'utf8').digest('hex') + "/";
+        // creation des repertoires
+        mkdirp.sync(path);
+        return path;
     }
     /**
      * Exportation JSON : en fait on exporte le contexte
@@ -137,7 +143,8 @@ class Session {
             var configFilename = sessionDirName + "config.json";
             console.log('\n*** traitement de la demande de sauvegarde de sauvegarde la session=' + this.name);
             console.log('*** creation du dossier de sauvegarde de la session=' + sessionDirName);
-            fs.mkdir(sessionDirName, (err) => {
+            //fs.mkdir(sessionDirName, (err) => {
+            mkdirp(sessionDirName, (err) => {
                 if (err && err.code !== 'EEXIST') {
                     console.log('*** erreur lors de la creation du dossier sauvegarde pour les sessions :' + err.code);
                     reject(err);
@@ -182,20 +189,48 @@ class Session {
     }
 
     /**
-     * Methode statique d'enregistrer une session dans la liste des sessions actives.
-     * 
+     * Methode permettant de fermer une session.
+     * On ferme la ZC associée et toutes ses ZPs.
+     *
+     * @method
+     */
+    close(){
+        console.log('=> fermeture session %s', this.name);
+        Session.unregisterSession(this);
+        let zc = this.ZC;
+        if (zc) zc.close();
+    }
+
+    /**
+     * Methode statique permettant d'enregistrer une session dans la liste des sessions actives.
+     *
      * @static
      * @private
-     * @method 
+     * @method
      * @param {Session} session - session a enregistrer.
      */
     static registerSession(session){
-        if (session instanceof Session)
+        if (session instanceof Session){
             // si necessaire initialisation de la liste des sessions
             if (! Session.activesSessions){
                 Session.activesSessions = {};
-            } 
+            }
+        }
         Session.activesSessions[session.name]=session;
+    }
+
+    /**
+     * Methode statique de supprimer une session dans la liste des sessions actives.
+     *
+     * @static
+     * @private
+     * @method
+     * @param {Session} session - session a de-enregistrer.
+     */
+    static unregisterSession(session) {
+        if (session && Session.activesSessions && session instanceof Session && session === Session.activesSessions[session.name]){
+            delete Session.activesSessions[session.name];
+        }
     }
 
     /**
@@ -221,6 +256,7 @@ class Session {
         return Object.keys(Session.activesSessions[name]);
     }
 }
+
 //initialisation de la liste des sessions
 Session.activesSessions = {};
 
