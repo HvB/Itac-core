@@ -32,7 +32,7 @@ module.exports = class Artifact {
     }
 
     isInto(idContainer, typeContainer) {
-        return ((this.typeContainer === typeContainer) && (this.idContainer === idContainer));
+        return ((this.typeContainer == typeContainer) && (this.idContainer == idContainer));
     }
 
     /**
