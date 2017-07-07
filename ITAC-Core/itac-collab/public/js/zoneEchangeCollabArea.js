@@ -45,7 +45,7 @@ interact('.ZE')
             socket.emit('EVT_Envoie_ArtefactdeZPversZE', idAr, idZE);
 
             $(event.relatedTarget).find("p").hide();
-            $(event.relatedTarget).remove().css('transform', '').appendTo(event.target);
+            $(event.relatedTarget).remove().css('transform', '').appendTo($(event.target).find('.container'));
             $(event.relatedTarget).removeClass('can-drop');
             $(event.relatedTarget).addClass($(event.relatedTarget).hasClass('img') ? 'dropped-image' : 'dropped-msg');
         },

@@ -98,7 +98,7 @@ socket.on('connect', function () {
             target = $("<div id=" + art.id + " class='draggable artefact dropped-msg'>  <h1> " + art.title + " </h1> <p style ='display: none'> " + art.content + " </p> </div>");
         }
 
-        target.appendTo("#" + idZE + "");
+        target.appendTo($('#' + idZE).find('.container'));
 
     })
 
@@ -136,7 +136,7 @@ socket.on('connect', function () {
 // c'est en fait EVT_SuppressZEinZP
     socket.on('EVT_Deconnexion', function (login, idZE) {
         var $element = $('#' + idZE);
-        $element.children('.artefact').each(function (index, element) {
+        $element.find('.container .artefact').each(function (index, element) {
             var $element = $(element);
             $element.removeClass('dropped-image dropped-msg left right top');
             $element.find('p').show();
