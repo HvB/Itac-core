@@ -21,6 +21,12 @@ console.log('');
 console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + urldemande);
 
 /* -----------------------------------*/
+/*  creation du menu                */
+/* -----------------------------------*/
+
+$('.menu').circleMenu({circle_radius: 150, direction: 'full', trigger: 'none'});
+
+/* -----------------------------------*/
 /*  connexion socket                  */
 /* -----------------------------------*/
 
@@ -48,7 +54,7 @@ socket.on('connect', function () {
                 $('.menu').append('<li class="send" data-ZP="' + ZC.ZP[i].idZP + '">' + ZC.ZP[i].idZP + '</li>');
             }
         }
-        $('.menu').circleMenu({circle_radius: 150, direction: 'full', trigger: 'none'});
+        $('.menu').circleMenu('init');
         $('.overlay').hide();
 
         console.log('Zone collaborative active : ' + ZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + ZC.ZP[rang].idZP + '\n\n');
@@ -73,7 +79,7 @@ socket.on('connect', function () {
         var $element = $('.template .ZE').clone();
         nbZE = $('.ZP > .ZE').length;
         $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
-        $element.addClass('n' + (nbZE + 1)).attr('id', 'ZE' + (nbZE + 1)).appendTo('.ZP');
+        $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
         $element.find('img').attr('id', 'avatar' + posAvatar);
     });
 
