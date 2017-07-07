@@ -6,9 +6,12 @@ body {
 }
 
 .ZP {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     overflow: hidden;
-    height: 100vh;
-    width: 100vw;
     background-size: cover;
     background-image: url('../img/fond/fondITAC3.jpg');
 }
@@ -16,9 +19,9 @@ body {
 .ZE {
     background: linear-gradient(to left top, #283048, #859398);
     border-radius: 10px;
-    border: dashed 4px transparent;
+/*    border: dashed 4px transparent;
     padding: 10px;
-    transition: background-color 0.3s;
+*/    transition: background-color 0.3s;
     z-index: 1000;
     overflow: hidden;
     box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
@@ -40,31 +43,16 @@ body {
     width: 200px;
     height: 100px;
     padding: 2em 0.5em;
-    background-image: -webkit-linear-gradient(left, rgba(255, 85, 91, .2), rgba(255, 85, 91, .2)), -webkit-linear-gradient(top, white 0px, white 69px, rgba(255, 255, 255, 0) 70px), -webkit-repeating-linear-gradient(white 0px, white 18px, #A6FFED 19px, white 20px);
-    background-image: -moz-linear-gradient(left, rgba(255, 85, 91, .2), rgba(255, 85, 91, .2)), -moz-linear-gradient(left, rgba(255, 85, 91, .8), rgba(255, 85, 91, .8)), -moz-linear-gradient(top, white 0px, white 69px, rgba(255, 255, 255, 0) 70px), -moz-repeating-linear-gradient(white 0px, white 18px, #A6FFED 19px, white 20px);
-    background-image: -ms-linear-gradient(left, rgba(255, 85, 91, .2), rgba(255, 85, 91, .2)), -ms-linear-gradient(left, rgba(255, 85, 91, .8), rgba(255, 85, 91, .8)), -ms-linear-gradient(top, white 0px, white 69px, rgba(255, 255, 255, 0) 70px), -ms-repeating-linear-gradient(white 0px, white 18px, #A6FFED 19px, white 20px);
-    background-image: -o-linear-gradient(left, rgba(255, 85, 91, .2), rgba(255, 85, 91, .2)), -o-linear-gradient(left, rgba(255, 85, 91, .8), rgba(255, 85, 91, .8)), -o-linear-gradient(top, white 0px, white 69px, rgba(255, 255, 255, 0) 70px), -o-repeating-linear-gradient(white 0px, white 18px, #A6FFED 19px, white 20px);
     background-image: linear-gradient(to left, rgba(255, 85, 91, .2), rgba(255, 85, 91, .2)), linear-gradient(to left, rgba(255, 85, 91, .8), rgba(255, 85, 91, .8)), linear-gradient(to top, white 0px, white 69px, rgba(255, 255, 255, 0) 70px), repeating-linear-gradient(white 0px, white 18px, #A6FFED 19px, white 20px);
     background-size: 1px, 1px, auto, auto 20px;
     background-repeat: repeat-y, repeat-y, no-repeat, repeat;
     background-position: 90% 0px, 10% 0px, 0px 0px, 0px 0px;
-    -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     border: solid 2px #fff;
     position: fixed;
     z-index: 5000;
-    -moz-box-shadow: inset 0 0 10px #000000;
-    -webkit-box-shadow: inset 0 0 10px #000000;
     box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
     text-align: center;
     border-radius: 5%;
-}
-
-.ZP > .artefact {
-    top: 50%;
-    left: 50%;
-    margin: -50px 0 0 -100px;
 }
 
 h1 {
