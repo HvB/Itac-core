@@ -2,7 +2,7 @@
  *  les zones de partage
  * ==========================================
  */
-interact('#ZP').dropzone({
+interact('.ZP').dropzone({
     //accepter just les element ayant la class artefact
     accept: '.artefact',
     // il faut 50% de l'element soit dans la zone pour que le drop est possible
