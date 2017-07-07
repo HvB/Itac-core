@@ -21,6 +21,12 @@ console.log('');
 console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + urldemande);
 
 /* -----------------------------------*/
+/*  creation du menu                */
+/* -----------------------------------*/
+
+$('.menu').circleMenu({circle_radius: 150, direction: 'full', trigger: 'none'});
+
+/* -----------------------------------*/
 /*  connexion socket                  */
 /* -----------------------------------*/
 
@@ -48,7 +54,7 @@ socket.on('connect', function () {
                 $('.menu').append('<li class="send" data-ZP="' + ZC.ZP[i].idZP + '">' + ZC.ZP[i].idZP + '</li>');
             }
         }
-        $('.menu').circleMenu({circle_radius: 150, direction: 'full', trigger: 'none'});
+        $('.menu').circleMenu('init');
         $('.overlay').hide();
 
         console.log('Zone collaborative active : ' + ZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + ZC.ZP[rang].idZP + '\n\n');
