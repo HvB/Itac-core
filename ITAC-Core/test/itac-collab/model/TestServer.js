@@ -10,460 +10,701 @@ const expect = chai.expect;
 const io = require('socket.io-client');
 const Session = require("../../../itac-collab/model/Session.js");
 
-describe("Server connection", function(){
-    var session;
-    var url = 'http://localhost:8080';
-    var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
-    var socketZA;
-    var config = {
-        "session": {
-            "name": "Session_Test",
-            "artifactIds": []
-        },
-        "authentification": {
-            "factory": "factory",
-            "config": {
-                "type": "YesAuthenticator",
-                "params": ""
-            }
-        },
-        "zc": {
-            "config": {
-                "idZC": "ZC_test",
-                "emailZC": "jonh.doe@gmail.com",
-                "descriptionZC": "ZC de test",
-                "nbZP": "1",
-                "ZP": [
-                    {
-                        "idZP": "Table1",
-                        "typeZP": "Table2",
-                        "nbZEmin": "2",
-                        "nbZEmax": "2",
-                        "urlWebSocket": "http://localhost",
-                        "portWebSocket": "8080"
-                    }
-                ]
-            }
+function connectTablette(socket, pseudo, avatar, login, password, callback){
+    return new Promise((resolve, reject)=>{
+        function clean(){
+            socket.off('EVT_ReponseOKConnexionZEP', success)
+            socket.off('EVT_ReponseNOKConnexionZEP', fail);
+            socket.off('disconnect', fail);
+            socket.off('connect_error', fail);
+            socket.off('connect',connect);
         }
-    };
-    before (function (done){
-        this.timeout(5000);
-        session = new Session(config);
-        // on attend 4s que le serveur demarre
-        setTimeout(done, 4000);
+        var fail = function (reason){
+            clean(socket);
+            reject(new Error(reason));
+        }
+        var success = function (ze, zep){
+            clean();
+            if (callback) callback(ze, zep);
+            resolve({ze:ze, zep:zep});
+        }
+        var connect = function (){
+            socket.emit('EVT_DemandeConnexionZEP', pseudo, avatar, login, password);
+        }
+        socket.on('EVT_ReponseOKConnexionZEP', success)
+        socket.on('EVT_ReponseNOKConnexionZEP', fail);
+        socket.on('disconnect', fail);
+        socket.on('connect_error', fail);
+        socket.on('connect',connect);
+        socket.open();
     });
-    after(function (done){
-        session.close();
-        // on attend 1s que le serveur s'arrete
-        this.timeout(5000);
-        setTimeout(done, 4000);
+}
+function connectZA(socket, url, zp, callback){
+    return new Promise((resolve, reject)=>{
+        function clean(){
+            socket.off('EVT_ReponseOKConnexionZA', success)
+            socket.off('EVT_ReponseNOKConnexionZA', fail);
+            socket.off('disconnect', fail);
+            socket.off('connect_error', fail);
+            socket.off('connect',connect);
+        }
+        var fail = function (reason){
+            clean(socket);
+            reject(new Error(reason));
+        }
+        var success = function (conf){
+            clean();
+            if (callback) callback(conf);
+            resolve(conf);
+        }
+        var connect = function (){
+            socket.emit('EVT_DemandeConnexionZA', url, zp);
+        }
+
+        socket.on('EVT_ReponseOKConnexionZA', success)
+        socket.on('EVT_ReponseNOKConnexionZA', fail);
+        socket.on('disconnect', fail);
+        socket.on('connect_error', fail);
+        socket.on('connect',connect);
+        socket.open();
     });
-    describe("Connection ZA", function(){
-        describe("Connection ZA OK", function (){
+}
+describe ("Test serveur", function (){
+    describe("Server connection", function(){
+        var session;
+        var url = 'http://127.0.0.1:8080';
+        var url0 = 'http://127.0.0.1:8080';
+        var url1 = 'http://127.0.0.2:8080';
+        var url2 = 'http://127.0.0.3:8080';
+        var login="test_user";
+        var idZE0, idZE1;
+        var password;
+        var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
+        var socketZA;
+        var config = {
+            "session": {
+                "name": "Session_Test",
+                "artifactIds": []
+            },
+            "authentification": {
+                "factory": "factory",
+                "config": {
+                    "type": "YesAuthenticator",
+                    "params": ""
+                }
+            },
+            "zc": {
+                "config": {
+                    "idZC": "ZC_test",
+                    "emailZC": "jonh.doe@gmail.com",
+                    "descriptionZC": "ZC de test",
+                    "nbZP": "1",
+                    "ZP": [
+                        {
+                            "idZP": "Table1",
+                            "typeZP": "Table2",
+                            "nbZEmin": "2",
+                            "nbZEmax": "2",
+                            "urlWebSocket": "http://localhost",
+                            "portWebSocket": "8080"
+                        }
+                    ]
+                }
+            }
+        };
+        describe("Connection ZA", function(){
+            before (function (done){
+                this.timeout(5000);
+                session = new Session(config);
+                socketZA = io(url, socketParams);
+                // on attend 4s que le serveur demarre
+                setTimeout(done, 4000);
+            });
+            after(function (done){
+                socketZA.close();
+                session.close(done);
+                // on attend 1s que le serveur s'arrete
+                this.timeout(2500);
+            });
             it("Expect connection success",function(done){
-            var socket0 = socketZA = io(url, socketParams);
-                socket0.on('EVT_ReponseOKConnexionZA', ()=>{
-                    socket0.off('disconnect');
-                    socket0.off('connect_error');
-                    done()
-                });
-                socket0.on('EVT_ReponseNOKConnexionZA', ()=>{done(new Error("connection refused by server"))});
-                socket0.on('disconnect', (reason)=>{done(new Error(reason))});
-                socket0.on('connect_error', (err)=>{done(new Error(err))});
-                socket0.on('connect',()=>{
-                    socket0.emit('EVT_DemandeConnexionZA', '', 'Table1');
-                });
-                socket0.open();
+                connectZA(socketZA,'', 'Table1').then(()=>done()).catch((reason)=>done(reason));
                 this.timeout(500);
             });
         });
-    });
 
-    describe("Connection ZE", function(){
-        describe("Connection 1st ZE OK", function (){
-            it("Expect connection success",function(done){
-                var socket0 = io(url, socketParams);
-                var messageToZE = false;
-                var messageToZA = false;
-                socketZA.on('EVT_NewZEinZP', function(pseudo, ze, zep, posAvatar){
-                    expect(pseudo).to.equal('pseudo1');
-                    //expect(posAvatar).to.equal(1);
-                    assert(posAvatar == 1);
-                    messageToZA = true;
-                    if (messageToZA && messageToZE) {
-                        socket0.off('disconnect');
-                        socket0.off('connect_error');
-                        socket0.off("EVT_ReponseOKConnexionZEP");
-                        socketZA.off("EVT_NewZEinZP");
-                        done();
-                    }
+        describe("Connection ZE", function(){
+            var socketZE0, socketZE1, socketZE2;
+            describe("Connection 1st ZE OK", function (){
+                before(function(done){
+                    this.timeout(5000);
+                    session = new Session(config);
+                    socketZA = io(url, socketParams);
+                    socketZE0 = io(url0, socketParams);
+                    connectZA(socketZA,'', 'Table1').then(()=>done()).catch((reason)=>done(reason));
                 });
-
-                socket0.on('EVT_ReponseOKConnexionZEP', ()=>{
-                    messageToZE = true;
-                    if (messageToZA && messageToZE) {
-                        socket0.off('disconnect');
-                        socket0.off('connect_error');
-                        socket0.off("EVT_ReponseOKConnexionZEP");
-                        socketZA.off("EVT_NewZEinZP");
-                        done();
-                    }
+                after(function(done){
+                    socketZE0.close();
+                    socketZA.close();
+                    session.close(done);
+                    //socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE0);
+                    //setTimeout(()=>{socketZE0.close();},500);
+                    // setTimeout(()=>{socketZA.close();},1000);
+                    //setTimeout(()=>{session.close();},1500);
+                    this.timeout(2500);
                 });
-                socket0.on('EVT_ReponseNOKConnexionZEP', ()=>{done(new Error("connection refused by server"));});
-                socket0.on('disconnect', (reason)=>{done(new Error(reason));});
-                socket0.on('connect_error', (err)=>{done(new Error(err));});
-                socket0.on('connect',()=>{
-                    socket0.emit('EVT_DemandeConnexionZEP', 'pseudo1', '1');
-                });
-                socket0.open();
-                this.timeout(500);
-            });
-        });
-        describe("Connection 2nd ZE", function(){
-            describe("Connection 2nd ZE", function (){
                 it("Expect connection success",function(done){
-                    var socket0 = io(url, socketParams);
-                    var messageToZE = false;
-                    var messageToZA = false;
-                    socketZA.on('EVT_NewZEinZP', function(pseudo, ze, zep, posAvatar){
-                        expect(pseudo).to.equal('pseudo2');
-                        //expect(posAvatar).to.equal(2);
-                        assert(posAvatar == 2);
-                        messageToZA = true;
-                        if (messageToZA && messageToZE) {
-                            socket0.off('disconnect');
-                            socket0.off('connect_error');
-                            socket0.off("EVT_ReponseOKConnexionZEP");
-                            socketZA.off("EVT_NewZEinZP");
-                            done();
-                        }
+                    var okZA = new Promise((resolve, reject)=>{
+                        socketZA.on('EVT_NewZEinZP', function(pseudo, ze, zep, posAvatar){
+                            expect(pseudo).to.equal('pseudo1');
+                            //expect(posAvatar).to.equal(1);
+                            assert(posAvatar == 1);
+                            resolve(pseudo);
+                        });
                     });
-                    socket0.on('EVT_ReponseOKConnexionZEP', ()=>{
-                        messageToZE = true;
-                        if (messageToZA && messageToZE) {
-                            socket0.off('disconnect');
-                            socket0.off('connect_error');
-                            socket0.off("EVT_ReponseOKConnexionZEP");
-                            socketZA.off("EVT_NewZEinZP");
-                            done();
-                        }
+                    var okZE = connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;});
+                    Promise.all([okZA,okZE]).then(()=>done()).catch((reason)=>done(reason));
+                });
+            });
+            describe("Connection 2nd ZE", function(){
+                before(function(done){
+                    this.timeout(5000);
+                    session = new Session(config);
+                    socketZA = io(url, socketParams);
+                    var p1 = connectZA(socketZA,'', 'Table1');
+                    // connection 1ere ZE
+                    socketZE0 = io(url0, socketParams);
+                    socketZE1 = io(url1, socketParams);
+                    var p2 = connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;});
+                    Promise.all([p1,p2]).then(()=>done()).catch((reason)=>done(reason));
+                });
+                after(function(done){
+                    socketZE1.close();
+                    socketZE0.close();
+                    socketZA.close();
+                    session.close(done);
+                    // socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE0);
+                    // socketZE1.emit('EVT_Deconnexion', 'pseudo1', idZE1);
+                    // setTimeout(()=>{session.close();},500);
+                    this.timeout(2000);
+                    // setTimeout(done, 1500);
+                });
+                it("Expect connection success",function(done){
+                    var okZA = new Promise((resolve, reject)=>{
+                        socketZA.on('EVT_NewZEinZP', function(pseudo, ze, zep, posAvatar){
+                            expect(pseudo).to.equal('pseudo2');
+                            //expect(posAvatar).to.equal(1);
+                            assert(posAvatar == 2);
+                            resolve(pseudo);
+                        });
                     });
-                    socket0.on('EVT_ReponseNOKConnexionZEP', ()=>{done(new Error("connection refused by server"));});
-                    socket0.on('disconnect', (reason)=>{done(new Error(reason));});
-                    socket0.on('connect_error', (err)=>{done(new Error(err));});
-                    socket0.on('connect',()=>{
-                        socket0.emit('EVT_DemandeConnexionZEP', 'pseudo2', '2');
-                    });
-                    socket0.open();
-                    this.timeout(1000);
+                    var okZE = connectTablette(socketZE1, 'pseudo2', '2', login, password,(ze, zep)=>{idZE1=ze;});
+                    Promise.all([okZA,okZE]).then(()=>done()).catch((reason)=>done(reason));
+                });
+            });
+            describe("Connection 3rd ZE", function(){
+                before(function(done){
+                    this.timeout(5000);
+                    session = new Session(config);
+                    socketZA = io(url, socketParams);
+                    var p1 = connectZA(socketZA,'', 'Table1');
+                    // connection 1ere ZE
+                    socketZE0 = io(url0, socketParams);
+                    socketZE2 = io(url2, socketParams);
+                    socketZE1 = io(url1, socketParams);
+                    var p2 = connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;});
+                    var p3 = connectTablette(socketZE1, 'pseudo2', '2', login, password, (ze, zep)=>{idZE1=ze;});
+                    Promise.all([p1,p2]).then(()=>done()).catch((reason)=>done(reason));
+                });
+                after(function(done){
+                    socketZE2.close();
+                    socketZE1.close();
+                    socketZE0.close();
+                    socketZA.close();
+                    session.close(done);
+                    // socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE0);
+                    // socketZE1.emit('EVT_Deconnexion', 'pseudo1', idZE1);
+                    // setTimeout(()=>{session.close();},500);
+                    this.timeout(2500);
+                    //setTimeout(done, 2000);
+                });
+                it("Expect connection to fail",function(done){
+                    connectTablette(socketZE2, 'pseudo3', '3', login, password).then(()=>done(new Error("Should not connect"))).catch(()=>done());
                 });
             });
         });
-        describe("Connection 3rd ZE", function(){
-            describe("Connection 3rd ZE", function (){
-                it("Expect connection fails",function(done){
-                    var socket0 = io(url, socketParams);
-                    socket0.on('EVT_ReponseOKConnexionZEP', ()=>{done(new Error("Should not connect"));});
-                    socket0.on('EVT_ReponseNOKConnexionZEP', ()=>{
-                        socket0.off('disconnect')
-                        socket0.off('connect_error')
+    });
+
+    describe("Artifact transfer", function() {
+        var session;
+        var url = 'http://127.0.0.1:8080';
+        var url0 = 'http://127.0.0.1:8080';
+        var login = "test_user";
+        var password;
+        var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
+        var config = {
+            "session": {
+                "name": "Session_Test",
+                "artifactIds": []
+            },
+            "authentification": {
+                "factory": "factory",
+                "config": {
+                    "type": "YesAuthenticator",
+                    "params": ""
+                }
+            },
+            "zc": {
+                "config": {
+                    "idZC": "ZC_test",
+                    "emailZC": "jonh.doe@gmail.com",
+                    "descriptionZC": "ZC de test",
+                    "nbZP": "1",
+                    "ZP": [
+                        {
+                            "idZP": "Table1",
+                            "typeZP": "Table2",
+                            "nbZEmin": "2",
+                            "nbZEmax": "2",
+                            "urlWebSocket": "http://localhost",
+                            "portWebSocket": "8080"
+                        }                ]
+                }
+            }
+        };
+        var socketZA, socketZE0;
+        var idZE, idZEP;
+        var idZP = 'Table1';
+        var artifactMessage1 = {
+            "id": "message1", "creator": "mocha", "owner": "mocha", "type": "message",
+            "dateCreation": "2017-06-29T15:08:12.765Z", "title": "Message1", "content": "test de contenu 1"
+        };
+
+        var artifactMessage2 = {
+            "id": "message2", "creator": "mocha", "owner": "mocha", "type": "message",
+            "dateCreation": "2017-06-30T15:08:12.765Z", "title": "Message2", "content": "test de contenu 2"
+        };
+
+        describe("Transfer EP->ZE/ZP", function() {
+            beforeEach(function (done) {
+                this.timeout(6000);
+                session = new Session(config);
+
+                // connection ZA et connection ZE
+                socketZA = io(url, socketParams);
+                socketZE0 = io(url0, socketParams);
+                connectZA(socketZA, '', 'Table1')
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                        idZE = ze;
+                        idZEP = zep
+                    }))
+                    .then(() => done())
+                    .catch((x) => done(new Error(x)));
+            });
+            afterEach(function (done) {
+                socketZE0.close();
+                socketZA.close();
+                session.close(done);
+                // this.timeout(5000);
+                // setTimeout(done, 4000);
+                // socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
+                // setImmediate(()=>{session.close();});
+                //setTimeout(()=>{session.close();},500);
+                this.timeout(2000);
+                //setTimeout(done, 1500);
+
+            });
+
+            describe("Transfer artefact EP --> ZE", function () {
+                it('Expect transfert to be a success', function (done) {
+                    var okZE = new Promise((resolve, reject) => {
+                        socketZE0.on("EVT_ReceptionArtefactIntoZE", function (pseudo, ze, idArt) {
+                            expect(pseudo).to.equal('pseudo1');
+                            expect(ze).to.equal(idZE);
+                            expect(idArt).to.equal(artifactMessage1.id);
+                            resolve(idArt)
+                        });
+                    });
+                    var okZA = new Promise((resolve, reject) => {
+                        socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON) {
+                            expect(pseudo).to.equal('pseudo1');
+                            expect(ze).to.equal(idZE);
+                            expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
+                            resolve(artifactMessage1.id);
+                        });
+                    });
+                    socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
+                    Promise.all([okZA, okZE]).then(() => done()).catch((reason) => done(reason));
+                    this.timeout(500);
+                });
+            });
+
+            describe("Transfer artefact EP -> ZP", function () {
+                it('Expect transfert to be a success', function (done) {
+                    var okZE = new Promise((resolve, reject) => {
+                        socketZE0.on("EVT_ReceptionArtefactIntoZP", function (pseudo, zp, idArt) {
+                            expect(pseudo).to.equal('pseudo1');
+                            expect(zp).to.equal(idZP);
+                            expect(idArt).to.equal(artifactMessage2.id);
+                            resolve(idArt)
+                        });
+                    });
+                    var okZA = new Promise((resolve, reject) => {
+                        socketZA.on("EVT_ReceptionArtefactIntoZP", function (pseudo, zp, chaineJSON) {
+                            expect(pseudo).to.equal('pseudo1');
+                            expect(zp).to.equal(idZP);
+                            expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
+                            resolve(artifactMessage2.id);
+                        });
+                    });
+                    socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2))
+                    Promise.all([okZA, okZE]).then(() => done()).catch((reason) => done(reason));
+                    this.timeout(500);
+                });
+            });
+        });
+        describe("Transfer ZE <--> ZP", function() {
+            beforeEach(function (done) {
+                this.timeout(6000);
+                session = new Session(config);
+
+                // connection ZA et connection ZE
+                socketZA = io(url, socketParams);
+                socketZE0 = io(url0, socketParams);
+                connectZA(socketZA, '', 'Table1')
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                        idZE = ze;
+                        idZEP = zep;
+                        socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
+                        socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
+                    }))
+                    .then(() => done())
+                    .catch((x) => done(new Error(x)));
+            });
+            afterEach(function (done) {
+                socketZE0.close();
+                socketZA.close();
+                session.close(done);
+                // socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
+                // setTimeout(()=>{session.close();},500);
+                this.timeout(2000);
+                //setTimeout(done, 1500);
+
+            });
+
+            describe("Transfer artefact ZE -> ZP", function () {
+                it('Expect transfert to be a success', function (done) {
+                    socketZE0.on("EVT_Envoie_ArtefactdeZEversZP", function (idArt, ze) {
+                        expect(ze).to.equal(idZE);
+                        expect(idArt).to.equal(artifactMessage1.id);
                         done();
                     });
-                    socket0.on('disconnect', (reason)=>{done(new Error(reason));});
-                    socket0.on('connect_error', (err)=>{done(new Error(err));});
-                    socket0.on('connect',()=>{
-                        socket0.emit('EVT_DemandeConnexionZEP', 'pseudo3', '3');
+                    socketZA.emit('EVT_Envoie_ArtefactdeZEversZP', artifactMessage1.id, idZE, idZP);
+                    this.timeout(500);
+                });
+            });
+            describe("Transfer artefact ZP -> ZE", function () {
+                it('Expect transfert to be a success', function (done) {
+                    socketZE0.on('EVT_Envoie_ArtefactdeZPversZE', function (chaineJSON) {
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
+                        done();
                     });
-                    socket0.open();
+                    socketZA.emit('EVT_Envoie_ArtefactdeZPversZE', artifactMessage2.id, idZE);
                     this.timeout(500);
                 });
             });
         });
     });
-});
 
-describe("Artifact transfer", function(){
-    var session;
-    var url = 'http://localhost:8080';
-    var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
-    var config = {
-        "session": {
-            "name": "Session_Test",
-            "artifactIds": []
-        },
-        "authentification": {
-            "factory": "factory",
-            "config": {
-                "type": "YesAuthenticator",
-                "params": ""
+    describe("Deconnection/Reconnection", function() {
+        var session;
+        var url = 'http://127.0.0.1:8080';
+        var url0 = 'http://127.0.0.1:8080';
+        var login = "test_user";
+        var password;
+        var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
+        //var socketParams2 = {forceNew: true, autoConnect: false, reconnection: true, reconnectionAttempts: 2, transports: ['websocket']};
+        var config = {
+            "session": {
+                "name": "Session_Test",
+                "artifactIds": []
+            },
+            "authentification": {
+                "factory": "factory",
+                "config": {
+                    "type": "YesAuthenticator",
+                    "params": ""
+                }
+            },
+            "zc": {
+                "config": {
+                    "idZC": "ZC_test",
+                    "emailZC": "jonh.doe@gmail.com",
+                    "descriptionZC": "ZC de test",
+                    "nbZP": "1",
+                    "ZP": [
+                        {
+                            "idZP": "Table1",
+                            "typeZP": "Table2",
+                            "nbZEmin": "2",
+                            "nbZEmax": "2",
+                            "urlWebSocket": "http://localhost",
+                            "portWebSocket": "8080"
+                        }
+                    ]
+                }
             }
-        },
-        "zc": {
-            "config": {
-                "idZC": "ZC_test",
-                "emailZC": "jonh.doe@gmail.com",
-                "descriptionZC": "ZC de test",
-                "nbZP": "1",
-                "ZP": [
-                    {
-                        "idZP": "Table1",
-                        "typeZP": "Table2",
-                        "nbZEmin": "2",
-                        "nbZEmax": "2",
-                        "urlWebSocket": "http://localhost",
-                        "portWebSocket": "8080"
-                    }
-                ]
-            }
-        }
-    };
-    var socketZA, socketZE0;
-    var idZE, idZEP;
-    var artifactMessage1 = {
-        "id": "message1", "creator": "mocha", "owner": "mocha", "type": "message",
-        "dateCreation": "2017-06-29T15:08:12.765Z", "title": "Message1", "content": "test de contenu 1"
-    };
+        };
+        var socketZA, socketZE0;
+        var idZE, idZEP;
+        var idZP = 'Table1';
+        var artifactMessage1 = {
+            "id": "message1", "creator": "mocha", "owner": "mocha", "type": "message",
+            "dateCreation": "2017-06-29T15:08:12.765Z", "title": "Message1", "content": "test de contenu 1"
+        };
 
-    var artifactMessage2 = {
-        "id": "message2", "creator": "mocha", "owner": "mocha", "type": "message",
-        "dateCreation": "2017-06-30T15:08:12.765Z", "title": "Message2", "content": "test de contenu 2"
-    };
+        var artifactMessage2 = {
+            "id": "message2", "creator": "mocha", "owner": "mocha", "type": "message",
+            "dateCreation": "2017-06-30T15:08:12.765Z", "title": "Message2", "content": "test de contenu 2"
+        };
 
-    before (function (done){
-        this.timeout(6000);
-        session = new Session(config);
+        describe("Deconnection ZE douce", function(){
+            before(function (done) {
+                this.timeout(6000);
+                session = new Session(config);
 
-        // connection ZA
-        socketZA = io(url, socketParams);
-        //socketZA.on('EVT_ReponseOKConnexionZA', ()=>{done()});
-        socketZA.on('EVT_ReponseNOKConnexionZA', ()=>{done(new Error("connection refused by server"))});
-        //socketZA.on('disconnect', (reason)=>{done(new Error(reason))});
-        //socketZA.on('connect_error', (err)=>{done(new Error(err))});
-        socketZA.on('connect',()=>{
-            socketZA.emit('EVT_DemandeConnexionZA', '', 'Table1');
-        });
-        socketZA.open();
-
-        // connection ZE
-        socketZE0 = io(url, socketParams);
-        // on demarre le test quand le ze se connecte
-        socketZE0.on('EVT_ReponseOKConnexionZEP', (ze, zep)=>{
-            idZE = ze; idZEP = zep;
-            socketZE0.off('EVT_ReponseOKConnexionZEP');
-            done();
-        });
-        socketZE0.on('EVT_ReponseNOKConnexionZEP', ()=>{done(new Error("connection refused by server"));});
-        //socketZE0.on('disconnect', (reason)=>{done(new Error(reason));});
-        //socketZE0.on('connect_error', (err)=>{done(new Error(err));});
-        socketZE0.on('connect',()=>{
-            socketZE0.emit('EVT_DemandeConnexionZEP', 'pseudo1', '1');
-        });
-
-        // on attend 4s que le serveur demarre avant de lancer la ZA puis les clients
-        setTimeout(function (){
-            socketZA.open();
-        }, 4000);
-        setTimeout(function (){
-            socketZE0.open();
-        }, 4500);
-
-    });
-    after(function (done){
-        session.close();
-        // on attend 1s que le serveur s'arrete
-        this.timeout(5000);
-        setTimeout(done, 4000);
-    });
-
-    describe("Transfer artefact EP -> ZE", function(){
-        it('Expect transfert to be a success', function(done){
-            var messageToZE = false;
-            var messageToZA = false;
-            socketZE0.on("EVT_ReceptionArtefactIntoZE", function (pseudo, ze, idArt){
-                expect(pseudo).to.equal('pseudo1');
-                expect(ze).to.equal(idZE);
-                expect(idArt).to.equal(artifactMessage1.id);
-                messageToZE = true;
-                if (messageToZA && messageToZE) {
-                    socketZE0.off("EVT_ReceptionArtefactIntoZE");
-                    socketZA.off("EVT_ReceptionArtefactIntoZE");
-                    done();
-                }
+                // connection ZA et connection ZE
+                socketZA = io(url, socketParams);
+                socketZE0 = io(url0, socketParams);
+                connectZA(socketZA, '', 'Table1')
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                        idZE = ze;
+                        idZEP = zep;
+                        socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
+                        socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
+                    }))
+                    .then(() => done())
+                    .catch((x) => done(new Error(x)));
             });
-            socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
-                expect(pseudo).to.equal('pseudo1');
-                expect(ze).to.equal(idZE);
-                expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
-                messageToZA = true;
-                if (messageToZA && messageToZE) {
-                    socketZE0.off("EVT_ReceptionArtefactIntoZE");
-                    socketZA.off("EVT_ReceptionArtefactIntoZE");
-                    done();
-                }
-            });
-            socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
-            this.timeout(500);
-        });
-    });
-
-    describe("Transfer artefact EP -> ZP", function(){
-        it('Expect transfert to be a success', function(done){
-            var idZP = 'Table1';
-            var messageToZE = false;
-            var messageToZA = false;
-            socketZE0.on("EVT_ReceptionArtefactIntoZP", function (pseudo, zp, idArt){
-                expect(pseudo).to.equal('pseudo1');
-                expect(zp).to.equal(idZP);
-                expect(idArt).to.equal(artifactMessage2.id);
-                messageToZE = true;
-                if (messageToZA && messageToZE) {
-                    socketZE0.off("EVT_ReceptionArtefactIntoZP");
-                    socketZA.off("EVT_ReceptionArtefactIntoZP");
-                    done();
-                }
-            });
-            socketZA.on('EVT_ReceptionArtefactIntoZP', function (pseudo, zp, chaineJSON){
-                expect(pseudo).to.equal('pseudo1');
-                expect(zp).to.equal(idZP);
-                expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
-                messageToZA = true;
-                if (messageToZA && messageToZE) {
-                    socketZE0.off("EVT_ReceptionArtefactIntoZP");
-                    socketZA.off("EVT_ReceptionArtefactIntoZP");
-                    done();
-                }
-            });
-            socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
-            this.timeout(500);
-        });
-    });
-    describe("Transfer artefact ZE -> ZP", function(){
-        it('Expect transfert to be a success', function(done){
-            var idZP = 'Table1';
-            socketZE0.on("EVT_Envoie_ArtefactdeZEversZP", function (idArt, ze){
-                expect(ze).to.equal(idZE);
-                expect(idArt).to.equal(artifactMessage1.id);
-                socketZE0.off("EVT_Envoie_ArtefactdeZEversZP");
-                done();
-            });
-            socketZA.emit('EVT_Envoie_ArtefactdeZEversZP', artifactMessage1.id, idZE, idZP);
-            this.timeout(500);
-        });
-    });
-    describe("Transfer artefact ZP -> ZE", function(){
-        it('Expect transfert to be a success', function(done){
-             socketZE0.on('EVT_Envoie_ArtefactdeZPversZE', function (chaineJSON){
-                expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
-                socketZE0.off('EVT_Envoie_ArtefactdeZPversZE');
-                done();
-            });
-            socketZA.emit('EVT_Envoie_ArtefactdeZPversZE', artifactMessage2.id, idZE);
-            this.timeout(500);
-        });
-    });
-    describe("deconnection ZE", function(){
-        it('Expect transfert artifacts to ZP', function(done){
-            var messageDeconnection = false;
-            socketZA.on('EVT_Deconnexion', function (pseudo, ze){
-                //expect(pseudo).to.equal('pseudo1');
-                expect(ze).to.equal(idZE);
-                socketZA.off('EVT_Deconnexion');
-                done()
-            });
-
-            socketZE0.close();
-            this.timeout(500);
-        });
-    });
-    describe("reconnection ZE", function(){
-        it("Expect connection success",function(done){
-            var messageToZE = false;
-            var messageToZA = false;
-            socketZA.on('EVT_NewZEinZP', function(pseudo, ze, zep, posAvatar){
-                expect(pseudo).to.equal('pseudo1');
-                //expect(posAvatar).to.equal(1);
-                assert(posAvatar == 1);
-                messageToZA = true;
-                if (messageToZA && messageToZE) {
-                    socketZE0.off('disconnect');
-                    socketZE0.off('connect_error');
-                    socketZE0.off("EVT_ReponseOKConnexionZEP");
-                    socketZA.off("EVT_NewZEinZP");
-                    done();
-                }
-            });
-
-            socketZE0.on('EVT_ReponseOKConnexionZEP', ()=>{
-                messageToZE = true;
-                if (messageToZA && messageToZE) {
-                    socketZE0.off('disconnect');
-                    socketZE0.off('connect_error');
-                    socketZE0.off("EVT_ReponseOKConnexionZEP");
-                    socketZA.off("EVT_NewZEinZP");
-                    done();
-                }
-            });
-            socketZE0.on('EVT_ReponseNOKConnexionZEP', ()=>{done(new Error("connection refused by server"));});
-            socketZE0.on('disconnect', (reason)=>{done(new Error(reason));});
-            socketZE0.on('connect_error', (err)=>{done(new Error(err));});
-            // socketZE0.on('connect',()=>{
-            //     socketZE0.emit('EVT_DemandeConnexionZEP', 'pseudo1', '1');
-            // });
-            socketZE0.open();
-            this.timeout(500);
-        });
-    });
-    describe("reconnection ZA", function(){
-        before(function (done){
-            socketZE0.on('EVT_Envoie_ArtefactdeZPversZE', function (chaineJSON){
-                // on ferme la connection de la ZA
+            after(function (done) {
+                socketZE0.close();
                 socketZA.close();
-                done();
+                session.close(done);
+                this.timeout(3000);
+                //setTimeout(done, 2500);
             });
-            // on remet l'artefact2 dans la ZE
-            socketZA.emit('EVT_Envoie_ArtefactdeZPversZE', artifactMessage2.id, idZE);
-            this.timeout(500);
+
+            it('Expect transfert artifacts to ZP', function(done){
+                this.timeout(90000);
+                socketZA.on('EVT_Deconnexion', function (pseudo, ze){
+                    expect(pseudo).to.equal('pseudo1');
+                    expect(ze).to.equal(idZE);
+                    done();
+                });
+                socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
+                //socketZE0.close();
+            });
         });
-        it("Expect connection success",function(done){
-            var messageNewZE = false;
-            var messageArtifact1 = false;
-            var messageArtifact2 = false;
-            socketZA.on('EVT_NewZEinZP', function(pseudo, ze, zep, posAvatar){
-                expect(pseudo).to.equal('pseudo1');
-                //expect(posAvatar).to.equal(1);
-                assert(posAvatar == 1);
-                messageNewZE = true;
+
+        describe("Deconnection ZE brutale", function(){
+            before(function (done) {
+                this.timeout(6000);
+                session = new Session(config);
+
+                // connection ZA et connection ZE
+                socketZA = io(url, socketParams);
+                socketZE0 = io(url0, socketParams);
+                connectZA(socketZA, '', 'Table1')
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                        idZE = ze;
+                        idZEP = zep;
+                        socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
+                        socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
+                    }))
+                    .then(() => done())
+                    .catch((x) => done(new Error(x)));
             });
-            socketZA.on('EVT_ReceptionArtefactIntoZP', function (pseudo, zp, chaineJSON){
-                //expect(pseudo).to.equal('pseudo1');
-                expect(zp).to.equal(idZP);
-                expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
-                messageArtifact1 = true;
-                if (messageNewZE && messageArtifact1 && messageArtifact2) {
-                    socketZA.off("EVT_NewZEinZP");
-                    socketZA.off("EVT_ReceptionArtefactIntoZP");
-                    socketZA.off("EVT_ReceptionArtefactIntoZE");
+            after(function (done) {
+                socketZE0.close();
+                socketZA.close();
+                session.close(done);
+                this.timeout(3000);
+                //setTimeout(done, 2500);
+            });
+
+            it('Expect transfert artifacts to ZP', function(done){
+                this.timeout(90000);
+                socketZA.on('EVT_Deconnexion', function (pseudo, ze) {
+                    //expect(pseudo).to.equal('pseudo1');
+                    expect(ze).to.equal(idZE);
                     done();
-                }
+                });
+                //socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
+                socketZE0.close();
             });
-            socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
-                //expect(pseudo).to.equal('pseudo1');
-                expect(ze).to.equal(idZE);
-                expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
-                messageArtifact1 = true;
-                if (messageNewZE && messageArtifact1 && messageArtifact2) {
-                    socketZA.off("EVT_NewZEinZP");
-                    socketZA.off("EVT_ReceptionArtefactIntoZP");
-                    socketZA.off("EVT_ReceptionArtefactIntoZE");
-                    done();
-                }
+        });
+
+        describe("reconnection ZE", function(){
+            before(function (done) {
+                this.timeout(6000);
+                session = new Session(config);
+
+                // connection ZA et connection ZE
+                socketZA = io(url, socketParams);
+                socketZE0 = io(url0, socketParams);
+                var p1 = connectZA(socketZA, '', 'Table1')
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                        idZE = ze;
+                        idZEP = zep;
+                        socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
+                        socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
+                    }));
+                var p2 = new Promise((resolve,reject)=>{
+                    setTimeout(()=>{
+                        socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
+                        resolve(idZE);
+                    }, 2000);
+                });
+                var p3 = new Promise((resolve,reject)=>{
+                    setTimeout(()=>{
+                        resolve(idZE);
+                    }, 3000);
+                });
+                Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
             });
-            // socketZA.on('connect',()=>{
-            //     socketZA.emit('EVT_DemandeConnexionZA', '', 'Table1');
-            // });
-            socketZA.open();
-            this.timeout(500);
+            after(function (done) {
+                socketZE0.close();
+                socketZA.close();
+                session.close(done);
+                this.timeout(5000);
+            });
+
+            it("Expect connection success",function(done){
+                socketZE0 = io(url0, socketParams);
+                var okZA = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_NewZEinZP', function(pseudo, ze, zep, posAvatar){
+                        idZE = ze;
+                        idZEP =zep;
+                        expect(pseudo).to.equal('pseudo1');
+                        //expect(posAvatar).to.equal(1);
+                        assert(posAvatar == 1);
+                        resolve(pseudo);
+                    });
+                });
+                var okZE = connectTablette(socketZE0, 'pseudo1', '1', login, password);
+                Promise.all([okZA,okZE]).then(()=>done()).catch((reason)=>done(reason));
+                this.timeout(500);
+            });
+        });
+        describe("reconnection ZE suite deconnection brutale", function(){
+            before(function (done) {
+                this.timeout(6000);
+                session = new Session(config);
+
+                // connection ZA et connection ZE
+                socketZA = io(url, socketParams);
+                socketZE0 = io(url0, socketParams);
+                var p1 = connectZA(socketZA, '', 'Table1')
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                        idZE = ze;
+                        idZEP = zep;
+                        socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
+                        socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
+                    }));
+                var p2 = new Promise((resolve,reject)=>{
+                    setTimeout(()=>{
+                        //socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
+                        socketZE0.close();
+                        resolve(idZE);
+                    }, 2000);
+                });
+                var p3 = new Promise((resolve,reject)=>{
+                    setTimeout(()=>{
+                        resolve(idZE);
+                    }, 3000);
+                });
+                Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
+            });
+            after(function (done) {
+                socketZE0.close();
+                socketZA.close();
+                session.close(done);
+                this.timeout(5000);
+                //setTimeout(done, 2500);
+            });
+
+            it("Expect connection success",function(done){
+                socketZE0 = io(url0, socketParams);
+                var okZA = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_NewZEinZP', function(pseudo, ze, zep, posAvatar){
+                        idZE = ze;
+                        idZEP =zep;
+                        expect(pseudo).to.equal('pseudo1');
+                        //expect(posAvatar).to.equal(1);
+                        assert(posAvatar == 1);
+                        resolve(pseudo);
+                    });
+                });
+                var okZE = connectTablette(socketZE0, 'pseudo1', '1', login, password);
+                Promise.all([okZA,okZE]).then(()=>done()).catch((reason)=>done(reason));
+                this.timeout(40000);
+            });
+        });
+        describe("reconnection ZA", function(){
+            before(function (done) {
+                this.timeout(6000);
+                session = new Session(config);
+
+                // connection ZA et connection ZE
+                socketZA = io(url, socketParams);
+                socketZE0 = io(url0, socketParams);
+                connectZA(socketZA, '', 'Table1')
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                        idZE = ze;
+                        idZEP = zep;
+                        socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
+                        socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
+                    }))
+                    .then(() => {socketZA.close(); done();})
+                    .catch((x) => done(new Error(x)));
+            });
+            after(function (done) {
+                socketZE0.close();
+                socketZA.close();
+                session.close(done);
+                this.timeout(3000);
+                //setTimeout(done, 2500);
+            });
+
+            it("Expect connection success",function(done){
+                socketZA = io(url, socketParams);
+                var p1 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_NewZEinZP', function(pseudo, ze, zep, posAvatar){
+                        expect(pseudo).to.equal('pseudo1');
+                        expect(ze).to.equal(idZE);
+                        assert(posAvatar == 1);
+                        resolve(ze);
+                    });
+                });
+                var p2 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZP', function (pseudo, zp, chaineJSON){
+                        //expect(pseudo).to.equal('pseudo1');
+                        expect(zp).to.equal(idZP);
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
+                        resolve(artifactMessage2.id);
+                    });
+                });
+                var p3 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
+                        //expect(pseudo).to.equal('pseudo1');
+                        expect(ze).to.equal(idZE);
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
+                        resolve(artifactMessage1.id);
+                    });
+                });
+                var p0 = connectZA(socketZA, '', 'Table1');
+                Promise.all([p0,p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
+                this.timeout(500);
+            });
         });
     });
-
 });
