@@ -82,12 +82,9 @@ module.exports = class ZoneCollaborative {
          */
         this.listeZP = [];
 
-        logger.info('*****************************************');
-        logger.info('*** ZoneCollaborative  (idZC= ' + this.idZC + ')');
-        logger.info('  --> email_contact=' + this.emailZC);
-        logger.info('  --> description=' + this.descriptionZC);
-        logger.info('*****************************************');
+        logger.info('Création de la ZC --> traitement des ZP');
 
+        /*
         logger.info('traitement du dossier de sauvegarde =' + this.pathArtifacts);
         try {
             fs.mkdirSync(DIRECTORY);
@@ -104,12 +101,13 @@ module.exports = class ZoneCollaborative {
             logger.info('dossier de sauvegarde existant :' + e.code);
             if (e.code != 'EEXIST') throw e;
         }
+        */
 
         // creation de la liste des ZP à partir du fichier de parametre
         // chaque ZP sera associé à un serveur de socket
         for (var i = 0; i < parametreZC.nbZP; i++) {
             // id ZP défini dans le fichier de parametre
-            logger.info('traitement de le ZP = ' + parametreZC.ZP[i].idZP);
+            logger.info('Création de la ZC --> traitement de le ZP = ' + parametreZC.ZP[i].idZP);
 
             // creation des ZP
             this.listeZP[i] = new ZonePartage(this, parametreZC.ZP[i].idZP,
@@ -119,7 +117,7 @@ module.exports = class ZoneCollaborative {
         }
 
 
-        logger.info('*** Resultat final : ZoneCollaborative  (idZC= ' + this.idZC + ') - [OK] : nbZP total creees = ' + this.getNbZP());
+        logger.info('Création de la ZC --> [OK] : ZoneCollaborative  (idZC= ' + this.idZC + ') - [OK] : nbZP total creees = ' + this.getNbZP());
 
     };
 
@@ -308,20 +306,21 @@ module.exports = class ZoneCollaborative {
      * @author philippe pernelle
      */
 
-    tansfertAllArtifactsInZP(idZE,idZP) {
+    transfertAllArtifactsInZP(idZE,idZP) {
 
-        logger.info('=>tansfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE);
+        var ret = [];
 
+        logger.info('=> transfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE);
         this.artifacts.forEach((function (item, key, mapObj) {
             if (item.isInto(idZE, TYPE.container.ZE)) {
-                logger.info('=> tansfertAllArtifactsInZP : suppression artefacts Id=' + item.getId());
-
+                logger.info('=> transfertAllArtifactsInZP : changement conteneur artefacts Id=' + item.getId());
                 this.setArtifactIntoZP(item.getId(),idZP)
+                ret.push(item.getId());
             }
         }).bind(this));  // nodejs c'est de la merde si t'oublei e le bind change le referentielle du this
 
-        logger.info('=> tansfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE + ' [ok]');
-
+        logger.info('=> transfertAllArtifactsInZP : transfert tous les artefacts [OK] de ZE=' + idZE + ' vers ZP='+idZP);
+        return ret;
     };
 
 
@@ -493,7 +492,7 @@ module.exports = class ZoneCollaborative {
 
         logger.debug('=> setArtifactIntoZP : recuperation artifact' + monArtifact.id);
         monArtifact.setIntoZone(IdZP, TYPE.container.ZP);
-        logger.info('=> setArtifactIntoZP : artifact =' + monArtifact.id + ' vers ZP =' + IdZP + '[OK]');
+        logger.debug('=> setArtifactIntoZP : artifact =' + monArtifact.id + ' vers ZP =' + IdZP + '[OK]');
 
     };
 

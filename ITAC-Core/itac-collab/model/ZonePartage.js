@@ -36,6 +36,13 @@ var logger = itacLogger.child({component: 'ZonePartage'});
  * @param  {integer} ZEmax - nombre maximum de ZoneEchange
  */
 module.exports = class ZonePartage {
+    get clientZAsocket() {
+        return this._clientZAsocket;
+    }
+
+    set clientZAsocket(value) {
+        this._clientZAsocket = value;
+    }
     constructor(ZC, idZP, typeZP, nbZEmin, nbZEmax, urlWebSocket, portWebSocket) {
 
         this.ZC = ZC;
@@ -73,11 +80,62 @@ module.exports = class ZonePartage {
          */
         this.listeZE = new Map();
 
+        /**
+         * socket de la ZA associé
+         *
+         * @private
+         */
+        this.clientZAsocket = 0;
+
+        /**
+         * indicateur permettant de savoir s'il faut reconnecter la ZA
+         */
+        this.clientZAreconnect = false;
+
         // création du serveur de socket associée
         this.server = new Serveur(this, portWebSocket);
-        logger.info('Creation ZonePartage | ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
+        logger.info('Creation ZonePartage --> ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
 
     };
+
+
+    /**
+     * Retourne le type de ZP
+     *
+     */
+    getClientZAsocket() {
+        return this.clientZAsocket;
+    };
+
+    setClientZAsocket(socketZA) {
+        this.clientZAsocket= socketZA;
+    };
+
+    /**
+     *  Indique si la ZA est connecté à la socket
+     */
+    isClientZAreconnect() {
+        return this.clientZAreconnect ;
+    };
+
+    setClientZAreconnect(val) {
+        this.clientZAreconnect=val;
+    }
+
+    /**
+     *  Indique si la ZA est connecté à la socket
+     */
+    isZAConnected() {
+        return (this.clientZAsocket != 0);
+    };
+
+    /**
+     *  Indique si la ZA est connecté à la socket
+     */
+    isZAConnected() {
+        return (this.clientZAsocket != 0);
+    };
+
 
     /**
      * Retourne le type de ZP
@@ -187,14 +245,7 @@ module.exports = class ZonePartage {
      */
     destroyZE(idZE) {
 
-        var ret =  this.listeZE.delete(idZE);
-        if (ret) {
-            logger.info('=> destroyZE : recherche ZE pour suppression [OK] ZE trouve=' + idZE);
-            logger.info('=> destroyZE : suppression des artefacts d une ZE (' + idZE + ')  ');
-            //this.ZC.suppresAllArtifactsInZE(idZE);
-            this.ZC.tansfertAllArtifactsInZP(idZE,this.getId());
-        }
-        else logger.info('=> destroyZE : recherche ZE  pour suppression [NOK] ZE(' + idZE + ') nontrouve');
+        this.listeZE.delete(idZE);
 
     };
 
@@ -250,9 +301,6 @@ module.exports = class ZonePartage {
  * @autor philippe pernelle
  */
 getZEbySocket(idsocket) {
-
-
-
 
     var ret = null;
 
