@@ -308,20 +308,21 @@ module.exports = class ZoneCollaborative {
      * @author philippe pernelle
      */
 
-    tansfertAllArtifactsInZP(idZE,idZP) {
+    transfertAllArtifactsInZP(idZE,idZP) {
 
-        logger.info('=>tansfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE);
+        var ret = [];
 
+        logger.info('=> transfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE);
         this.artifacts.forEach((function (item, key, mapObj) {
             if (item.isInto(idZE, TYPE.container.ZE)) {
-                logger.info('=> tansfertAllArtifactsInZP : suppression artefacts Id=' + item.getId());
-
+                logger.info('=> transfertAllArtifactsInZP : changement conteneur artefacts Id=' + item.getId());
                 this.setArtifactIntoZP(item.getId(),idZP)
+                ret.push(item.getId());
             }
         }).bind(this));  // nodejs c'est de la merde si t'oublei e le bind change le referentielle du this
 
-        logger.info('=> tansfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE + ' [ok]');
-
+        logger.info('=> transfertAllArtifactsInZP : transfert tous les artefacts [OK] de ZE=' + idZE + ' vers ZP='+idZP);
+        return ret;
     };
 
 
@@ -493,7 +494,7 @@ module.exports = class ZoneCollaborative {
 
         logger.debug('=> setArtifactIntoZP : recuperation artifact' + monArtifact.id);
         monArtifact.setIntoZone(IdZP, TYPE.container.ZP);
-        logger.info('=> setArtifactIntoZP : artifact =' + monArtifact.id + ' vers ZP =' + IdZP + '[OK]');
+        logger.debug('=> setArtifactIntoZP : artifact =' + monArtifact.id + ' vers ZP =' + IdZP + '[OK]');
 
     };
 
