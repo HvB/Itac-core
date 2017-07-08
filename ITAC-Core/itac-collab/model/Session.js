@@ -18,6 +18,10 @@ const fs = require('fs');
 const mkdirp = require('mkdirp');
 const DIRECTORY = require('../constant').directory.session;
 
+const itacLogger = require('../utility/loggers').itacLogger;
+
+var logger = itacLogger.child({component: 'Session'});
+
 /**
  * Class pour la representation des Sessions. 
  * La session est construite en fonction du contexte passe au constructeur.
@@ -76,19 +80,26 @@ class Session {
      * @param {json} context: contexte de la session
      */
     constructor(context) {
+        logger.debug("Creation de la Session -> parametre de session " + context);
         this.context = context;
         this.name = context.session.name;
         // creation dispositif d'authetification
         var confAuth = context.authentification;
-        console.log("factory: " + confAuth.factory);
+        logger.info("Creation de la Session -> factory auth : " + confAuth.factory);
         var factory = BaseAuthentification.Authenticator.getFactory(confAuth.factory);
         this.auth = factory(confAuth.config);
         // creation de la ZC
         var confZC = context.zc.config;
         this.ZC =new ZoneCollaborative(confZC);
-        this.ZC.session=this;	
+        this.ZC.session=this;
+        logger.info("Creation de la Session -> attachement de la session à la ZC : " + this.ZC.getId());
         Session.registerSession(this);
     }
+
+    get authIds() {
+        return this.auth;
+    }
+
 
     /**
      * liste des ids des articles de la session
@@ -141,25 +152,25 @@ class Session {
             //var sessionDirName = DIRECTORY + crypto.createHash('sha1').update(this.name, 'utf8').digest('hex') + "/";
             var sessionDirName = this.pathArtifacts;
             var configFilename = sessionDirName + "config.json";
-            console.log('\n*** traitement de la demande de sauvegarde de sauvegarde la session=' + this.name);
-            console.log('*** creation du dossier de sauvegarde de la session=' + sessionDirName);
+            logger.info('*** traitement de la demande de sauvegarde de sauvegarde la session=' + this.name);
+            logger.info('*** creation du dossier de sauvegarde de la session=' + sessionDirName);
             //fs.mkdir(sessionDirName, (err) => {
             mkdirp(sessionDirName, (err) => {
                 if (err && err.code !== 'EEXIST') {
-                    console.log('*** erreur lors de la creation du dossier sauvegarde pour les sessions :' + err.code);
+                    logger.debug('*** erreur lors de la creation du dossier sauvegarde pour les sessions :' + err.code);
                     reject(err);
                 } else {
-                    if (err) console.log('*** dossier de sauvegarde pour les sessions existe : ' + err.code);
-                    else console.log('*** dossier de sauvegarde pour les sessions cree');
+                    if (err) logger.info('*** dossier de sauvegarde pour les sessions existe : ' + err.code);
+                    else logger.info('*** dossier de sauvegarde pour les sessions cree');
                     var filename = crypto.createHash('sha1').update(this.name, 'utf8').digest('hex');
-                    console.log('*** debut de la sauvegarde de la session ' + this.name + ' : ' + configFilename);
+                    logger.info('*** debut de la sauvegarde de la session ' + this.name + ' : ' + configFilename);
                     fs.writeFile(configFilename, JSON.stringify(this, null, 2), "utf8",
                             (err) => { 
                                 if (err) {
-                                    console.log('*** erreur lor de la sauvegarde de la sessions ' + this.name + ' :' + err.code);
+                                    logger.error('*** erreur lor de la sauvegarde de la sessions ' + this.name + ' :' + err.code);
                                     reject(err);
                                 } else {
-                                    console.log('*** fin de la sauvegarde de la sessions ' + this.name + ' : ' + configFilename);
+                                    logger.info('*** fin de la sauvegarde de la sessions ' + this.name + ' : ' + configFilename);
                                     resolve(configFilename)
                                 }
                             });
@@ -195,7 +206,7 @@ class Session {
      * @method
      */
     close(){
-        console.log('=> fermeture session %s', this.name);
+        logger.info('=> fermeture session %s', this.name);
         Session.unregisterSession(this);
         let zc = this.ZC;
         if (zc) zc.close();
