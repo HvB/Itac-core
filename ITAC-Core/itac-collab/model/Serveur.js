@@ -251,7 +251,7 @@ module.exports = class Serveur {
             var ZEaSupprimer = this.ZP.getZEbySocket(socket.id);
             if (ZEaSupprimer != null) {
                 // trairement de la deconnexion de'une ZE
-                this.deconnexionZE(socket, "", ZEaSupprimer);
+                this.deconnexionZE( ZEaSupprimer);
             } else {
                 // cas ou ce n'est pas une ZE donc  c'est la ZA qui se déconnecte
                 if (this.clientZAsocket == socket.id )
@@ -651,7 +651,7 @@ module.exports = class Serveur {
      *
      * @author philippe pernelle
      */
-    deconnexionZE(socket, pseudo, myZE) {
+    deconnexionZE(myZE) {
 
         var idZE = myZE.getId();
         var artefact2ZP = [];
