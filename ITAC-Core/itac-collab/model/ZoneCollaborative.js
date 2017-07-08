@@ -14,13 +14,14 @@
  */
 
 
-var Artifact = require('./Artifact');
-var ZonePartage = require('./ZonePartage');
-var constant = require('../constant');
-var TYPE = constant.type;
-var DIRECTORY = constant.directory.artifact;
-var ZoneEchange = require('./ZoneEchange');
-var fs = require("fs");
+const Artifact = require('./Artifact');
+const ZonePartage = require('./ZonePartage');
+const constant = require('../constant');
+const TYPE = constant.type;
+const DIRECTORY = constant.directory.artifact;
+const ZoneEchange = require('./ZoneEchange');
+const fs = require("fs");
+
 
 const uuidv4 = require('uuid/v4');
 
@@ -45,27 +46,6 @@ module.exports = class ZoneCollaborative {
          * @private
          */
         this.artifacts = new Map();
-
-        /**
-         * indique le numero d'identification pour la creation de l'artefact
-         *
-         * @private
-         */
-        this.idArtifactNext = 1;
-
-        /**
-         * lise des artefact de la ZC qui sont dans une ZP
-         *
-         * @private
-         */
-        this.artifactsInZP = [];
-
-        /**
-         * lise des artefact de la ZC qui sont dans une ZE
-         *
-         * @private
-         */
-        this.artifactsInZE = [];
 
         /**
          * identifiant de la zone collaborative
@@ -142,6 +122,9 @@ module.exports = class ZoneCollaborative {
         logger.info('*** Resultat final : ZoneCollaborative  (idZC= ' + this.idZC + ') - [OK] : nbZP total creees = ' + this.getNbZP());
 
     };
+
+
+
 
     /**
      * retourne l'identifiant de la zone collaborative

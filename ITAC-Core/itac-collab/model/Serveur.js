@@ -37,14 +37,7 @@ module.exports = class Serveur {
          * adresse d'écoute serveur
          */
         this.address = "localhost";
-        /**
-         * liste d'identifiant des sockets des zone d'échange ZE connectées
-         */
-        this.clientZEsocket = [];
-        /**
-         * liste d'identifiant des zones d'échange ZE connectées
-         */
-        this.clientZEid = [];
+
 
         /**
          * liste d'identifiant des sockets des zone d'échange ZE connectées
@@ -111,7 +104,17 @@ module.exports = class Serveur {
     }
 
 
+    getAuthentification (login, password)
+    {
 
+        // recuperation de la fabrique
+        var auth = this.ZP.ZC.session.authIds;
+
+        var iduser=auth.verifyCredentialSync(auth.createCredential(login,password))
+
+        return !(iduser===undefined);
+
+    }
 
 
 
@@ -150,9 +153,9 @@ module.exports = class Serveur {
          *     Cet evenement est envoye par une ZEP (tablette)
          *     un acquitement est envoyé en retour à la ZEP ainsi qu'a la ZA pour declancher son affichage
          */
-        socket.on(EVENT.DemandeConnexionZEP, (function (pseudo, posAvatar) {
+        socket.on(EVENT.DemandeConnexionZEP, (function (pseudo, posAvatar,login,password) {
             logger.info('   *** ' + EVENT.DemandeConnexionZEP + ' *** --> Demande de connexion de la ZEP avec IP= ' + clientIp + ' et pseudo= ' + pseudo);
-            this.demandeConnexionZE(socket, clientIp, pseudo, posAvatar);
+            this.demandeConnexionZE(socket, clientIp, pseudo, posAvatar,login,password);
             logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.DemandeConnexionZEP + ' *** ');
         }).bind(this));
 
@@ -283,37 +286,49 @@ module.exports = class Serveur {
      *
      * @author philippe pernelle
      */
-    demandeConnexionZE(socket, clientIp, pseudo, posAvatar) {
-        // creation de l'identifiant ZEP
+    demandeConnexionZE(socket, clientIp, pseudo, posAvatar, login , password) {
+
+
+        // creation de l'identifiant ZEP on choisit l'adresse IP
         var idZEP = clientIp;
-        if (!this.isZAConnected()) {
-            // connexion refusé par de ZA connecté
-            socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur1);
-            logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
-        } else {
-            logger.info('=> demandeConnexionZE : demande de creation ZE (automatique) pour la ZEP= ' + idZEP + ' avec le pseudo= ' + pseudo);
-            //var idZE = this.ZP.createZE(idZEP,pseudo,posAvatar);
 
-            var idZE = this.ZP.createZE(idZEP,socket.id, true, pseudo, posAvatar, "", "");
-
-            if (idZE !== null) {
-                logger.info('=> demandeConnexionZE : creation automatique de ZE  pour pseudo=' + pseudo + ' et idZE=' + idZE + ' [OK] ');
-                // création d'une ROOM pour la ZP
-                socket.join(this.ZP.getId());
-                // emission accusé de reception
-                socket.emit(EVENT.ReponseOKConnexionZEP, idZE, idZEP);
-                logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseOKConnexionZEP);
-
-                //this.clientZEsocket.push(socket.id);
-                //this.clientZEid.push(idZE);
-                // il faut emmetre à la ZA la nouvelle connexion
-                this._io.sockets.to(this.getSocketZA()).emit(EVENT.NewZEinZP, pseudo, idZE, idZEP, posAvatar);
-                logger.info('=> demandeConnexionZE : envoi d un evenement a la ZA (' + this.getSocketZA() + ') pour lui indique la nouvelle connexion   Evenement envoyé= ' + EVENT.NewZEinZP);
+        logger.info('=> demandeConnexionZE : test authentification  pour la ZEP= ' + idZEP + ' avec le pseudo= ' + pseudo);
+        if (!this.getAuthentification(login,password))
+        {
+            socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur3);
+            logger.info('=> demandeConnexionZE : mauvaise authentification, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+        }
+        else
+        {
+            logger.info('=> demandeConnexionZE :  authentification [OK] pour le login ='+login );
+            if (!this.isZAConnected()) {
+                // connexion refusé pour les ZE tant qu'il n'y a pas au moins une ZA connecté
+                socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur1);
+                logger.info('=> demandeConnexionZE : pas de ZA connecté, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
             } else {
-                logger.info('=> demandeConnexionZE : creation automatique de ZE  pour ' + pseudo + ' ' + idZEP + ' [NOK]');
-                // emission accusé de reception
-                socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur2);
-                logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+
+
+                var idZE = this.ZP.createZE(idZEP,socket.id, true, pseudo, posAvatar, login, password);
+
+                if (idZE != null) {
+                    logger.info('=> demandeConnexionZE : creation  de ZE  pour pseudo=' + pseudo +' [OK] --> idZE calcule =' + idZE );
+                    // création d'une ROOM pour la ZP
+                    socket.join(this.ZP.getId());
+                    // emission accusé de reception
+                    socket.emit(EVENT.ReponseOKConnexionZEP, idZE, idZEP);
+                    logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ') | idZE = '+idZE+' Evenement envoyé= ' + EVENT.ReponseOKConnexionZEP);
+
+                    //this.clientZEsocket.push(socket.id);
+                    //this.clientZEid.push(idZE);
+                    // il faut emmetre à la ZA la nouvelle connexion
+                    this._io.sockets.to(this.getSocketZA()).emit(EVENT.NewZEinZP, pseudo, idZE, idZEP, posAvatar);
+                    logger.info('=> demandeConnexionZE : envoi d un evenement a la ZA (' + this.getSocketZA() + ') pour lui indique la nouvelle connexion   Evenement envoyé= ' + EVENT.NewZEinZP);
+                } else {
+                    logger.info('=> demandeConnexionZE : creation de ZE  pour ' + pseudo + ' ' + idZEP + ' [NOK]');
+                    // emission accusé de reception
+                    socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur2);
+                    logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+                }
             }
         }
     };
