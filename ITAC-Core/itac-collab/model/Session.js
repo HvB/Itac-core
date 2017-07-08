@@ -80,22 +80,37 @@ class Session {
      * @param {json} context: contexte de la session
      */
     constructor(context) {
-        logger.debug("Creation de la Session -> parametre de session " + context);
+
         this.context = context;
         this.name = context.session.name;
-        // creation dispositif d'authetification
         var confAuth = context.authentification;
-        logger.info("Creation de la Session -> factory auth : " + confAuth.factory);
+        var confZC = context.zc.config;
+
+        logger.info('*****************************************');
+        logger.info('*** Session  (name= ' + this.name + ') ***');
+        logger.info('  --> type authentification = ' + confAuth.config.type);
+        logger.info('  --> Id de la Zone Collaborative = ' + confZC.idZC);
+        logger.info('*****************************************');
+
+        logger.debug("Creation de la Session -> parametre de session " + context);
+
+        // creation dispositif d'authetification
+        logger.info("Creation de la Session -> factory authentification : " + confAuth.factory);
         var factory = BaseAuthentification.Authenticator.getFactory(confAuth.factory);
         this.auth = factory(confAuth.config);
         // creation de la ZC
-        var confZC = context.zc.config;
         this.ZC =new ZoneCollaborative(confZC);
         this.ZC.session=this;
-        logger.info("Creation de la Session -> attachement de la session à la ZC : " + this.ZC.getId());
+        logger.info("Creation de la Session ->  attachement de la session à la ZC : " + this.ZC.getId());
         Session.registerSession(this);
+        logger.info('Creation de la Session ->  [OK]');
     }
 
+    /**
+     * liste des ids des articles de la session
+     *
+     * @returns {Array} : liste des ids des articles de la ZC
+     */
     get authIds() {
         return this.auth;
     }

@@ -94,7 +94,7 @@ module.exports = class ZonePartage {
 
         // création du serveur de socket associée
         this.server = new Serveur(this, portWebSocket);
-        logger.info('Creation ZonePartage | ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
+        logger.info('Creation ZonePartage --> ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
 
     };
 

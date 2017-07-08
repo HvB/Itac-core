@@ -45,16 +45,16 @@ module.exports = class Serveur {
       
 
 
-        logger.info("Creation d'un serveur HTTP pour la ZP (" + ZP.getId() + ") sur le port " + port);
+        logger.info("Creation serveur --> serveur HTTP pour la ZP (" + ZP.getId() + ") sur le port " + port);
         var srv = http.createServer();
         srv.listen(this.port, function () {
-            logger.info("Serveur en ecoute sur le port %d", port);
+            logger.info("Creation serveur --> Serveur en ecoute sur le port %d", port);
         });
         this._io = require('socket.io').listen(srv, function () {
-            logger.info('Lancement de la Socket en ecoute sur port ' + port);
+            logger.info('Creation serveur --> Lancement de la Socket en ecoute sur port ' + port);
         });
         this._io.origins('*:*');
-        logger.info('Socket en ecoute [ok] ');
+        logger.info('Creation serveur --> Socket en ecoute [OK] ');
 
         // declenchement de la fonction de traitement à l'arrivee d'une demande de connexion de socket d'une tablette :EVENT.ConnexionSocketZEP
         this._io.sockets.on('connection', (function (socket) {
@@ -64,15 +64,6 @@ module.exports = class Serveur {
             this.traitementSurConnexion(socket);
         }).bind(this));
     }
-
-
-
-    
-
-
-
-
-  
 
 
     getAuthentification (login, password)

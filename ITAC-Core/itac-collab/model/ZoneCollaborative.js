@@ -82,12 +82,9 @@ module.exports = class ZoneCollaborative {
          */
         this.listeZP = [];
 
-        logger.info('*****************************************');
-        logger.info('*** ZoneCollaborative  (idZC= ' + this.idZC + ')');
-        logger.info('  --> email_contact=' + this.emailZC);
-        logger.info('  --> description=' + this.descriptionZC);
-        logger.info('*****************************************');
+        logger.info('Création de la ZC --> traitement des ZP');
 
+        /*
         logger.info('traitement du dossier de sauvegarde =' + this.pathArtifacts);
         try {
             fs.mkdirSync(DIRECTORY);
@@ -104,12 +101,13 @@ module.exports = class ZoneCollaborative {
             logger.info('dossier de sauvegarde existant :' + e.code);
             if (e.code != 'EEXIST') throw e;
         }
+        */
 
         // creation de la liste des ZP à partir du fichier de parametre
         // chaque ZP sera associé à un serveur de socket
         for (var i = 0; i < parametreZC.nbZP; i++) {
             // id ZP défini dans le fichier de parametre
-            logger.info('traitement de le ZP = ' + parametreZC.ZP[i].idZP);
+            logger.info('Création de la ZC --> traitement de le ZP = ' + parametreZC.ZP[i].idZP);
 
             // creation des ZP
             this.listeZP[i] = new ZonePartage(this, parametreZC.ZP[i].idZP,
@@ -119,7 +117,7 @@ module.exports = class ZoneCollaborative {
         }
 
 
-        logger.info('*** Resultat final : ZoneCollaborative  (idZC= ' + this.idZC + ') - [OK] : nbZP total creees = ' + this.getNbZP());
+        logger.info('Création de la ZC --> [OK] : ZoneCollaborative  (idZC= ' + this.idZC + ') - [OK] : nbZP total creees = ' + this.getNbZP());
 
     };
 
