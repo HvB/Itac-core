@@ -87,6 +87,11 @@ module.exports = class ZonePartage {
          */
         this.clientZAsocket = 0;
 
+        /**
+         * indicateur permettant de savoir s'il faut reconnecter la ZA
+         */
+        this.clientZAreconnect = false;
+
         // création du serveur de socket associée
         this.server = new Serveur(this, portWebSocket);
         logger.info('Creation ZonePartage | ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
@@ -100,6 +105,28 @@ module.exports = class ZonePartage {
      */
     getClientZAsocket() {
         return this.clientZAsocket;
+    };
+
+    setClientZAsocket(socketZA) {
+        this.clientZAsocket= socketZA;
+    };
+
+    /**
+     *  Indique si la ZA est connecté à la socket
+     */
+    isClientZAreconnect() {
+        return this.clientZAreconnect ;
+    };
+
+    setClientZAreconnect(val) {
+        this.clientZAreconnect=val;
+    }
+
+    /**
+     *  Indique si la ZA est connecté à la socket
+     */
+    isZAConnected() {
+        return (this.clientZAsocket != 0);
     };
 
     /**
