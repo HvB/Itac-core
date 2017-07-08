@@ -126,6 +126,7 @@ module.exports = {
     error: {
         ConnexionZEP_Erreur1: 'Pas de zone affichage valide',
         ConnexionZEP_Erreur2: 'Nb de connexion maximum atteinte',
+        ConnexionZEP_Erreur3: 'Authentification invalide',
     },
     type: {
         artifact: {

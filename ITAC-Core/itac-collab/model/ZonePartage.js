@@ -64,8 +64,7 @@ module.exports = class ZonePartage {
         this.urlWebSocket = urlWebSocket;
         this.portWebSocket = portWebSocket;
 
-        this.IdZEcurrent = 0;
-        this.nbIdZEPconnected = 0;
+
 
         /**
          * liste des "ZoneEchanges" associées à la zone de partage
@@ -73,10 +72,9 @@ module.exports = class ZonePartage {
          * @private
          */
         this.listeZE = new Map();
-        this.listeZEidtempo = new Map();
 
+        // création du serveur de socket associée
         this.server = new Serveur(this, portWebSocket);
-
         logger.info('Creation ZonePartage | ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
 
     };
@@ -97,19 +95,9 @@ module.exports = class ZonePartage {
         return this.nbZEmax;
     };
 
-    /**
-     * Retourne
-     *
-     */
-    getNbIdZEPconnected() {
-        return this.nbIdZEPconnected;
-    };
 
 
 
-    addIdZE() {
-        this.IdZEcurrent++;
-    };
 
     /**
      * Retourne d'ID de la zone de partage
@@ -144,8 +132,10 @@ module.exports = class ZonePartage {
      * creation d'une Zone d'Echange (ZE) associée à une ZEP (tablette)
      *
      * @param {string} idZEP identifiant de la tablette (son adresse IP)
-     * @param {string} pseudo identifiant de la tablette (son adresse IP)
-     * @param {number} posAvatar identifiant de la tablette (son adresse IP)
+     * @param {string} pseudo pseudo envoyé par la ZEP
+     * @param {number} posAvatar numero avatar  envoyé par la ZEP
+     * @param {string} login login envoyé par la ZEP
+     * @param {string} password mot de passe envoyé par la ZEP
      *
      * @return {string} idZE identifiant de la ZE
      *
@@ -156,45 +146,34 @@ module.exports = class ZonePartage {
 
         var ret = null;
 
-
-
-        logger.info('=> createZE : recherche du IdZE disponible pour client ='+idZEP+', nb de ZE dans la liste = ' + this.listeZE.size);
-
+        logger.debug('=> createZE : recherche du IdZE disponible pour client ='+idZEP+', nb de ZE dans la liste = ' + this.listeZE.size);
         var maZE=this.getZEbyZEP(idZEP);
 
         if (maZE == null)
         {
-
-
+            logger.debug('=> createZE : resultat recherche du IdZE disponible [NOK] --> la ZE n existe pas');
             if (this.getNbZE() < this.nbZEmax) {
 
                 //calcul de l'ID de la ZE crée
                 //var idze = 'ZE'+this.getIdZEcurrent();
                 var idze=uuidv4();
-
-                //idze='ZE1';
-
-                logger.info('=> createZE : pas de ZE existante , generation ID  = ' + idze);
+                logger.debug('=> createZE : pas de ZE existante --> generation idZE  = ' + idze);
 
                 this.listeZE.set(idze, new ZoneEchange(this, idze,idZEP, idSocket, visible, pseudo, posAvatar, login, password));
 
-                logger.info('=> createZE :  ZP (' + this.idZP + ') : ZE créée = ' + idze + ' pour la ZEP = ' + idZEP);
+                logger.debug('=> createZE :  ZE créée = ' + idze + ' pour la ZEP = ' + idZEP + ' associé a la ZP (' + this.idZP + ') ');
                 ret = idze;
             }
             else {
-                logger.info('=> createZE : (' + this.idZP + ') : demande de creation de ZE - [NOK]');
+                logger.debug('=> createZE : demande de creation de ZE - [NOK] --> plus NbZEmax atteind pour la ZP(' + this.idZP + ')');
             }
-
-
         }
         else
         {
-            ret=maZE;
-            logger.info('=> createZE :  ZE existante , recuperation ID  = ' + ret.getId());
+            logger.debug('=> createZE : ZE existante déjà connecté sur adresse IP --> retour NULL sur demande de creation');
         }
 
-
-        logger.info('=> createZE : le nombre total de ZE est = ' + this.listeZE.length);
+        logger.debug('=> createZE : récapitulatif, le nombre total de ZE est = ' + this.listeZE.length);
         return ret;
     };
 
@@ -248,17 +227,13 @@ module.exports = class ZonePartage {
      */
     getZEbyZEP(idZEP) {
 
-
-
-
         var ret = null;
 
-        logger.info('=>getZEbyZEP : recherche de ZE par idZEP=' + idZEP);
+        logger.debug('=> getZEbyZEP : recherche de ZE par idZEP = ' + idZEP);
 
         this.listeZE.forEach((function (item, key, mapObj) {
             if (item.getIdZEP()== idZEP) {
-                logger.info('=> getZEbyZEP : recuperation ZE  Id=' + item.getId());
-
+                logger.debug('=> getZEbyZEP : recuperation ZE --> ZE avec IdZE=' + item.getId()+ ' et idZEP='+item.getIdZEP());
                 ret = item;
             }
         }).bind(this));  // nodejs c'est de la merde si t'oublei e le bind change le referentielle du this
