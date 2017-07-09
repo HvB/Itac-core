@@ -38,13 +38,6 @@ module.exports = class Serveur {
          */
         this.address = "localhost";
 
-
-
-
-
-      
-
-
         logger.info("Creation serveur --> serveur HTTP pour la ZP (" + ZP.getId() + ") sur le port " + port);
         var srv = http.createServer();
         srv.listen(this.port, function () {
@@ -65,22 +58,27 @@ module.exports = class Serveur {
         }).bind(this));
     }
 
-
+    /**
+     * fonction permettant de tester un login et un mot de passe
+     *
+     * @param {string} login
+     * @param {string} password
+     *
+     * @return {iduser} id user ou undefined
+     *
+     * @autor philippe pernelle
+     */
     getAuthentification (login, password)
     {
-
-        // recuperation de la fabrique
+        // recuperation de la fabrique associé à la session
         var auth = this.ZP.ZC.session.authIds;
 
+        // appek du test d'authentification
         var iduser=auth.verifyCredentialSync(auth.createCredential(login,password))
 
+        // retourne vrai ou faux
         return !(iduser===undefined);
-
     }
-
-
-
-
 
     /**
      * fonction principale de traitement des evenements de la socket intégrant les
@@ -181,7 +179,7 @@ module.exports = class Serveur {
          */
         socket.on(EVENT.SuppressZEinZP, (function (pseudo, idZE) {
             logger.info('*** EVENT : ' + EVENT.SuppressZEinZP + ' ***** --> deconnexion d une ZE (' + idZE + ')');
-            this.deconnexion(socket, pseudo, idZE);
+            this.deconnexionZE(idZE);
             logger.debug('*** fin EVENT :' + EVENT.SuppressZEinZP + ' *** ');
         }).bind(this));
 
@@ -205,6 +203,10 @@ module.exports = class Serveur {
             logger.debug('*** fin EVENT :' + EVENT.ArtefactDeletedFromZP + ' *** ');
         }).bind(this));
 
+        /*
+         * 10 - traitement de la deconnexion
+         *
+         */
         socket.on('disconnect', (function () {
             /*
              io.sockets.emit('count', {
@@ -385,23 +387,7 @@ module.exports = class Serveur {
                      }
                      */
                 }).bind(this));
-
-
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
         else {
             logger.info('=> demandeConnexionZA : demande de connexion ZA refusé, déja connecté');
