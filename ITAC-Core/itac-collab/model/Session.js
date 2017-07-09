@@ -220,11 +220,20 @@ class Session {
      *
      * @method
      */
-    close(){
+    close(callback){
         logger.info('=> fermeture session %s', this.name);
         Session.unregisterSession(this);
         let zc = this.ZC;
-        if (zc) zc.close();
+        if (zc) zc.close((err)=>{
+            if (err){
+                logger.err(err, '=> erreur lors fermeture ZP %s', idZP);
+            } else {
+                logger.info('=> fermeture ZP %s', idZP);
+            }
+            if (callback && callback instanceof Function) {
+                callback(err);
+            }
+        });
     }
 
     /**

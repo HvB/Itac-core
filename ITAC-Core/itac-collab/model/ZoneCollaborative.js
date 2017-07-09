@@ -516,13 +516,21 @@ module.exports = class ZoneCollaborative {
 
 
 
-    close(){
+    close(callback){
         let server = this.server;
         let idZC = this.idZC;
         logger.info('=> fermeture ZC %s', idZC);
         let zps = this.getAllZP();
+        let promises = [];
         for (var i in zps){
-            zps[i].close();
+            let p = new Promise((resolve, reject)=>{
+                zps[i].close((err)=>{(err) ? reject(new Error(err)) : resolve("ZP, " + zps[i].getId() + "closed");});
+            });
+            promises.push(p);
+        }
+        if (callback && callback instanceof Function) {
+            Promise.all(promises).then(callback, callback);
+
         }
     }
 };
