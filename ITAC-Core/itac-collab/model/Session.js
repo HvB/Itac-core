@@ -124,9 +124,7 @@ class Session {
     get artifactIds() {
         var listIds = [];
         if (this.ZC) {
-            listIds = this.ZC.getAllArtifacts().map((a)=> {
-                return a.getId()
-            });
+            listIds = Array.from(this.ZC.getAllArtifacts().keys());
         }
         return listIds; 
     }
