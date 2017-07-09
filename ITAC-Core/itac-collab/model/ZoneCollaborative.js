@@ -531,7 +531,8 @@ module.exports = class ZoneCollaborative {
         }
         if (callback && callback instanceof Function) {
             logger.debug('=> close : appel du callback de fermeture de la ZC ' + this.getId());
-            Promise.all(promises).then(()=>callback(), (err)=>callback(new Error(err)));
+            if (promises.length >0 )Promise.all(promises).then(()=>callback(), (err)=>callback(new Error(err)));
+            else callback();
         }
     }
 };

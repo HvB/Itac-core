@@ -657,7 +657,7 @@ module.exports = class Serveur {
         logger.info('=> fermeture de la socket sur le port %d', port);
         this._io.close((err)=>{
             if (err){
-                logger.err(err, '=> erreur lors fermeture de la socket sur le port %d', port);
+                logger.error(err, '=> erreur lors fermeture de la socket sur le port %d', port);
             } else {
                 logger.info('=> fermeture de la socket sur le port %d : 0K', port);
             }

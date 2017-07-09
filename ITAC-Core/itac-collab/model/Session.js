@@ -224,7 +224,7 @@ class Session {
         let zc = this.ZC;
         if (zc) zc.close((err)=>{
             if (err){
-                logger.err(err, '=> erreur lors fermeture ZC %s', zc.getId());
+                logger.error(err, '=> erreur lors fermeture ZC %s', zc.getId());
             } else {
                 logger.info('=> fermeture ZC %s OK', zc.getId());
             }
