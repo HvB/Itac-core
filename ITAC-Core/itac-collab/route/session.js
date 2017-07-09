@@ -26,23 +26,23 @@ module.exports = function (router) {
 
             res.render('collab', {title: 'Express', ipserver: url, zonecollab: session.context.zc.config});
         });
-    router.route( '/session/:name/save' ) 
+    router.route( '/session/:name/save' )
         .get( function(req, res,next) {
             var name= req.params.name ;
-    
+
             var host = req.headers.host;
-            var splithost=host.split(":");    	
+            var splithost=host.split(":");
             var url='http://'+splithost[0];
-    
-            console.log('CLIENT session.js -> routage GET , session_name = '+name);	    	
-    
+
+            console.log('CLIENT session.js -> routage GET , session_name = '+name);
+
             if (name) {
                 console.log('CLIENT session.js -> routage GET,  recuperation de la session \n');
                 let session = Session.getSession(name);
                 if (session){
                     console.log('CLIENT session.js -> routage GET,  lancement sauvegarde de la ZC \n');
                     session.saveSession().then((file)=>{res.send('Session '+name+' sauvée dans '+file);})
-                    .catch((err)=>{res.send('Erreur lors de la sauvegarde de '+name+' : '+err);});
+                        .catch((err)=>{res.send('Erreur lors de la sauvegarde de '+name+' : '+err);});
                 } else {
                     res.send('Erreur lors de la sauvegarde de '+name+' : la session n\'est pas active');
                 }
@@ -50,7 +50,35 @@ module.exports = function (router) {
                 res.send('Erreur lors de la sauvegarde');
             }
         });
+    router.route( '/session/:name/close' )
+        .get( function(req, res,next) {
+            var name= req.params.name ;
 
+            var host = req.headers.host;
+            var splithost=host.split(":");
+            var url='http://'+splithost[0];
+
+            console.log('CLIENT session.js -> routage GET , session_name = '+name);
+
+            if (name) {
+                console.log('CLIENT session.js -> routage GET,  recuperation de la session \n');
+                let session = Session.getSession(name);
+                if (session){
+                    console.log('CLIENT session.js -> routage GET,  lancement fermeture de la Session \n');
+                    session.close((err)=> {
+                        if (err) {
+                            res.send('Erreur lors de la fermeture de la session, ' + name + ' :' + err);
+                        } else {
+                            res.send('Fermeture de la session, ' + name + ' : OK');
+                        }
+                    });
+                } else {
+                    res.send('Erreur lors de la fermeture de '+name+' : la session n\'est pas active');
+                }
+            } else {
+                res.send('Erreur lors de la fermeture de la session');
+            }
+        });
     return router;
 };
 
