@@ -24,7 +24,7 @@ module.exports = function (router) {
             }
 
 
-            res.render('collab', {title: 'Express', ipserver: url, zonecollab: session.context.zc.config});
+            res.render('collab', {title: 'Express', ipserver: url, zonecollab: session.context.zc.config, sessionName: session.name});
         });
     router.route( '/session/:name/save' )
         .get( function(req, res,next) {
