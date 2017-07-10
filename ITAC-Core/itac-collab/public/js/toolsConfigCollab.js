@@ -39,8 +39,11 @@ function dernierElement() {
 //Create array of options to be added
 
 
+
+
 function creerElement(ID) {
     var listeType = ["Table1", "Table2", "Table3", "Ecran1"];
+    var descriptionlisteType = ["Table AIP", "Table HUCO", "Table Microsoft", "Ecran"];
 
     var Conteneur = document.createElement('div');
     Conteneur.setAttribute('id', 'element' + ID);
@@ -65,9 +68,34 @@ function creerElement(ID) {
     for (var i = 0; i < listeType.length; i++) {
         var option = document.createElement("option");
         option.value = listeType[i];
-        option.text = listeType[i];
+        option.text = descriptionlisteType[i];
         Input1.appendChild(option);
     }
+
+    var Label1suite = document.createElement('label');
+    Label1suite.setAttribute('for', 'visibilite' + ID);
+    Label1suite.innerHTML = " Visibilite des ZE: ";
+
+    var Input1suite1 = document.createElement('input');
+    Input1suite1.setAttribute('type', 'radio');
+    Input1suite1.setAttribute('name', 'visibilite' + ID);
+    Input1suite1.setAttribute('id', 'visibilite' + ID);
+    Input1suite1.setAttribute('value', 'true');
+    var Label1suite11 = document.createElement('label');
+    Label1suite11.setAttribute('for', 'visibilite' + ID);
+    Label1suite11.innerHTML = "Oui";
+
+    var Input1suite2 = document.createElement('input');
+    Input1suite2.setAttribute('type', 'radio');
+    Input1suite2.setAttribute('name', 'visibilite' + ID);
+    Input1suite2.setAttribute('id', 'visibilite' + ID);
+    Input1suite2.setAttribute('value', 'false');
+    var Label1suite21 = document.createElement('label');
+    Label1suite21.setAttribute('for', 'visibilite' + ID);
+    Label1suite21.innerHTML = "Non";
+
+
+
 
 
     var Label2 = document.createElement('label');
@@ -106,6 +134,13 @@ function creerElement(ID) {
     Conteneur.appendChild(Input);
     Conteneur.appendChild(Label1);
     Conteneur.appendChild(Input1);
+
+    Conteneur.appendChild(Label1suite);
+    Conteneur.appendChild(Input1suite1);
+    Conteneur.appendChild(Label1suite11);
+    Conteneur.appendChild(Input1suite2);
+    Conteneur.appendChild(Label1suite21);
+
     Conteneur.appendChild(Label2);
     Conteneur.appendChild(Input2);
     Conteneur.appendChild(Label3);
