@@ -20,6 +20,8 @@ var Art = require('./Artifact');
 var Serveur = require('./Serveur');
 var fs = require("fs");
 
+const uuidv4 = require('uuid/v4');
+
 //utilisation logger
 const itacLogger = require('../utility/loggers').itacLogger;
 
@@ -34,6 +36,13 @@ var logger = itacLogger.child({component: 'ZonePartage'});
  * @param  {integer} ZEmax - nombre maximum de ZoneEchange
  */
 module.exports = class ZonePartage {
+    get clientZAsocket() {
+        return this._clientZAsocket;
+    }
+
+    set clientZAsocket(value) {
+        this._clientZAsocket = value;
+    }
     constructor(ZC, idZP, typeZP, nbZEmin, nbZEmax, urlWebSocket, portWebSocket) {
 
         this.ZC = ZC;
@@ -62,21 +71,71 @@ module.exports = class ZonePartage {
         this.urlWebSocket = urlWebSocket;
         this.portWebSocket = portWebSocket;
 
-        this.IdZEcurrent = 0;
-        this.nbIdZEPconnected = 0;
+
 
         /**
          * liste des "ZoneEchanges" associées à la zone de partage
          *
          * @private
          */
-        this.listeZE = [];
+        this.listeZE = new Map();
 
+        /**
+         * socket de la ZA associé
+         *
+         * @private
+         */
+        this.clientZAsocket = 0;
+
+        /**
+         * indicateur permettant de savoir s'il faut reconnecter la ZA
+         */
+        this.clientZAreconnect = false;
+
+        // création du serveur de socket associée
         this.server = new Serveur(this, portWebSocket);
-
-        logger.info('Creation ZonePartage | ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
+        logger.info('Creation ZonePartage --> ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
 
     };
+
+
+    /**
+     * Retourne le type de ZP
+     *
+     */
+    getClientZAsocket() {
+        return this.clientZAsocket;
+    };
+
+    setClientZAsocket(socketZA) {
+        this.clientZAsocket= socketZA;
+    };
+
+    /**
+     *  Indique si la ZA est connecté à la socket
+     */
+    isClientZAreconnect() {
+        return this.clientZAreconnect ;
+    };
+
+    setClientZAreconnect(val) {
+        this.clientZAreconnect=val;
+    }
+
+    /**
+     *  Indique si la ZA est connecté à la socket
+     */
+    isZAConnected() {
+        return (this.clientZAsocket != 0);
+    };
+
+    /**
+     *  Indique si la ZA est connecté à la socket
+     */
+    isZAConnected() {
+        return (this.clientZAsocket != 0);
+    };
+
 
     /**
      * Retourne le type de ZP
@@ -94,64 +153,9 @@ module.exports = class ZonePartage {
         return this.nbZEmax;
     };
 
-    /**
-     * Retourne
-     *
-     */
-    getNbIdZEPconnected() {
-        return this.nbIdZEPconnected;
-    };
 
-    /**
-     * Retourne un identiant
-     *
-     */
-    getIdZEdispo() {
-        var ret = null;
-        var trouve_i = false;
-        var trouve_j = false;
-        var j = 0;
-        var i = 1;
 
-        var max = this.listeZE.length;
 
-        logger.info('=> getIdZEdispo : recherche du IdZE disponible, nb de ZE dans la liste = ' + max);
-        while (!trouve_i && i <= max) {
-            j = 0;
-            trouve_j = false;
-            ret = 'ZE' + i;
-            logger.debug('=> getIdZEdispo : recherche du IdZE disponible, recherche sur id= ' + ret);
-            while (!trouve_j && j < max) {
-                // est que "ZEi" est dans la liste
-
-                if (this.listeZE[j].getId() === ret) {
-                    trouve_j = true;
-                    logger.debug('=> getIdZEdispo : recherche du IdZE disponible, recherche sur id= ' + ret + ' trouve dans tab pour j=' + j);
-                }
-
-                else j++;
-            }
-            if (trouve_j) {
-                i++;
-                logger.debug('=> getIdZEdispo : recherche du IdZE disponible, recherche sur id= ' + ret + ' trouve à la pos=' + j);
-            }
-            else {
-                trouve_i = true;
-                logger.debug('=> getIdZEdispo : recherche du IdZE disponible, recherche sur id= ' + ret + ' pas trouve, il est donc dispo');
-            }
-
-        }
-        if (!trouve_i) {
-            if (max == 0) i = 1;
-            ret = 'ZE' + i;
-        }
-        logger.info('=> getIdZEdispo : recherche du IdZE disponible, trouve  = ' + ret);
-        return ret;
-    };
-
-    addIdZE() {
-        this.IdZEcurrent++;
-    };
 
     /**
      * Retourne d'ID de la zone de partage
@@ -178,7 +182,7 @@ module.exports = class ZonePartage {
      * @author philippe pernelle
      */
     getNbZE() {
-        return this.listeZE.length;
+        return this.listeZE.size;
     };
 
 
@@ -186,33 +190,48 @@ module.exports = class ZonePartage {
      * creation d'une Zone d'Echange (ZE) associée à une ZEP (tablette)
      *
      * @param {string} idZEP identifiant de la tablette (son adresse IP)
-     * @param {string} pseudo identifiant de la tablette (son adresse IP)
-     * @param {number} posAvatar identifiant de la tablette (son adresse IP)
+     * @param {string} pseudo pseudo envoyé par la ZEP
+     * @param {number} posAvatar numero avatar  envoyé par la ZEP
+     * @param {string} login login envoyé par la ZEP
+     * @param {string} password mot de passe envoyé par la ZEP
      *
      * @return {string} idZE identifiant de la ZE
      *
      * @autor philippe pernelle
      */
-    createZE(idZEP,pseudo,posAvatar) {
+
+    createZE(idZEP,idSocket, visible, pseudo, posAvatar, login, password) {
 
         var ret = null;
 
-        if (this.getNbZE() < this.nbZEmax) {
+        logger.debug('=> createZE : recherche du IdZE disponible pour client ='+idZEP+', nb de ZE dans la liste = ' + this.listeZE.size);
+        var maZE=this.getZEbyZEP(idZEP);
 
-            //calcul de l'ID de la ZE crée
-            //var idze = 'ZE'+this.getIdZEcurrent();
-            var idze = this.getIdZEdispo();
+        if (maZE == null)
+        {
+            logger.debug('=> createZE : resultat recherche du IdZE disponible [NOK] --> la ZE n existe pas');
+            if (this.getNbZE() < this.nbZEmax) {
 
-            // création de la ZE et mise dans la liste
-            this.listeZE.push(new ZoneEchange(this, idze, idZEP, true, pseudo,posAvatar));
+                //calcul de l'ID de la ZE crée
+                //var idze = 'ZE'+this.getIdZEcurrent();
+                var idze=uuidv4();
+                logger.debug('=> createZE : pas de ZE existante --> generation idZE  = ' + idze);
 
-            logger.info('=> createZE :  ZP (' + this.idZP + ') : ZE créée = ' + idze + ' pour la ZEP = ' + idZEP);
-            ret = idze;
+                this.listeZE.set(idze, new ZoneEchange(this, idze,idZEP, idSocket, visible, pseudo, posAvatar, login, password));
+
+                logger.debug('=> createZE :  ZE créée = ' + idze + ' pour la ZEP = ' + idZEP + ' associé a la ZP (' + this.idZP + ') ');
+                ret = idze;
+            }
+            else {
+                logger.debug('=> createZE : demande de creation de ZE - [NOK] --> plus NbZEmax atteind pour la ZP(' + this.idZP + ')');
+            }
         }
-        else {
-            logger.info('=> createZE : (' + this.idZP + ') : demande de creation de ZE - [NOK]');
+        else
+        {
+            logger.debug('=> createZE : ZE existante déjà connecté sur adresse IP --> retour NULL sur demande de creation');
         }
-        logger.info('=> createZE : le nombre total de ZE est = ' + this.listeZE.length);
+
+        logger.debug('=> createZE : récapitulatif, le nombre total de ZE est = ' + this.listeZE.length);
         return ret;
     };
 
@@ -225,16 +244,9 @@ module.exports = class ZonePartage {
      * @autor philippe pernelle
      */
     destroyZE(idZE) {
-        for (var i = 0; i < this.listeZE.length; i++) {
-            if (this.listeZE[i].getId() === idZE) {
-                // avant de supprimer la ZE, il faut supprimer les artefact
-                logger.info('=> destroyZE : suppression des artefacts d une ZE (' + idZE + ')  ');
-                //this.ZC.suppresAllArtifactsInZE(idZE);
-                this.ZC.tansfertAllArtifactsInZP(idZE,this.getId());
-                this.listeZE.splice(i, 1);
-                logger.info('=> destroyZE : suppression d une ZE (' + idZE + ')  nouveau nb de ZE=' + this.listeZE.length);
-            }
-        }
+
+        this.listeZE.delete(idZE);
+
     };
 
     /**
@@ -247,16 +259,12 @@ module.exports = class ZonePartage {
      */
     getZE(idZE) {
         var ret = null;
-        logger.debug('=> getZE : recherche de ZE dans la liste contenant bn=' + this.listeZE.length);
-        var i = 0;
-        while (i < this.listeZE.length && ret == null) {
-            if (this.listeZE[i].getId() === idZE) {
-                ret = this.listeZE[i];
-                logger.debug('=> getZE : recherche de ZE dans la liste [OK] idZE=' + ret.getId() + ' idZEP=' + ret.getIdZEP())
-            }
-            else  i++;
-        }
-        if (ret == null) logger.debug('=> getZE : recherche de ZE dans la liste [NOK] pour idZE=' + idZE);
+        logger.debug('=> getZE : recherche de ZE dans la liste contenant nb=' + this.listeZE.size);
+        var ret = this.listeZE.get(idZE);
+
+        if (ret == null) logger.info('=> getZE : recherche ZE dans la ZP [NOK] idZE(' + idZE + ') nontrouve');
+        else logger.info('=> getZE : recherche ZE dans la ZC [OK] idZE trouve=' + ret.getId());
+
         return ret;
     };
 
@@ -269,15 +277,49 @@ module.exports = class ZonePartage {
      * @autor philippe pernelle
      */
     getZEbyZEP(idZEP) {
-        var ret = null;
-        for (var i = 0; i < this.listeZE.length; i++) {
 
-            if (this.listeZE[i].getIdZEP() === idZEP) {
-                ret = this.listeZE[i];
+        var ret = null;
+
+        logger.debug('=> getZEbyZEP : recherche de ZE par idZEP = ' + idZEP);
+
+        this.listeZE.forEach((function (item, key, mapObj) {
+            if (item.getIdZEP()== idZEP) {
+                logger.debug('=> getZEbyZEP : recuperation ZE --> ZE avec IdZE=' + item.getId()+ ' et idZEP='+item.getIdZEP());
+                ret = item;
             }
-        }
+        }).bind(this));  // nodejs c'est de la merde si t'oublei e le bind change le referentielle du this
+
         return ret;
     };
+
+/**
+ * Retourne une Zone d'Echange spécifique de la ZP
+ *
+ * @public
+ * @param {String} idZEP Identifiant de la ZEP associé
+ * @return {ZE} Zone echange
+ * @autor philippe pernelle
+ */
+getZEbySocket(idsocket) {
+
+    var ret = null;
+
+    logger.info('=>getZEbySocket : recherche de ZE par idsocket=' + idsocket);
+
+    this.listeZE.forEach((function (item, key, mapObj) {
+        if (item.getIdSocket()== idsocket) {
+        logger.info('=> getZEbySocket : recuperation ZE  Id=' + item.getId());
+
+        ret = item;
+    }
+    }).bind(this));  // nodejs c'est de la merde si t'oublei e le bind change le referentielle du this
+
+    return ret;
+};
+
+
+
+
 
     /**
      * Retourne la liste de toutes les Zones d'échanges de la ZP
@@ -333,19 +375,27 @@ module.exports = class ZonePartage {
         var IdArtefact = 0;
 
         var maZE = this.getZE(idZE);
-        logger.debug('=> addArtifactFromZEPtoZE :  recupération de la ZE par idZE=' + idZE);
+        logger.debug('=> addArtifactFromZEPtoZE :  recupération de la ZE par idZE=' + idZE );
 
-        if (maZE.getIdZEP() === idZEP)
-        // cas ou elle est bien en lien avec la ZEP
+        if (maZE == null)
         {
-            logger.debug('=> addArtifactFromZEPtoZE : recuperation [OK]');
-            // conversion json en objet
-            IdArtefact = this.ZC.addArtifactFromJSON(artefactenjson);
+            logger.debug('=> addArtifactFromZEPtoZE : pas denvoi en ZE car ZE non trouvé');
+        }
+        else {
+            logger.debug('=> addArtifactFromZEPtoZE : recuperation ZE [ok] idzep='+maZE.getIdZEP()+' ZEP cible ='+idZEP);
+            if (maZE.getIdZEP() == idZEP)
+            // cas ou elle est bien en lien avec la ZEP
+            {
+                logger.debug('=> addArtifactFromZEPtoZE : recuperation [OK]');
+                // conversion json en objet
+                IdArtefact = this.ZC.addArtifactFromJSON(artefactenjson);
 
-            // affectation de l'artifact à la zone ZE
-            if ( ! (this.ZC.setArtifactIntoZE(IdArtefact, idZE)) ) {
-                logger.debug('=> addArtifactFromZEPtoZE : pas denvoi en ZE car ZE existe');
-            };
+                // affectation de l'artifact à la zone ZE
+                if (!(this.ZC.setArtifactIntoZE(IdArtefact, idZE))) {
+                    logger.debug('=> addArtifactFromZEPtoZE : pas denvoi en ZE car non trouvé');
+                }
+                ;
+            }
         }
         // renvoie l'id de l'artifcat créé
         logger.debug('=> addArtifactFromZEPtoZE : renvoi IdArtefact utilise =' + IdArtefact);
@@ -375,7 +425,7 @@ module.exports = class ZonePartage {
         var maZE = this.getZE(idZE);
         logger.debug('=> addArtifactFromZEPtoZP : recupération de la ZE par idZE=' + idZE + ' et idZEP=' + idZEP);
 
-        if (maZE.getIdZEP() === idZEP)
+        if (maZE.getIdZEP() == idZEP)
         // cas ou elle est bien en lien avec la ZEP
         {
             logger.debug('=> addArtifactFromZEPtoZP : addArtifactFromZEPtoZP , recuperation ZE [OK]');
@@ -414,7 +464,7 @@ module.exports = class ZonePartage {
         logger.info('=> fermeture ZP %s', idZP);
         this.server.close((err)=>{
             if (err){
-                logger.err(err, '=> erreur lors fermeture ZP %s', idZP);
+                logger.error(err, '=> erreur lors fermeture ZP %s', idZP);
             } else {
                 logger.info('=> fermeture ZP %s', idZP);
             }

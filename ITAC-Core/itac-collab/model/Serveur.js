@@ -37,39 +37,24 @@ module.exports = class Serveur {
          * adresse d'écoute serveur
          */
         this.address = "localhost";
-        /**
-         * liste d'identifiant des sockets des zone d'échange ZE connectées
-         */
-        this.clientZEsocket = [];
-        /**
-         * liste d'identifiant des zones d'échange ZE connectées
-         */
-        this.clientZEid = [];
-        /**
-         * identifiant de la socket de la zone d'affichage ZA
-         */
-        this.clientZAsocket = 0;
 
-        /**
-         * indicateur permettant de savoir s'il faut reconnecter la ZA
-         */
-        this.clientZAreconnect = false;
 
-        // lancement serveur socket
-        //console.log("       ---- Creation d'un serveur pour la ZP (" + ZP.getId() + ") sur le port " + port);
-        logger.info("Creation d'un serveur pour la ZP (" + ZP.getId() + ") sur le port " + port);
+
+
+
+      
+
+
+        logger.info("Creation serveur --> serveur HTTP pour la ZP (" + ZP.getId() + ") sur le port " + port);
         var srv = http.createServer();
         srv.listen(this.port, function () {
-            //console.log("       ---- Serevur en ecoute sur %d", port);
-            logger.info("Serveur en ecoute sur %d", port);
+            logger.info("Creation serveur --> Serveur en ecoute sur le port %d", port);
         });
         this._io = require('socket.io').listen(srv, function () {
-            //console.log('    ---- Socket en ecoute sur port ' + port);
-            logger.info('Lancement Socket en ecoute sur port ' + port);
+            logger.info('Creation serveur --> Lancement de la Socket en ecoute sur port ' + port);
         });
         this._io.origins('*:*');
-        //console.log('       ---- Socket [ok] ');
-        logger.info('Socket en ecoute [ok] ');
+        logger.info('Creation serveur --> Socket en ecoute [OK] ');
 
         // declenchement de la fonction de traitement à l'arrivee d'une demande de connexion de socket d'une tablette :EVENT.ConnexionSocketZEP
         this._io.sockets.on('connection', (function (socket) {
@@ -80,105 +65,26 @@ module.exports = class Serveur {
         }).bind(this));
     }
 
-    /**
-     *  retour l'identifiant de soket de la zone d'affichage
-     */
-    getSocketZA() {
-        return this.clientZAsocket;
-    };
 
+    getAuthentification (login, password)
+    {
 
-    /**
-     *  Indique si la ZA est connecté à la socket
-     */
-    isZAConnected() {
-        return (this.clientZAsocket !== 0);
-    };
+        // recuperation de la fabrique
+        var auth = this.ZP.ZC.session.authIds;
 
-    /**
-     *  Indique si la ZA est connecté à la socket
-     */
-    isClientZAreconnect() {
-        return this.clientZAreconnect ;
-    };
+        var iduser=auth.verifyCredentialSync(auth.createCredential(login,password))
 
-    setClientZAreconnect(val) {
-        this.clientZAreconnect=val;
+        return !(iduser===undefined);
+
     }
 
-    /**
-     * fonction retournant l'identifiant de la socket associé à une ZE
-     * qui est connectée au serveur
-     *
-     * @param idZE
-     * @return identifiant socket
-     *
-     * @autor philippe pernelle
-     */
-    getZESocketId(idZE) {
-        var ret = null;
-        for (var i = 0; i < this.clientZEid.length; i++) {
-            if (this.clientZEid[i] === idZE) {
-                ret = this.clientZEsocket[i];
-            }
-        }
-        return ret;
-    };
 
-    /**
-     * fonction retournant l'identifiant de la ZE
-     * qui est connectée au serveur en fonction de son idsocket
-     *
-     * @param idsocket identifiant socket
-     * @return identifiant ZE
-     *
-     * @autor philippe pernelle
-     */
-    getZEbySocketId(idsocket) {
-        var ret = null;
-        for (var i = 0; i < this.clientZEsocket.length; i++) {
-            if (this.clientZEsocket[i] === idsocket) {
-                ret = this.clientZEid[i];
-            }
-        }
-        return ret;
-    };
 
-    /**
-     * fonction supprimmant une ZE de la liste par son idZE
-     *
-     * @param idsocket identifiant socket
-     *
-     * @autor philippe pernelle
-     */
-    removeZEbyId(idZE) {
-        for (var i = 0; i < this.clientZEid.length; i++) {
-            if (this.clientZEid[i] === idZE) {
-                this.clientZEid.splice(i, 1);
-                this.clientZEsocket.splice(i, 1);
-            }
-        }
-    };
 
 
     /**
-     * fonction supprimmant une ZE de la liste par son socketID
-     *
-     * @param idsocket identifiant socket
-     *
-     * @autor philippe pernelle
-     */
-    removeZEbySocketId(idsocket) {
-        for (var i = 0; i < this.clientZEsocket.length; i++) {
-            if (this.clientZEsocket[i] === idsocket) {
-                this.clientZEid.splice(i, 1);
-                this.clientZEsocket.splice(i, 1);
-            }
-        }
-    };
-
-    /**
-     * fonction de traitement des evenements de la socket ZEP+ZA
+     * fonction principale de traitement des evenements de la socket intégrant les
+     * connexion de ZEP et de ZA
      *
      * @param socket
      *
@@ -189,10 +95,6 @@ module.exports = class Serveur {
         var clientIp = socket.request.connection.remoteAddress;
         //var clientIp = socket.handshake.address;
         //var clientIp = socket.request.conn.remoteAddress ;
-        logger.info('=> TraitementSurConnexion - evenement en provenance de l adresse = ' + clientIp);
-
-        //var tt= util.inspect(socket.handshake);
-        //console.log(tt);
 
         /*
          * 0 - Demande de connexion d'une ZA
@@ -200,9 +102,9 @@ module.exports = class Serveur {
          *     un acquitement est envoyé en retour
          */
         socket.on(EVENT.DemandeConnexionZA, (function (urldemande, zpdemande) {
-            logger.info('   *** ' + EVENT.DemandeConnexionZA + ' *** --> Demande de connexion d une ZA ( ' + urldemande + ' ) avec IP= ' + clientIp + ' et ZP demande= ' + zpdemande);
+            logger.info('*** EVENT : ' + EVENT.DemandeConnexionZA + ' from IP('+clientIp+')*** --> Demande de connexion d une ZA ( ' + urldemande + ' ) avec IP= ' + clientIp + ' et ZP demande= ' + zpdemande);
             this.demandeConnexionZA(socket, urldemande, zpdemande);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.DemandeConnexionZA + ' *** ');
+            logger.debug('*** fin EVENT :' + EVENT.DemandeConnexionZA + ' *** ');
         }).bind(this));
 
         /*
@@ -210,10 +112,10 @@ module.exports = class Serveur {
          *     Cet evenement est envoye par une ZEP (tablette)
          *     un acquitement est envoyé en retour à la ZEP ainsi qu'a la ZA pour declancher son affichage
          */
-        socket.on(EVENT.DemandeConnexionZEP, (function (pseudo, posAvatar) {
-            logger.info('   *** ' + EVENT.DemandeConnexionZEP + ' *** --> Demande de connexion de la ZEP avec IP= ' + clientIp + ' et pseudo= ' + pseudo);
-            this.demandeConnexionZE(socket, clientIp, pseudo, posAvatar);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.DemandeConnexionZEP + ' *** ');
+        socket.on(EVENT.DemandeConnexionZEP, (function (pseudo, posAvatar,login,password) {
+            logger.info('*** EVENT : ' + EVENT.DemandeConnexionZEP + ' from IP('+clientIp+')*** --> Demande de connexion de la ZEP avec IP= ' + clientIp + ' et pseudo= ' + pseudo);
+            this.demandeConnexionZE(socket, clientIp, pseudo, posAvatar,login,password);
+            logger.debug('*** fin EVENT :' + EVENT.DemandeConnexionZEP + ' *** ');
         }).bind(this));
 
         /*
@@ -222,9 +124,9 @@ module.exports = class Serveur {
          *     un acquitement est envoye à la ZEP et a la ZA pour signaler la reception de cet artifact
          */
         socket.on(EVENT.NewArtefactInZE, (function (pseudo, idZEP, idZE, artefactenjson) {
-            logger.info('   *** ' + EVENT.NewArtefactInZE + ' *** --> Reception Artifact d une ZEP (' + idZEP + ' ) vers la ZE =' + idZE);
+            logger.info('*** EVENT : ' + EVENT.NewArtefactInZE + ' *** --> Reception Artifact d une ZEP (' + idZEP + ' ) vers la ZE =' + idZE);
             this.receptionArtefactIntoZE(socket, pseudo, idZEP, idZE, artefactenjson);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.NewArtefactInZE + ' *** ');
+            logger.debug('*** fin EVENT :' + EVENT.NewArtefactInZE + ' *** ');
         }).bind(this));
 
         /*
@@ -233,9 +135,9 @@ module.exports = class Serveur {
          *     un acquitement est envoye à la ZEP et a la ZA pour signaler la reception de cet artifact	 *
          */
         socket.on(EVENT.NewArtefactInZP, (function (pseudo, idZEP, idZE, artefactenjson) {
-            logger.info('   *** ' + EVENT.NewArtefactInZP + ' *** --> Reception Artifact d une ZEP (' + idZEP + ')  pousser vers la ZP (' + this.ZP.getId() + ')');
+            logger.info('*** EVENT : ' + EVENT.NewArtefactInZP + ' *** --> Reception Artifact d une ZEP (' + idZEP + ')  pousser vers la ZP (' + this.ZP.getId() + ')');
             this.receptionArtefactIntoZP(socket, pseudo, idZEP, idZE, artefactenjson);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.NewArtefactInZP + ' *** ');
+            logger.debug('*** fin EVENT :' + EVENT.NewArtefactInZP + ' *** ');
         }).bind(this));
 
         /*
@@ -245,9 +147,9 @@ module.exports = class Serveur {
          *     un evenement est ensuite emis pour informer la tablette qu'elle doit supprimer l'artifact
          */
         socket.on(EVENT.EnvoieArtefactdeZEversZP, (function (idAr, idZE, idZP) {
-            logger.info('   *** ' + EVENT.EnvoieArtefactdeZEversZP + ' *** --> Envoie artefact=' + idAr + ' de ZE = ' + idZE + 'vers la zone de partage =' + idZP); //this.ZP.getId());
+            logger.info('*** EVENT : ' + EVENT.EnvoieArtefactdeZEversZP + ' *** --> Envoie artefact=' + idAr + ' de ZE = ' + idZE + 'vers la zone de partage =' + idZP); //this.ZP.getId());
             this.envoiArtefacttoZP(socket, idAr, idZE, idZP);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.EnvoieArtefactdeZEversZP + ' *** ');
+            logger.debug('*** fin EVENT :' + EVENT.EnvoieArtefactdeZEversZP + ' *** ');
         }).bind(this));
 
         /*
@@ -257,9 +159,9 @@ module.exports = class Serveur {
          *     un evenement est ensuite emis pour informer la tablette qu'elle receptionner l'artifact
          */
         socket.on(EVENT.EnvoieArtefactdeZPversZE, (function (idAr, idZE) {
-            logger.info('   *** ' + EVENT.EnvoieArtefactdeZPversZE + ' ***** --> Envoie artefact ' + idAr + ' vers la zone dechange ' + idZE);
+            logger.info('*** EVENT : ' + EVENT.EnvoieArtefactdeZPversZE + ' ***** --> Envoie artefact ' + idAr + ' vers la zone dechange ' + idZE);
             this.envoiArtefacttoZE(socket, idAr, idZE);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.EnvoieArtefactdeZPversZE + ' *** ');
+            logger.debug('*** fin EVENT :' + EVENT.EnvoieArtefactdeZPversZE + ' *** ');
         }).bind(this));
 
         /*
@@ -267,9 +169,9 @@ module.exports = class Serveur {
          *     cet evenement est envoye par une ZEp (tablette) lorsque qu'un utilisateur deplace un artefact de  sa zone d echange vers son EP
          */
         socket.on(EVENT.EnvoieArtefactdeZEversEP, (function (idAr, idZE, idZEP) {
-            logger.info('   *** ' + EVENT.EnvoieArtefactdeZEversEP + ' ***** --> deplace Artifact(' + idAr + ') d une ZE (' + idZE + ')   vers la EP (' + idZEP + ')');
+            logger.info('*** EVENT : ' + EVENT.EnvoieArtefactdeZEversEP + ' ***** --> deplace Artifact(' + idAr + ') d une ZE (' + idZE + ')   vers la EP (' + idZEP + ')');
             this.envoiArtefacttoEP(socket, idAr, idZE, idZEP);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.EnvoieArtefactdeZEversEP + ' *** ');
+            logger.debug('*** fin EVENT :' + EVENT.EnvoieArtefactdeZEversEP + ' *** ');
         }).bind(this));
 
         /*
@@ -278,9 +180,9 @@ module.exports = class Serveur {
          *     la ZE de l'utilisateur est alors supprime ainsi que tous les artefacts qu'elle contient
          */
         socket.on(EVENT.SuppressZEinZP, (function (pseudo, idZE) {
-            logger.info('   *** ' + EVENT.SuppressZEinZP + ' ***** --> deconnexion d une ZE (' + idZE + ')');
+            logger.info('*** EVENT : ' + EVENT.SuppressZEinZP + ' ***** --> deconnexion d une ZE (' + idZE + ')');
             this.deconnexion(socket, pseudo, idZE);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.SuppressZEinZP + ' *** ');
+            logger.debug('*** fin EVENT :' + EVENT.SuppressZEinZP + ' *** ');
         }).bind(this));
 
         /*
@@ -288,9 +190,9 @@ module.exports = class Serveur {
          *     cet evenement est envoye par une ZA depuis le menu ITAC pour transferer des artifacts d'une ZP à une autre ZP
          */
         socket.on(EVENT.EnvoieArtefactdeZPversZP, (function (idAr, idZPsource, idZPcible) {
-            logger.info('   *** ' + EVENT.EnvoieArtefactdeZPversZP + ' ***** --> envoi artifact(' + idAr + ') depuis ZP(' + idZPsource + ') vers  ZP(' + idZPcible + ')');
+            logger.info('*** EVENT : ' + EVENT.EnvoieArtefactdeZPversZP + ' ***** --> envoi artifact(' + idAr + ') depuis ZP(' + idZPsource + ') vers  ZP(' + idZPcible + ')');
             this.envoiArtefactZPtoZP(socket, idAr, idZPsource, idZPcible);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.EnvoieArtefactdeZPversZP + ' *** ');
+            logger.debug('*** fin EVENT :' + EVENT.EnvoieArtefactdeZPversZP + ' *** ');
         }).bind(this));
 
         /*
@@ -298,9 +200,9 @@ module.exports = class Serveur {
          *     cet evenement est envoye par une ZA depuis le menu ITAC pour supprimer des artifacts d'une ZP
          */
         socket.on(EVENT.ArtefactDeletedFromZP, (function (idAr) {
-            logger.info('   *** ' + EVENT.ArtefactDeletedFromZP + ' ***** --> supression artifact(' + idAr + ') ');
-            this.suppresArtefactFromZP(socket, idAr);
-            logger.debug('   *** FIN TRAITEMENT DE :' + EVENT.ArtefactDeletedFromZP + ' *** ');
+            logger.info('*** EVENT : ' + EVENT.ArtefactDeletedFromZP + ' ***** --> supression artifact(' + idAr + ') ');
+            this.suppresArtefactFromZP(idAr);
+            logger.debug('*** fin EVENT :' + EVENT.ArtefactDeletedFromZP + ' *** ');
         }).bind(this));
 
         socket.on('disconnect', (function () {
@@ -309,23 +211,25 @@ module.exports = class Serveur {
              number: io.engine.clientsCount
              });
              */
-            logger.info('   ***  DECONNECT SOCKET *** --> deconnexion de (' + socket.id + ') ');
-            var ZEaSupprimer = this.getZEbySocketId(socket.id);
-            if (ZEaSupprimer != null) {
-                this.deconnexion(socket, "", ZEaSupprimer);
-            } else {
+            logger.info('*** EVENT : disconnect *** --> deconnexion de la socket (' + socket.id + ') ');
 
-                // cas ou c'est la ZA qui se déconnecte
-                if (this.clientZAsocket == socket.id )
+            // recheche de la ZE qui a declanché la deconnexion
+            var ZEaSupprimer = this.ZP.getZEbySocket(socket.id);
+            if (ZEaSupprimer != null) {
+                // trairement de la deconnexion de'une ZE
+                this.deconnexionZE( ZEaSupprimer);
+            } else {
+                // cas ou ce n'est pas une ZE donc  c'est la ZA qui se déconnecte
+                if (this.ZP.getClientZAsocket() == socket.id )
                 {
-                    logger.info('   ***  DECONNECT SOCKET *** --> attention il s agit de la ZA [Ok]');
+                    logger.info('=> traitementSurConnexion : attention il s agit de la ZA [Ok]');
                     // une deconnexion ZA avec des ZE encore connecté est probablement non souhaite
 
-                    this.setClientZAreconnect(true);
-                    logger.info('   ***  DECONNECT SOCKET *** --> activation de la reconnnection ZA [Ok]');
+                    this.ZP.setClientZAreconnect(true);
+                    logger.info('=> traitementSurConnexion : activation de la reconnnection ZA [Ok]');
                 }
                 else
-                    logger.info('   ***  DECONNECT SOCKET *** --> pas de traitement, ZE déjà supprimer');
+                    logger.info('=> traitementSurConnexion : activation de la reconnnection ZA [Ok]');
             }
         }).bind(this));
     };
@@ -342,33 +246,51 @@ module.exports = class Serveur {
      *
      * @author philippe pernelle
      */
-    demandeConnexionZE(socket, clientIp, pseudo, posAvatar) {
-        // creation de l'identifiant ZEP
+    demandeConnexionZE(socket, clientIp, pseudo, posAvatar, login , password) {
+
+
+        // creation de l'identifiant ZEP on choisit l'adresse IP
         var idZEP = clientIp;
-        if (!this.isZAConnected()) {
-            // connexion refusé par de ZA connecté
-            socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur1);
-            logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
-        } else {
-            logger.info('=> demandeConnexionZE : demande de creation ZE (automatique) pour la ZEP= ' + idZEP + ' avec le pseudo= ' + pseudo);
-            var idZE = this.ZP.createZE(idZEP,pseudo,posAvatar);
-            if (idZE !== null) {
-                logger.info('=> demandeConnexionZE : creation automatique de ZE  pour pseudo=' + pseudo + ' et idZEO=' + idZEP + ' [OK] et creation de : ' + this.ZP.getZEbyZEP(idZEP).getId());
-                // création d'une ROOM pour la ZP
-                socket.join(this.ZP.getId());
-                // emission accusé de reception
-                socket.emit(EVENT.ReponseOKConnexionZEP, idZE, idZEP);
-                logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseOKConnexionZEP);
-                this.clientZEsocket.push(socket.id);
-                this.clientZEid.push(idZE);
-                // il faut emmetre à la ZA la nouvelle connexion
-                this._io.sockets.to(this.getSocketZA()).emit(EVENT.NewZEinZP, pseudo, idZE, idZEP, posAvatar);
-                logger.info('=> demandeConnexionZE : envoi d un evenement a la ZA (' + this.getSocketZA() + ') pour lui indique la nouvelle connexion   Evenement envoyé= ' + EVENT.NewZEinZP);
+
+        logger.info('=> demandeConnexionZE : test authentification  pour la ZEP= ' + idZEP + ' avec le pseudo= ' + pseudo);
+        if (!this.getAuthentification(login,password))
+        {
+            socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur3);
+            logger.info('=> demandeConnexionZE : mauvaise authentification, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+        }
+        else
+        {
+            logger.info('=> demandeConnexionZE :  authentification [OK] pour le login ='+login );
+            if (!this.ZP.isZAConnected()) {
+                // connexion refusé pour les ZE tant qu'il n'y a pas au moins une ZA connecté
+                socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur1);
+                logger.info('=> demandeConnexionZE : pas de ZA connecté, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+                socket.disconnect();
+                logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
             } else {
-                logger.info('=> demandeConnexionZE : creation automatique de ZE  pour ' + pseudo + ' ' + idZEP + ' [NOK]');
-                // emission accusé de reception
-                socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur2);
-                logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+
+
+                var idZE = this.ZP.createZE(idZEP,socket.id, true, pseudo, posAvatar, login, password);
+
+                if (idZE != null) {
+                    logger.info('=> demandeConnexionZE : creation  de ZE  pour pseudo=' + pseudo +' [OK] --> idZE calcule =' + idZE );
+                    // création d'une ROOM pour la ZP
+                    socket.join(this.ZP.getId());
+                    // emission accusé de reception
+                    socket.emit(EVENT.ReponseOKConnexionZEP, idZE, idZEP);
+                    logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ') | idZE = '+idZE+' Evenement envoyé= ' + EVENT.ReponseOKConnexionZEP);
+
+                    // il faut emmetre à la ZA la nouvelle connexion
+                    this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.NewZEinZP, pseudo, idZE, idZEP, posAvatar);
+                    logger.info('=> demandeConnexionZE : envoi d un evenement a la ZA (' + this.ZP.getClientZAsocket() + ') pour lui indique la nouvelle connexion   Evenement envoyé= ' + EVENT.NewZEinZP);
+                } else {
+                    logger.info('=> demandeConnexionZE : creation de ZE  pour ' + pseudo + ' ' + idZEP + ' [NOK]');
+                    // emission accusé de reception
+                    socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur2);
+                    logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+                    socket.disconnect();
+                    logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
+                }
             }
         }
     };
@@ -388,83 +310,106 @@ module.exports = class Serveur {
         var posAvatar;
         var lesZE;
         var lesArtifacts;
-        // on arjoute le cas ou la ZA s'est accidentellement déconnecté
-        if (!this.isZAConnected() || this.isClientZAreconnect()) {
 
-            if (this.isClientZAreconnect())  console.log('    ---- socket : demande de connexion ZA --> on traite  une demande de reconnexion');
+        // on ajoute le cas ou la ZA s'est accidentellement déconnecté
+        if (!this.ZP.isZAConnected() || this.ZP.isClientZAreconnect()) {
+
+            if (this.ZP.isClientZAreconnect())  console.log('    ---- socket : demande de connexion ZA --> on traite  une demande de reconnexion');
 
             logger.info('=> demandeConnexionZA : demande de connexion ZA Url-Demandé = ' + urldemande + ' ZP-Demandé = ' + idZPdemande);
             // création d'une ROOM pour la ZP
             socket.join(this.ZP.getId());
-            this.clientZAsocket = socket.id;
+
+            // affectation de la socket courante
+            this.ZP.setClientZAsocket(socket.id);
+
             myZC = this.ZP.ZC.getJSON();
             logger.info('=> demandeConnexionZA : demande connexion ZA [OK], ZC identifié associe a la ZP =  ' + JSON.stringify(myZC));
             // emission accusé de reception avec en JSON la ZC associé
             socket.emit(EVENT.ReponseOKConnexionZA, myZC);
-            logger.info('=> demandeConnexionZA : envoi accusé de reception à ZA (' + this.getSocketZA() + ')  Evenement envoyé= ' + EVENT.ReponseOKConnexionZA);
+            logger.info('=> demandeConnexionZA : envoi accusé de reception à ZA (' + this.ZP.getClientZAsocket() + ')  Evenement envoyé= ' + EVENT.ReponseOKConnexionZA);
 
-            if (this.isClientZAreconnect())
+            if (this.ZP.isClientZAreconnect())
             {
 
-                this.setClientZAreconnect(false);
-                logger.info('=> demandeConnexionZA : demande de connexion ZA (une demande de reconnexion) -> re activation des ZE');
+                this.ZP.setClientZAreconnect(false);
 
                 lesZE = this.ZP.getAllZE();
-                for (var i = 0; i < lesZE.length; i++) {
+                logger.info('=> demandeConnexionZA : demande de connexion ZA (une demande de reconnexion) -> lancement re-activation des ZE nb='+lesZE.length);
 
-                    // il faut emmetre à la ZA la nouvelle connexion
-                    socket.emit(EVENT.NewZEinZP, lesZE[i].getPseudo(), lesZE[i].getId(), lesZE[i].getIdZEP(), lesZE[i].getPosAvatar());
-                    logger.info('=> demandeConnexionZA : envoi d un evenement a la ZA (' + this.getSocketZA() + ') pour lui indique la reconnexion   Evenement envoyé= ' + EVENT.NewZEinZP);
-
-                }
-
-
-                lesArtifacts = this.ZP.getALLArtifacts();
-                logger.info('=> demandeConnexionZA : demande de connexion ZA (une demande de reconnexion) -> re activation des artefact nb='+lesArtifacts.size);
-
-                lesArtifacts.forEach((function (item, key, mapObj) {
-
-
-
-                    var chaineJSON = JSON.stringify(item);
-                    // à la place de la chaine on envoie l'idard dans acquittement pour la tablette
-                    if (item.isInto(this.ZP.getId(),constant.type.ZP))
-                        socket.emit(EVENT.ReceptionArtefactIntoZP, "", this.ZP.getId(),chaineJSON);
-                    // il faut emmetre à la ZA la nouvelle connexion
-                    else {
-                        for (var j = 0; j < lesZE.length; j++) {
-                            if (item.isInto(lesZE[j].getId(), constant.type.ZE))
-                                socket.emit(EVENT.ReceptionArtefactIntoZE, "", lesZE[j].getId(), chaineJSON);
-                        }
-                    }
-
-                    /*
-                    if (item.isInto(idZE, TYPE.container.ZE)) {
-                        logger.info('=> tansfertAllArtifactsInZP : suppression artefacts Id=' + item.getId());
-
-                        this.setArtifactIntoZP(item.getId(),idZP)
-                    }
-                    */
+                lesZE.forEach((function (item, key, mapObj) {
+                    socket.emit(EVENT.NewZEinZP, item.getPseudo(), item.getId(), item.getIdZEP(), item.getPosAvatar());
+                    logger.info('=> demandeConnexionZA : re-activation des ZE -> envoi d un evenement a la ZA (' + this.ZP.getClientZAsocket() + ') pour lui indique la reconnexion  | Evenement envoyé= ' + EVENT.NewZEinZP);
                 }).bind(this));
 
 
 
+                lesArtifacts = this.ZP.getALLArtifacts();
+                logger.info('=> demandeConnexionZA : demande de connexion ZA (une demande de reconnexion) -> lancement re-activation des artefacts nb='+lesArtifacts.size);
+                lesArtifacts.forEach((function (item, key, mapObj) {
+                    var chaineJSON = JSON.stringify(item);
+                    logger.debug('=> demandeConnexionZA : re-activation des artefacts : traitement de l artefact ===>'+chaineJSON);
+
+                    logger.debug('=> demandeConnexionZA : re-activation des artefacts : conteneur artefact ='+item.getTypeContainer());
+                    // à la place de la chaine on envoie l'idard dans acquittement pour la tablette
+                    if (item.isInto(this.ZP.getId(),constant.type.container.ZP))
+                    {
+                        socket.emit(EVENT.ReceptionArtefactIntoZP, "", this.ZP.getId(),chaineJSON);
+                        logger.debug('=> demandeConnexionZA : re-activation des artefact dans la ZP (' + this.ZP.getId() + ') | Evenement envoyé= ' + EVENT.ReceptionArtefactIntoZP);
+                    }
+
+                    // il faut emmetre à la ZA la nouvelle connexion
+                    else {
+                        logger.debug('=> demandeConnexionZA : re-activation des artefact dans la ZE (' + item.getIdContainer() + ') ');
+                        var maZE= this.ZP.getZE(item.getIdContainer());
+                        if (maZE == null)
+                        {
+                            logger.error('=> demandeConnexionZA : impossible recuperer ZE de l artefact  (' + item.getIdContainer() + ') ');
+                        }
+                        else
+                        {
+                            socket.emit(EVENT.ReceptionArtefactIntoZE, maZE.getPseudo(),maZE.getId() , chaineJSON);
+                            logger.info('=> demandeConnexionZA : re-activation des ZE -> envoi d un evenement a la ZA (' + this.ZP.getClientZAsocket() + ') pour lui indique la reconnexion  | Evenement envoyé= ' + EVENT.ReceptionArtefactIntoZE);
+
+                        }
 
 
 
+                    }
 
-                    logger.info('=> demandeConnexionZA : envoi d un evenement a la ZA (' + this.getSocketZA() + ') pour lui indique la reconnexion   Evenement envoyé= ' + EVENT.ReceptionArtefactIntoZP);
+                    /*
+                     if (item.isInto(idZE, TYPE.container.ZE)) {
+                     logger.info('=> tansfertAllArtifactsInZP : suppression artefacts Id=' + item.getId());
 
-
+                     this.setArtifactIntoZP(item.getId(),idZP)
+                     }
+                     */
+                }).bind(this));
 
 
             }
 
-        } else {
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+        else {
             logger.info('=> demandeConnexionZA : demande de connexion ZA refusé, déja connecté');
             // emission accusé de reception
             socket.emit(EVENT.ReponseNOKConnexionZA, myZC);
-            logger.info('=> demandeConnexionZA envoi accusé de reception à ZA (' + this.getSocketZA() + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZA);
+            logger.info('=> demandeConnexionZA : envoi accusé de reception à ZA (' + this.ZP.getClientZAsocket() + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZA);
+            socket.disconnect();
+            logger.info('=> demandeConnexionZA : on force deconnexion socket ZA (' + this.ZP.getClientZAsocket() + ') ');
         }
     };
 
@@ -484,7 +429,7 @@ module.exports = class Serveur {
         {
             // il faut informer aussi la ZEP qui doit ajouter cet Artifact a sa zone
             // on recupere la socket de associe a la ZE
-            var id = this.getZESocketId(idZE);
+            var id = this.ZP.getZE(idZE).getIdSocket();
             var artifactenjson = JSON.stringify(this.ZP.ZC.getArtifact(idAr));
             this._io.sockets.to(id).emit(EVENT.EnvoieArtefactdeZPversZE, artifactenjson);
 
@@ -509,7 +454,7 @@ module.exports = class Serveur {
         this.ZP.sendArFromZEtoZP(idAr, idZP);
         // il faut informer la ZEP qui doit le suprimer de son ZEP
         //on recupere l'ID de la socket ou la tablette est connecté
-        var id = this.getZESocketId(idZE);
+        var id = this.ZP.getZE(idZE).getIdSocket();
         // dans ce cas on indique juste artefact et la ZE
         // pas besoin de donner la ZP
         this._io.sockets.to(id).emit(EVENT.EnvoieArtefactdeZEversZP, idAr, idZE);
@@ -539,9 +484,9 @@ module.exports = class Serveur {
             socket.emit(EVENT.ReceptionArtefactIntoZE, pseudo, idZE, newidAr);
             logger.info('=> receptionArtefactIntoZE : envoi à ZE [EVT_ReceptionArtefactIntoZE]  (' + idZE + ") ");
             // envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
-            if (this.isZAConnected()) {
+            if (this.ZP.isZAConnected()) {
                 //sockets.connected(this.clientIHMsocket).emit(EVENT.NewArtefactInZE, pseudo, idZE ,chaineJSON);
-                this._io.sockets.to(this.getSocketZA()).emit(EVENT.ReceptionArtefactIntoZE, pseudo, idZE, chaineJSON);
+                this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.ReceptionArtefactIntoZE, pseudo, idZE, chaineJSON);
                 logger.info('=> receptionArtefactIntoZE : envoi à IHM [EVT_ReceptionArtefactIntoZE]  (' + idZE + ") --->" + chaineJSON);
             } else {
                 logger.info('=> receptionArtefactIntoZE : pas d IHM pour [EVT_ReceptionArtefactIntoZE] ');
@@ -571,9 +516,9 @@ module.exports = class Serveur {
             socket.emit(EVENT.ReceptionArtefactIntoZP, pseudo, this.ZP.getId(), newidAr);
             logger.info('=> receptionArtefactIntoZP : envoi à ZEP [EVT_ReceptionArtefactIntoZP]  (' + this.ZP.getId() + ") --> " + chaineJSON);
             // envoi d'un evenement pour mettre à jour le client associé à la ZP, s'il est connecté
-            if (this.isZAConnected()) {
+            if (this.ZP.isZAConnected()) {
                 //sockets.connected(this.clientIHMsocket).emit(EVENT.NewArtefactInZE, pseudo, idZE ,chaineJSON);
-                this._io.sockets.to(this.getSocketZA()).emit(EVENT.ReceptionArtefactIntoZP, pseudo, this.ZP.getId(), chaineJSON);
+                this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.ReceptionArtefactIntoZP, pseudo, this.ZP.getId(), chaineJSON);
                 logger.info('=> receptionArtefactIntoZP : envoi à IHM [EVT_ReceptionArtefactIntoZP]  (' + this.ZP.getId() + ") --> " + chaineJSON);
             } else {
                 logger.info('=> receptionArtefactIntoZP : pas d IHM pour [EVT_ReceptionArtefactIntoZP] ');
@@ -608,8 +553,8 @@ module.exports = class Serveur {
             logger.info('=> envoiArtefacttoEP : envoi à ZEP ['+EVENT.ArtefactDeletedFromZE+']  (' + this.ZP.getId() + ") --> artefact id= "+idAr );
 
             // envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
-            if (this.isZAConnected()) {
-                this._io.sockets.to(this.getSocketZA()).emit(EVENT.ArtefactDeletedFromZE, idAr, idZE, idZEP);
+            if (this.ZP.isZAConnected()) {
+                this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.ArtefactDeletedFromZE, idAr, idZE, idZEP);
 
                 logger.info("=> envoiArtefacttoEP : envoie art " + idAr + " de ZE = " + idZE + " POUR IHM = ---  vers " + idZEP);
             } else {
@@ -649,22 +594,22 @@ module.exports = class Serveur {
     };
 
     /**
-     * cette fonction supprime un artifact de la zone collabiratuve
+     * cette fonction supprime un artifact de la zone collaborative
      *
-     * @param {socket} socket
-     * @param {string} idAr
+     * @param {socket} socket   identifiantde la socket
+     * @param {string} idAr     identifiant de l'artefact a supprimer
      *
      * @author philippe pernelle
      */
-    suppresArtefactFromZP(socket, idAr) {
-        logger.info("=> suppresArtefactFromZP : surpression artefact de la ZC=" + this.ZP.ZC.getId());
+    suppresArtefactFromZP( idAr) {
+        logger.debug("=> suppresArtefactFromZP : surpression artefact de la ZC=" + this.ZP.ZC.getId());
         if (idAr == null) {
-            logger.info("=> suppresArtefactFromZP : erreur pas d Artefact a supprimer ,  idArt est null");
+            logger.error("=> suppresArtefactFromZP : erreur pas d Artefact a supprimer,  idArt est null");
         } else {
             if (this.ZP.ZC.delArtifact(idAr)) {
-                logger.info("=> suppresArtefactFromZP : surpression artefact [OK]" + idAr + " ");
+                logger.debug("=> suppresArtefactFromZP : surpression artefact [OK]" + idAr + " ");
             } else {
-                logger.info("=> suppresArtefactFromZP : surpression artefact [NOK]" + idAr + " ");
+                logger.debug("=> suppresArtefactFromZP : surpression artefact [NOK]" + idAr + " ");
             }
         }
     };
@@ -679,30 +624,31 @@ module.exports = class Serveur {
      *
      * @author philippe pernelle
      */
-    deconnexion(socket, pseudo, idZE) {
-        //je récupere la socket de la ZE recherché
-        //var idsock= getZESocketId(idZE);
-        var artifactsSendInfoEP = [];
+    deconnexionZE(myZE) {
 
-        logger.info('=> Deconnexion : lancement de la suppression de la ZE =' + idZE +' pour la ZP courante');
+        var idZE = myZE.getId();
+        var artefact2ZP = [];
 
+        logger.info('=> deconnexionZE : lancement de la suppression de la ZE =' + idZE +' pour la ZP courante ='+this.ZP.getId());
         this.ZP.destroyZE(idZE);
 
-        logger.info('=> Deconnexion : suppresion de la liste des ZE pour la ZC de ZE=' + idZE);
-        this.removeZEbyId(idZE);
+        logger.info('=> deconnexionZE : lancement du transfert des artefact de la ZE =' + idZE +' pour la ZP courante ='+this.ZP.getId());
+        artefact2ZP = this.ZP.ZC.transfertAllArtifactsInZP(idZE,this.ZP.getId());
 
         // envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
-        if (this.isZAConnected()) {
+        if (this.ZP.isZAConnected()) {
 
-            // evenement a utiliser ou alors considerer la regle de gestion suivante pour la ZA : si suppression ZE alors tous les artefacts en EP
-            //this._io.sockets.to(this.getSocketZA()).emit(EVENT.EnvoieArtefactdeZEversEP, pseudo , idZE);
+            for (var i = 0 ; i < artefact2ZP.length ; i++) {
+                this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.EnvoieArtefactdeZEversZP, artefact2ZP[i], idZE);
+                logger.debug('=> deconnexionZE : event ZE2ZP pour artefact (' + artefact2ZP[i] + ") envoye à la ZA " );
+            }
 
-            this._io.sockets.to(this.getSocketZA()).emit(EVENT.SuppressZEinZP, pseudo, idZE);
+            this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.SuppressZEinZP, "", idZE);
+            logger.debug('=> deconnexionZE : event suppression de ZE(' + idZE + ") pour la ZA [OK]" );
 
-            logger.info('=> Deconnexion : suppression de ZE POUR IHM =' + idZE + "---" + pseudo);
         }
         else {
-            logger.debug('=> Deconnexion : pas d IHM pour [EVT_Deconnexion] ');
+            logger.debug('=> deconnexionZE : pas de ZA connecté connecté pour recevoir ' + EVENT.SuppressZEinZP+ ' et '+EVENT.EnvoieArtefactdeZEversZP);
         }
     };
 
@@ -711,7 +657,7 @@ module.exports = class Serveur {
         logger.info('=> fermeture de la socket sur le port %d', port);
         this._io.close((err)=>{
             if (err){
-                logger.err(err, '=> erreur lors fermeture de la socket sur le port %d', port);
+                logger.error(err, '=> erreur lors fermeture de la socket sur le port %d', port);
             } else {
                 logger.info('=> fermeture de la socket sur le port %d : 0K', port);
             }
