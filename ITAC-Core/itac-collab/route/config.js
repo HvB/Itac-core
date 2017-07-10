@@ -59,7 +59,7 @@ module.exports = function (router) {
 
             // recupération de la ZC
             var ZC = req.body;
-            console.log('CLIENT configsession.js -> routage POST : envoi du formulaire pour la Session = ' + ZC.idSession);
+            logger.info('=> routage POST : envoi du formulaire pour la Session = ' + ZC.idSession);
 
             var host = req.headers.host;
             var splithost = host.split(":");
@@ -67,59 +67,61 @@ module.exports = function (router) {
 
             // transformation du JSOn en tab
             var tab = json2array(ZC);
-            console.log('CLIENT configsession.js -> routage POST : la Session en tableau =' + tab);
+            logger.info('=> routage POST : la Session en tableau =' + tab);
             var sessionName = tab.shift(); // on recupere le nom de la session (idSession) et on l'enleve du tableau...
             var authFactory = tab.shift(); // on recupere le nom de la factory pour l'authentification et on l'enleve du tableau...
             var authClass = tab.shift(); // on recupere le nom de la methode pour l'authentification et on l'enleve du tableau...
             var authParams = tab.shift(); // on recupere les parametres pour la methode pour l'authentification et on l'enleve du tableau...
             try {
                 let jsonParams = JSON.parse(authParams);
-                console.log('CLIENT configsession.js -> routage POST : les parametres d\'authentifications sont en JSON : ' + authParams);
+                logger.info('=> routage POST : les parametres d\'authentifications sont en JSON : ' + authParams);
                 authParams = jsonParams;
             } catch (e) {
-                console.log('CLIENT configsession.js -> routage POST : les parametres d\'authentifications ne sont pas en JSON : ' + e);
+                logger.error('=> routage POST : les parametres d\'authentifications ne sont pas en JSON : ' + e);
             }
             var sessionContext = {
                 session: {name: sessionName},
                 authentification: {factory: authFactory, config: {type: authClass, params: authParams}}
             };
             var longueur = tab.length - 3; // on retire les 3 champs de la ZC (idZC, email, description)
-            var nombreZP = Math.floor(longueur / 5); // il y a 5 champs par ZP
-            console.log('CLIENT config.js -> routage POST : nb de ZP demandé =' + nombreZP);
+            var nombreZP = Math.floor(longueur / 6); // il y a 6 champs par ZP
+            logger.info('=> routage POST : nb de ZP demandé =' + nombreZP);
 
             // la premiere ZP est toujours présente
             var paramZP = JSON.stringify({
                 idZP: tab[3],
                 typeZP: tab[4],
-                nbZEmin: tab[5],
-                nbZEmax: tab[6],
+                visibilite: tab[5],
+                nbZEmin: tab[6],
+                nbZEmax: tab[7],
                 urlWebSocket: url,
-                portWebSocket: tab[7]
+                portWebSocket: tab[8]
             });
-            console.log('CLIENT config.js -> routage POST : creation des ZP, etape 0 ZP =' + paramZP);
+            logger.info('=> routage POST : creation des ZP, etape 0 ZP =' + paramZP);
             var ajout = {};
-            for (var i = 8; i < longueur; i = i + 5) {
+            for (var i = 9; i < longueur; i = i + 6) {
                 //paramZP=merge(paramZP, {idZP:tab[i], nbZEmin:tab[i+1], nbZEmax:tab[i+2]});
                 ajout = {
                     idZP: tab[i],
                     typeZP: tab[i + 1],
-                    nbZEmin: tab[i + 2],
-                    nbZEmax: tab[i + 3],
+                    visibilite: tab[i + 2],
+                    nbZEmin: tab[i + 3],
+                    nbZEmax: tab[i + 4],
                     urlWebSocket: url,
-                    portWebSocket: tab[i + 4]
+                    portWebSocket: tab[i + 5]
                 };
                 paramZP = paramZP + ',' + JSON.stringify(ajout);
-                console.log('CLIENT config.js -> routage POST : creation des ZP , etape ' + i + 'ZP =' + paramZP);
+                logger.info('=> routage POST : creation des ZP , etape ' + i + 'ZP =' + paramZP);
             }
 
             // chaine finale de creation de la ZC
             paramZP = "{\"idZC\":\"" + tab[0].toString() + "\",  \"emailZC\":\"" + tab[1].toString() + "\",  \"descriptionZC\":\"" + tab[2].toString() + "\",  \"nbZP\":\"" + nombreZP.toString() + "\", \"ZP\":[" + paramZP + "]}";
-            console.log('CLIENT config.js -> routage POST : la ZC reconfiguré en JSON =' + paramZP);
+            logger.info('=> routage POST : la ZC reconfiguré en JSON =' + paramZP);
 
             var paramZC = JSON.parse((paramZP).replace(/}{/g, ","));
             // on ajoute la config de la ZC dans le context de la session
             sessionContext.zc = {config: paramZC};
-            console.log('CLIENT config.js -> routage POST : la session reconfiguré en JSON =');
+            logger.info('=> routage POST : la session reconfiguré en JSON =');
             var temp = util.inspect(sessionContext);
             console.log(temp);
 
@@ -127,11 +129,16 @@ module.exports = function (router) {
             req.params.ZC = paramZC;
 
 
-            console.log('CLIENT config.js -> lancement creation de la Session \n');
+            logger.info('=> routage POST : lancement creation de la Session');
             var session = new Session(sessionContext);
 
-            console.log('CLIENT config.js -> routage GET,  lancement recureation de la ZC \n');
+            logger.info('=> routage POST : lancement recuperation de la ZC');
             var ZC = session.ZC;
+            logger.info('=> routage POST : afefctation path artefact ZC');
+            ZC.pathArtifacts = session.pathArtifacts;
+
+            logger.info('=> routage POST : sauvegarde de la Session');
+            session.saveSession();
 
 
             res.render('collab', {title: 'Express', ipserver: host, zonecollab: paramZC, sessionName: session.name});

@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * Classe pour la gestion des sessions
  *
  * La session est construite en fonction du contexte passe au constructeur.
@@ -101,7 +101,7 @@ class Session {
         // creation de la ZC
         this.ZC =new ZoneCollaborative(confZC);
         this.ZC.session=this;
-        logger.info("Creation de la Session ->  attachement de la session à la ZC : " + this.ZC.getId());
+        logger.info("Creation de la Session ->  attachement de la session Ã  la ZC : " + this.ZC.getId());
         Session.registerSession(this);
         logger.info('Creation de la Session ->  [OK]');
     }
@@ -214,7 +214,7 @@ class Session {
 
     /**
      * Methode permettant de fermer une session.
-     * On ferme la ZC associée et toutes ses ZPs.
+     * On ferme la ZC associÃ©e et toutes ses ZPs.
      *
      * @method
      */
@@ -279,7 +279,7 @@ class Session {
     }
 
     /**
-     * Methode permettant d'obtenir la liste des sessions enregistrées.
+     * Methode permettant d'obtenir la liste des sessions enregistrÃ©es.
      * 
      * @method 
      * @static

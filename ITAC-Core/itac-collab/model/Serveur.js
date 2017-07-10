@@ -179,7 +179,8 @@ module.exports = class Serveur {
          */
         socket.on(EVENT.SuppressZEinZP, (function (pseudo, idZE) {
             logger.info('*** EVENT : ' + EVENT.SuppressZEinZP + ' ***** --> deconnexion d une ZE (' + idZE + ')');
-            this.deconnexionZE(idZE);
+            var ZEaSupprimer = this.ZP.getZE(idZE);
+            if (ZEaSupprimer != null) this.deconnexionZE( ZEaSupprimer);
             logger.debug('*** fin EVENT :' + EVENT.SuppressZEinZP + ' *** ');
         }).bind(this));
 

@@ -39,6 +39,13 @@ var logger = itacLogger.child({component: 'ZoneCollaborative'});
  * @author philippe pernelle
  */
 module.exports = class ZoneCollaborative {
+    get pathArtifacts() {
+        return this._pathArtifacts;
+    }
+
+    set pathArtifacts(value) {
+        this._pathArtifacts = value;
+    }
     constructor(parametreZC) {
         /**
          * listes des artefacts associée à la zone collaborative globale
@@ -59,7 +66,7 @@ module.exports = class ZoneCollaborative {
          *
          * @private
          */
-        this.pathArtifacts = DIRECTORY + this.idZC; //'artifact/';
+        this._pathArtifacts = ''; ///= DIRECTORY + this.idZC; //'artifact/';
 
         /**
          * email de contact de la zone collaborative
@@ -111,7 +118,7 @@ module.exports = class ZoneCollaborative {
 
             // creation des ZP
             this.listeZP[i] = new ZonePartage(this, parametreZC.ZP[i].idZP,
-                parametreZC.ZP[i].typeZP,
+                parametreZC.ZP[i].typeZP, parametreZC.ZP[i].visibilite,
                 parametreZC.ZP[i].nbZEmin, parametreZC.ZP[i].nbZEmax,
                 parametreZC.ZP[i].urlWebSocket, parametreZC.ZP[i].portWebSocket);
         }
@@ -247,7 +254,7 @@ module.exports = class ZoneCollaborative {
      * @author philippe pernelle
      */
     getPathArtifacts() {
-        return this.pathArtifacts;
+        return this._pathArtifacts;
     };
 
     /**
@@ -417,8 +424,9 @@ module.exports = class ZoneCollaborative {
         //sauvegarde du fichier JSON
         var chaine = JSON.stringify(monArtifact);
         var path = this.getPathArtifacts() + '/' + monArtifact.getId();
-        fs.writeFileSync(path, chaine, "UTF-8");
         logger.info('=> addArtifactFromJSON :  sauvegarde artifact depuis un json, de type=' + monArtifact.getType() + ' de path =' + path);
+        fs.writeFileSync(path, chaine, "UTF-8");
+
 
         //sauvegarde du fichier contenu
         if (monArtifact.getType() === TYPE.artifact.image) {

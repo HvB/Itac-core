@@ -43,7 +43,7 @@ module.exports = class ZonePartage {
     set clientZAsocket(value) {
         this._clientZAsocket = value;
     }
-    constructor(ZC, idZP, typeZP, nbZEmin, nbZEmax, urlWebSocket, portWebSocket) {
+    constructor(ZC, idZP, typeZP,visibilite, nbZEmin, nbZEmax, urlWebSocket, portWebSocket) {
 
         this.ZC = ZC;
         this.idZP = idZP;
@@ -55,6 +55,7 @@ module.exports = class ZonePartage {
          */
         this.typeZP = typeZP;
 
+        this.visibilite = visibilite;
         /**
          * nombre minimum de Zone d'Echange que l'on doit créer sur la Zone de partage
          *
