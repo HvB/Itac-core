@@ -24,7 +24,16 @@ console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + urldema
 /*  creation du menu                */
 /* -----------------------------------*/
 
-$('.menu').circleMenu({circle_radius: 150, direction: 'full', trigger: 'none'});
+$('.menu').circleMenu({
+    circle_radius: 150,
+    direction: 'full',
+    trigger: 'none',
+    open: function () {
+        var url = urldemande.split(/\/\/|:/),
+            qrcode = new QRious({value: JSON.stringify({ip: url[2], port: url[3]})});
+        $('.menu .qr-code').css('background-image', 'url("' + qrcode.toDataURL() + '")');
+    }
+});
 
 /* -----------------------------------*/
 /*  connexion socket                  */
