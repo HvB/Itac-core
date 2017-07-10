@@ -83,12 +83,13 @@ socket.on('connect', function () {
     /* ----- connexion d'une ZE ----*/
     /* ----------------------------- */
     /* --- cas où une tablette a été autorisée à se connecter à l'espace de travail --*/
-    socket.on('EVT_NewZEinZP', function (pseudo, idZE, idZP, posAvatar) {
-        console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZP + '\n pour pseudo=' + pseudo);
+    socket.on('EVT_NewZEinZP', function (login, idZE, idZP, posAvatar) {
+        console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZP + '\n pour pseudo=' + login);
         var $element = $('.template .ZE').clone();
         nbZE = $('.ZP > .ZE').length;
         $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
         $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
+        $element.find('.login').text(login);
         $element.find('img').attr('id', 'avatar' + posAvatar);
     });
 
