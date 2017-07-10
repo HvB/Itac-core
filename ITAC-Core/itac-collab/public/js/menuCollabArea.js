@@ -20,7 +20,6 @@ interact('.menu').draggable({
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
     onmove: function (event) {
-        console.log(event.dx, event.dy, event.ds, event.da)
         var $element = $(event.target),
             x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
             y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
@@ -52,23 +51,14 @@ interact('.circleMenu-open .send').dropzone({
     overlap: 0.1,
     // les evenements de drop:
     ondragenter: function (event) {
-        var draggableElement = event.relatedTarget;   // l'objet ddeplacé
-        var dropzoneElement = event.target;			  // le conteneur
         console.log("menu ITAC -> ZP.ondragenter , draggableElement=" + draggableElement);
-        //$(event.relatedTarget)
-        // on masque l'élément
-
-        $(event.relatedTarget).find("h1").hide();
-        $(event.relatedTarget).find("p").hide();
-        dropzoneElement.classList.add('trash-target');
-        draggableElement.classList.add('can-delete');
+        event.target.classList.add('trash-target');
+        event.relatedTarget.classList.add('can-delete');
     },
 
     ondragleave: function (event) {
         event.target.classList.remove('trash-target');
         event.relatedTarget.classList.remove('can-delete');
-        $(event.relatedTarget).find("h1").show();
-        $(event.relatedTarget).find("p").show();
     },
 
     ondrop: function (event) {
@@ -101,22 +91,13 @@ interact('.circleMenu-open .trash').dropzone({
     overlap: 0.1,
     // les evenements de drop:
     ondragenter: function (event) {
-        var draggableElement = event.relatedTarget;   // l'objet ddeplacé
-        var dropzoneElement = event.target;			  // le conteneur
-
-        //$(event.relatedTarget)
-        // on masque l'élément
-        $(event.relatedTarget).find("h1").hide();
-        $(event.relatedTarget).find("p").hide();
-        dropzoneElement.classList.add('trash-target');
-        draggableElement.classList.add('can-delete');
+        event.target.classList.add('trash-target');
+        event.relatedTarget.classList.add('can-delete');
     },
 
     ondragleave: function (event) {
         event.target.classList.remove('trash-target');
         event.relatedTarget.classList.remove('can-delete');
-        $(event.relatedTarget).find("h1").show();
-        $(event.relatedTarget).find("p").show();
     },
 
     ondrop: function (event) {

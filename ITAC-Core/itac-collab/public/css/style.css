@@ -131,7 +131,6 @@ ul.menu li.send {
 */
 
 .drop-active {
-    border-color: #aaa;
     border: 2px dashed #046ca3;
 }
 .drop-target {
