@@ -11,6 +11,12 @@ module.exports = function (router) {
     var Artifact = require('../model/Artifact');
     var ZonePartage = require('../model/ZonePartage');
     var ZoneEchange = require('../model/ZoneEchange');
+    const BaseAuthentification = require("../utility/authentication");
+    var Session = require('../model/Session');
+
+    // utilisation logger
+    const itacLogger = require('../utility/loggers').itacLogger;
+    var logger = itacLogger.child({component: 'config.js'});
 
     function json2array(json) {
         var result = [];
@@ -25,20 +31,24 @@ module.exports = function (router) {
     // ************************
     //   routage des requetes
     // *************************
-    router.route('/config')
+    router.route('/session/config')
 
     // ---------------------------------------------------
     // appel initial affichage du formulaire depuis un GET
     // ---------------------------------------------------
         .get(function (req, res, next) {
 
-                var host = req.headers.host;
+            var host = req.headers.host;
 
-
-                //res.json({ message: 'hooray! welcome to our rest video api!' });
-                console.log('CLIENT configcollab.js -> routage GET : affichage des parametres pour saisie , host=' + host);
-                // appel de la vue associée avec les parametre
-                res.render('configcollab', {title: 'Express', ipserver: host});
+            logger.info('=> routage GET : affichage des parametres pour saisie , host=' + host);
+            logger.info('=> routage GET : '+BaseAuthentification.Authenticator.registredFactories());
+            logger.info('=> routage GET : '+BaseAuthentification.Authenticator.registredAuthenticators());
+            res.render('config', {
+                    title: 'Express',
+                    ipserver: host,
+                    factories: BaseAuthentification.Authenticator.registredFactories(),
+                    authenticators: BaseAuthentification.Authenticator.registredAuthenticators()
+                });
             }
         )
 
@@ -49,7 +59,7 @@ module.exports = function (router) {
 
             // recupération de la ZC
             var ZC = req.body;
-            console.log('CLIENT configcollab.js -> routage POST : envoi du formulaire pour la ZC = ' + ZC.idZC);
+            console.log('CLIENT configsession.js -> routage POST : envoi du formulaire pour la Session = ' + ZC.idSession);
 
             var host = req.headers.host;
             var splithost = host.split(":");
@@ -57,12 +67,25 @@ module.exports = function (router) {
 
             // transformation du JSOn en tab
             var tab = json2array(ZC);
-            console.log('CLIENT configcollab.js -> routage POST : la ZC en tableau =' + tab);
-
+            console.log('CLIENT configsession.js -> routage POST : la Session en tableau =' + tab);
+            var sessionName = tab.shift(); // on recupere le nom de la session (idSession) et on l'enleve du tableau...
+            var authFactory = tab.shift(); // on recupere le nom de la factory pour l'authentification et on l'enleve du tableau...
+            var authClass = tab.shift(); // on recupere le nom de la methode pour l'authentification et on l'enleve du tableau...
+            var authParams = tab.shift(); // on recupere les parametres pour la methode pour l'authentification et on l'enleve du tableau...
+            try {
+                let jsonParams = JSON.parse(authParams);
+                console.log('CLIENT configsession.js -> routage POST : les parametres d\'authentifications sont en JSON : ' + authParams);
+                authParams = jsonParams;
+            } catch (e) {
+                console.log('CLIENT configsession.js -> routage POST : les parametres d\'authentifications ne sont pas en JSON : ' + e);
+            }
+            var sessionContext = {
+                session: {name: sessionName},
+                authentification: {factory: authFactory, config: {type: authClass, params: authParams}}
+            };
             var longueur = tab.length - 3; // on retire les 3 champs de la ZC (idZC, email, description)
             var nombreZP = Math.floor(longueur / 5); // il y a 5 champs par ZP
-
-            console.log('CLIENT configcollab.js -> routage POST : nb de ZP demandé =' + nombreZP);
+            console.log('CLIENT config.js -> routage POST : nb de ZP demandé =' + nombreZP);
 
             // la premiere ZP est toujours présente
             var paramZP = JSON.stringify({
@@ -73,7 +96,7 @@ module.exports = function (router) {
                 urlWebSocket: url,
                 portWebSocket: tab[7]
             });
-            console.log('CLIENT configcollab.js -> routage POST : creation des ZP, etape 0 ZP =' + paramZP);
+            console.log('CLIENT config.js -> routage POST : creation des ZP, etape 0 ZP =' + paramZP);
             var ajout = {};
             for (var i = 8; i < longueur; i = i + 5) {
                 //paramZP=merge(paramZP, {idZP:tab[i], nbZEmin:tab[i+1], nbZEmax:tab[i+2]});
@@ -86,27 +109,32 @@ module.exports = function (router) {
                     portWebSocket: tab[i + 4]
                 };
                 paramZP = paramZP + ',' + JSON.stringify(ajout);
-                console.log('CLIENT configcollab.js -> routage POST : creation des ZP , etape ' + i + 'ZP =' + paramZP);
+                console.log('CLIENT config.js -> routage POST : creation des ZP , etape ' + i + 'ZP =' + paramZP);
             }
 
             // chaine finale de creation de la ZC
             paramZP = "{\"idZC\":\"" + tab[0].toString() + "\",  \"emailZC\":\"" + tab[1].toString() + "\",  \"descriptionZC\":\"" + tab[2].toString() + "\",  \"nbZP\":\"" + nombreZP.toString() + "\", \"ZP\":[" + paramZP + "]}";
-            console.log('CLIENT configcollab.js -> routage POST : la ZC reconfiguré en JSON =' + paramZP);
+            console.log('CLIENT config.js -> routage POST : la ZC reconfiguré en JSON =' + paramZP);
 
             var paramZC = JSON.parse((paramZP).replace(/}{/g, ","));
-            console.log('CLIENT configcollab.js -> routage POST : la ZC reconfiguré en JSON =');
-            var temp = util.inspect(paramZC);
+            // on ajoute la config de la ZC dans le context de la session
+            sessionContext.zc = {config: paramZC};
+            console.log('CLIENT config.js -> routage POST : la session reconfiguré en JSON =');
+            var temp = util.inspect(sessionContext);
             console.log(temp);
 
 
             req.params.ZC = paramZC;
 
 
-            console.log('CLIENT configcollab.js -> lancement creation de la ZC \n');
-            var ZC = new ZoneCollaborative(paramZC);
+            console.log('CLIENT config.js -> lancement creation de la Session \n');
+            var session = new Session(sessionContext);
+
+            console.log('CLIENT config.js -> routage GET,  lancement recureation de la ZC \n');
+            var ZC = session.ZC;
 
 
-            res.render('collab', {title: 'Express', ipserver: host, zonecollab: paramZC});
+            res.render('collab', {title: 'Express', ipserver: host, zonecollab: paramZC, sessionName: session.name});
 
 
         });
@@ -131,8 +159,8 @@ module.exports = function (router) {
  {
  "idZP":"test2",
  "typeZP":"Ecran",
- "nbZEmin":"0",
- "nbZEmax":"0",
+ "nbZEmin":"1",
+ "nbZEmax":"6",
  "urlWebSocket":"",
  "portWebSocket":"8081"
  },
@@ -140,7 +168,7 @@ module.exports = function (router) {
  "idZP":"test3",
  "typeZP":"Ecran",
  "nbZEmin":"0",
- "nbZEmax":"0",
+ "nbZEmax":"5",
  "urlWebSocket":"",
  "portWebSocket":"8082"
  }
