@@ -51,7 +51,7 @@ interact('.circleMenu-open .send').dropzone({
     overlap: 0.1,
     // les evenements de drop:
     ondragenter: function (event) {
-        console.log("menu ITAC -> ZP.ondragenter , draggableElement=" + draggableElement);
+        console.log("menu ITAC -> ZP.ondragenter");
         event.target.classList.add('trash-target');
         event.relatedTarget.classList.add('can-delete');
     },

@@ -104,7 +104,7 @@ socket.on('connect', function () {
         switch (artifact.type) {
             case 'message':
                 $element.find('h1').text(artifact.title);
-                $element.find('p').text(artifact.content).hide();
+                $element.find('p').text(artifact.content);
                 break;
             case 'image':
                 $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
