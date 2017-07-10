@@ -36,7 +36,7 @@ interact('.menu').draggable({
  * permet d'ouvrir et fermer le menu
  * ---------------------------------
  */
-interact('.hand').on('tap', function () {
+interact('.menu li').on('tap', function () {
     $('.menu').circleMenu($('ul').hasClass('circleMenu-open') ? 'close' : 'open');
 });
 
