@@ -519,18 +519,20 @@ module.exports = class ZoneCollaborative {
     close(callback){
         let server = this.server;
         let idZC = this.idZC;
-        logger.info('=> fermeture ZC %s', idZC);
+        logger.debug('=> close : fermeture de la ZC ' + idZC);
         let zps = this.getAllZP();
         let promises = [];
+        logger.debug('=> close : fermeture de des ZP de la ZC ' + idZC);
         for (var i in zps){
-            let p = new Promise((resolve, reject)=>{
-                zps[i].close((err)=>{(err) ? reject(new Error(err)) : resolve("ZP, " + zps[i].getId() + "closed");});
+            let p = new Promise(function(resolve, reject){
+                zps[i].close((err)=> ((err) ? reject(err) : resolve()));
             });
             promises.push(p);
         }
         if (callback && callback instanceof Function) {
-            Promise.all(promises).then(callback, callback);
-
+            logger.debug('=> close : appel du callback de fermeture de la ZC ' + this.getId());
+            if (promises.length >0 )Promise.all(promises).then(()=>callback(), (err)=>callback(new Error(err)));
+            else callback();
         }
     }
 };

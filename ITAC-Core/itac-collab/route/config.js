@@ -134,7 +134,7 @@ module.exports = function (router) {
             var ZC = session.ZC;
 
 
-            res.render('collab', {title: 'Express', ipserver: host, zonecollab: paramZC});
+            res.render('collab', {title: 'Express', ipserver: host, zonecollab: paramZC, sessionName: session.name});
 
 
         });

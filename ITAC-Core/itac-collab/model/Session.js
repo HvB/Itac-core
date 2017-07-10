@@ -124,9 +124,7 @@ class Session {
     get artifactIds() {
         var listIds = [];
         if (this.ZC) {
-            listIds = this.ZC.getAllArtifacts().map((a)=> {
-                return a.getId()
-            });
+            listIds = Array.from(this.ZC.getAllArtifacts().keys());
         }
         return listIds; 
     }
@@ -224,6 +222,16 @@ class Session {
         logger.info('=> fermeture session %s', this.name);
         Session.unregisterSession(this);
         let zc = this.ZC;
+        if (zc) zc.close((err)=>{
+            if (err){
+                logger.error(err, '=> erreur lors fermeture ZC %s', zc.getId());
+            } else {
+                logger.info('=> fermeture ZC %s OK', zc.getId());
+            }
+            if (callback && callback instanceof Function) {
+                callback(err);
+            }
+        });
         if (zc) zc.close((err)=>{
             if (err){
                 logger.err(err, '=> erreur lors fermeture ZP %s', idZP);

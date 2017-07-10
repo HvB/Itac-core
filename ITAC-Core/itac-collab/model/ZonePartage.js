@@ -464,7 +464,7 @@ getZEbySocket(idsocket) {
         logger.info('=> fermeture ZP %s', idZP);
         this.server.close((err)=>{
             if (err){
-                logger.err(err, '=> erreur lors fermeture ZP %s', idZP);
+                logger.error(err, '=> erreur lors fermeture ZP %s', idZP);
             } else {
                 logger.info('=> fermeture ZP %s', idZP);
             }

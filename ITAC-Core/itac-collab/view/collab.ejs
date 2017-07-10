@@ -8,6 +8,7 @@
 <div class="infoZP">
     <h2>Lanceur d'application sur le périphérique de destination </h2>
     <p>
+        Nom de la session = <%= sessionName %> </br>
         Adresse IP du Serveur ITAC = <%= ipserver %> </br>
         Nom de votre zone collaborative ITAC ZoCo = <%= zonecollab.idZC %> </br>
         Nombre d'espaces de travail de votre zone = <%= zonecollab.nbZP %>
@@ -28,6 +29,11 @@
             </a>
         </li>
         <% } %>
+    </ul>
+    <p>Sauvegarde / fermeture : </p>
+    <ul>
+        <li>Sauvegarde de la session : <a href="/collab/session/<%= sessionName %>/save">/collab/session/<%= sessionName %>/save</a></li>
+        <li>Fermeture de la session : <a href="/collab/session/<%= sessionName %>/close">/collab/session/<%= sessionName %>/close</a></li>
     </ul>
 </div>
 <script>
