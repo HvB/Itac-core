@@ -85,8 +85,8 @@ socket.on('connect', function () {
     /* --- cas où une tablette a été autorisée à se connecter à l'espace de travail --*/
     socket.on('EVT_NewZEinZP', function (login, idZE, idZP, posAvatar) {
         console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZP + '\n pour pseudo=' + login);
-        var $element = $('.template .ZE').clone();
-        nbZE = $('.ZP > .ZE').length;
+        var $element = $('.template .ZE').clone(),
+            nbZE = $('.ZP > .ZE').length;
         $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
         $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
         $element.find('.login').text(login);
@@ -97,45 +97,41 @@ socket.on('connect', function () {
     /* ------------------------------------------- */
     /* ----- arrivée d'un artefact dans une ZE ----*/
     /* ------------------------------------------- */
-    socket.on('EVT_ReceptionArtefactIntoZE', function (pseudo, idZE, chaineJSON) {
+    socket.on('EVT_ReceptionArtefactIntoZE', function (login, idZE, data) {
         console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReceptionArtefactIntoZE] pour ZE= ' + idZE);
-
-        // on récupère l'artifact en parsant le JSON
-        var target, art = JSON.parse(chaineJSON)
-
-        // en fonction du type d'artefact, on crée la DIV correspondante "image" ou "texte"
-        if (art.type == "image") {
-            art.content = (art.content).replace(/(\r\n|\n|\r)/gm, ""); //supprimer les caractères spéciaux
-
-            target = $("<div id=" + art.id + " class='draggable artefact img dropped-image' style='background-image: url(data:image/png;base64," + art.content + ")'> </div>");
+        var artifact = JSON.parse(data),
+            $element = $('.template .artifact.' + artifact.type).clone();
+        switch (artifact.type) {
+            case 'message':
+                $element.find('h1').text(artifact.title);
+                $element.find('p').text(artifact.content).hide();
+                break;
+            case 'image':
+                $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
         }
-        else {
-            art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "</br>"); //pour le saut de ligne
-            target = $("<div id=" + art.id + " class='draggable artefact dropped-msg'>  <h1> " + art.title + " </h1> <p style ='display: none'> " + art.content + " </p> </div>");
-        }
-
-        target.appendTo($('#' + idZE).find('.container'));
-
-    })
+        $element.addClass('dropped');
+        $element.attr('id', artifact.id);
+        $element.appendTo($('#' + idZE).find('.container'));
+    });
 
     /* ------------------------------------------------- */
     /* ----- arrivée d'un artefact directement en ZP ----*/
     /* ------------------------------------------------- */
-    socket.on('EVT_ReceptionArtefactIntoZP', function (pseudo, idZP, chaineJSON) {
-
+    socket.on('EVT_ReceptionArtefactIntoZP', function (pseudo, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReceptionArtefactIntoZP] pour ZP= ' + idZP);
-
-        var target, art = JSON.parse(chaineJSON);
-
-        if (art.type == "image") {
-            art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "");
-            target = $('<div id="' + art.id + '" data-x="300" data-y="300" class="draggable artefact img" style="transform: translate(300px, 300px); background-image: url(data:image/png;base64,' + art.content + ')"> </div>');
-        } else {
-            art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "</br>");
-            target = $('<div id="' + art.id + '" data-x="300" data-y="300" class="draggable artefact" style="transform: translate(300px, 300px);"><h1>' + art.title + '</h1><p>' + art.content + '</p></div>');
+        var artifact = JSON.parse(data),
+            $element = $('.template .artifact.' + artifact.type).clone();
+        switch (artifact.type) {
+            case 'message':
+                $element.find('h1').text(artifact.title);
+                $element.find('p').text(artifact.content);
+                break;
+            case 'image':
+                $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
         }
-        target.appendTo(".ZP");
-    })
+        $element.attr('id', artifact.id);
+        $element.appendTo('.ZP');
+    });
 
     /* ------------------------------------------------ */
     /* ----- Suppression d'un artefact d'une ZE ----*/

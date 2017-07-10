@@ -47,7 +47,7 @@ interact('.menu li').on('tap', function () {
 
 interact('.circleMenu-open .send').dropzone({
     //accepter que les elements avec ce CSS selector
-    accept: '.artefact',
+    accept: '.artifact',
     // il faut 10% de l'element overlap pour que le drop soit possible
     overlap: 0.1,
     // les evenements de drop:
@@ -96,7 +96,7 @@ interact('.circleMenu-open .send').dropzone({
 
 interact('.circleMenu-open .trash').dropzone({
     //accepter que les elements avec ce CSS selector
-    accept: '.artefact',
+    accept: '.artifact',
     // il faut 10% de l'element overlap pour que le drop soit possible
     overlap: 0.1,
     // les evenements de drop:
@@ -140,7 +140,7 @@ interact('.circleMenu-open .trash').dropzone({
 
 interact('.circleMenu-open .background').dropzone({
     //accepter que les elements avec ce CSS selector
-    accept: '.artefact.img',
+    accept: '.artifact.image',
     // il faut 10% de l'element overlap pour que le drop soit possible
     overlap: 0.1,
     // les evenements de drop:
