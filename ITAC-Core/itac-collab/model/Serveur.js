@@ -640,21 +640,40 @@ module.exports = class Serveur {
         }
     };
 
+    /**
+     * @callback closeCallback
+     * @param  {Error} err - Erreur qui s'est produite lors de la fermeture ou rien si tout s'est bien passe.
+     */
+    /**
+     * Methode permetant de fermer le serveur.
+     * Elle ferme toutes les socketes clientes avant d'arreter la sockt serveur
+     *
+     * @param {closeCallback} callback - callback appele apres la fermeture de la socket serveur
+     *
+     * @author Stephane Talbot
+     */
     close(callback){
         let port = this.port;
-        logger.info('=> fermeture de la socket sur le port %d', port);
-        this._io.close((err)=>{
-            if (err){
-                logger.error(err, '=> erreur lors fermeture de la socket sur le port %d', port);
+        let io = this._io;
+        logger.info('=> fermeture des listeners');
+        // tentative de fermeture de sockets clientes ?
+        if (this._io.sockets.connected) {
+            Object.keys(io.sockets.sockets).forEach((socket) => {
+                io.sockets.sockets[socket].disconnect(true);
+            });
+        }
+        // fermeture de la socket serveur
+        logger.debug('=> fermeture de la socket sur le port %d', port);
+        this._io.close((err) => {
+            if (err) {
+                logger.debug(err, '=> erreur lors fermeture de la socket sur le port %d', port);
             } else {
-                logger.info('=> fermeture de la socket sur le port %d : 0K', port);
+                logger.debug('=> fermeture de la socket sur le port %d : 0K', port);
             }
+            // appel du callback
             if (callback && callback instanceof Function) {
                 callback(err);
             }
         });
-    }
+     }
 };
-	
-
-	
