@@ -531,7 +531,7 @@ module.exports = class ZoneCollaborative {
         let zps = this.getAllZP();
         let promises = [];
         logger.debug('=> close : fermeture de des ZP de la ZC ' + idZC);
-        for (var i in zps){
+        for (let i in zps){
             let p = new Promise(function(resolve, reject){
                 zps[i].close((err)=> ((err) ? reject(err) : resolve()));
             });
