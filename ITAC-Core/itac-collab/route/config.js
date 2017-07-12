@@ -121,10 +121,7 @@ module.exports = function (router) {
             var paramZC = JSON.parse((paramZP).replace(/}{/g, ","));
             // on ajoute la config de la ZC dans le context de la session
             sessionContext.zc = {config: paramZC};
-            logger.info('=> routage POST : la session reconfiguré en JSON =');
-            var temp = util.inspect(sessionContext);
-            console.log(temp);
-
+            logger.info({sessionContext: sessionContext}, '=> routage POST : la session reconfiguré en JSON =');
 
             req.params.ZC = paramZC;
 
@@ -134,16 +131,12 @@ module.exports = function (router) {
 
             logger.info('=> routage POST : lancement recuperation de la ZC');
             var ZC = session.ZC;
-            logger.info('=> routage POST : afefctation path artefact ZC');
-            ZC.pathArtifacts = session.pathArtifacts;
 
+            // ToDo verifier si c'est bien pertinent de sauver toutes les sessions crees
             logger.info('=> routage POST : sauvegarde de la Session');
             session.saveSession();
 
-
             res.render('collab', {title: 'Express', ipserver: host, zonecollab: paramZC, sessionName: session.name});
-
-
         });
 
     return router;
