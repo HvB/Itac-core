@@ -56,6 +56,10 @@ interact('.ZE')
         }
     })
     .draggable({
+        onstart: function (event) {
+            $(event.target).css('z-index', ZINDEX);
+            ZINDEX++;
+        },
         onmove: function (event) {
             var $element = $(event.target),
                 x = (parseFloat($element.attr('data-x')) || 0) + event.dx,

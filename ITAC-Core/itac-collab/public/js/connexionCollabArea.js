@@ -20,6 +20,15 @@ console.log('*******************************************************************
 console.log('');
 console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + urldemande);
 
+var addZero = function(value) {
+    return value > 9 ? value : '0' + value;
+}
+var getFormattedDate = function(d) {
+    var date = new Date(d);
+    return addZero(date.getUTCDate()) + '/' + addZero(date.getUTCMonth() + 1) + '/' + date.getUTCFullYear()
+        + ' - ' + addZero(date.getUTCHours()) + ':' + addZero(date.getUTCMinutes());
+};
+
 /* -----------------------------------*/
 /*  creation du menu                */
 /* -----------------------------------*/
@@ -104,13 +113,24 @@ socket.on('connect', function () {
         switch (artifact.type) {
             case 'message':
                 $element.find('h1').text(artifact.title);
-                $element.find('p').text(artifact.content);
+                $element.find('p').first().text(artifact.content);
                 break;
             case 'image':
                 $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
         }
-        $element.addClass('dropped');
+        $element.find('.historic .creator').text(artifact.creator);
+        $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
+        $element.find('.historic .owner').text(artifact.owner);
+        var $temp = $element.find('.historic .modification');
+        for (var i = 0; i < artifact.history.length; i++) {
+            var $clone = $temp().clone();
+            $clone.find('.modifier').text(artifact.history[i].modifier);
+            $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
+            $element.find('.history').append($clone);
+        }
+        $temp.remove();
         $element.attr('id', artifact.id);
+        $element.addClass('dropped');
         $element.appendTo($('#' + idZE).find('.container'));
     });
 
@@ -124,11 +144,22 @@ socket.on('connect', function () {
         switch (artifact.type) {
             case 'message':
                 $element.find('h1').text(artifact.title);
-                $element.find('p').text(artifact.content);
+                $element.find('p').first().text(artifact.content);
                 break;
             case 'image':
                 $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
         }
+        $element.find('.historic .creator').text(artifact.creator);
+        $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
+        $element.find('.historic .owner').text(artifact.owner);
+        var $temp = $element.find('.historic .modification');
+        for (var i = 0; i < artifact.history.length; i++) {
+            var $clone = $temp().clone();
+            $clone.find('.modifier').text(artifact.history[i].modifier);
+            $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
+            $element.find('.history').append($clone);
+        }
+        $temp.remove();
         $element.attr('id', artifact.id);
         $element.appendTo('.ZP');
     });
@@ -172,5 +203,7 @@ socket.on('connect', function () {
     /* ------------------------------ */
     socket.on('disconnect', function () {
         $('.overlay').show();
+        $('.overlay').css('z-index', ZINDEX);
+        ZINDEX++;
     });
 });

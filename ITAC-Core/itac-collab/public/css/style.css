@@ -30,7 +30,6 @@ ul.menu {
     width: 120px !important;
     height: 120px;
     right: 0;
-    z-index: 1001;
 }
 ul.menu li {
     padding-top: 15px;
@@ -87,7 +86,6 @@ ul.menu li.send {
     box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
     border-radius: 10px;
     transition: background-color 0.3s;
-    z-index: 1000;
 }
 .ZE .user {
     text-align: center;
@@ -138,14 +136,30 @@ ul.menu li.send {
     position: fixed;
     width: 230px;
     height: 150px;
-    overflow: hidden;
+    font-size: 11px;
     box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
     border: solid 2px #ffffff;
     border-radius: 10px;
-    z-index: 5000;
+}
+.artifact .historic {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: -25px;
+    margin-left: -20px;
+    padding: 10px;
+    width: 180px;
+    min-height: 180px;
+    text-align: center;
+    box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
+    border: solid 2px #ffffff;
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+.artifact.active .historic {
+    display: block;
 }
 .artifact.message {
-    font-size: 11px;
     text-align: center;
     background-image: linear-gradient(to left, rgba(255, 85, 91, .2), rgba(255, 85, 91, .2)), linear-gradient(to left, rgba(255, 85, 91, .8), rgba(255, 85, 91, .8)), linear-gradient(to top, white 0px, white 69px, rgba(255, 255, 255, 0) 70px), repeating-linear-gradient(white 0px, white 18px, #A6FFED 19px, white 20px);
     background-position: 90% 0px, 10% 0px, 0px 0px, 0px 0px;
@@ -164,7 +178,7 @@ ul.menu li.send {
 }
 .artifact.dropped {
     position: relative;
-    display: inline-block;
+    float: left;
     margin: 3px;
     width: 65px;
     height: 60px;
@@ -186,7 +200,6 @@ ul.menu li.send {
 .can-drop {
     color: #000;
     border-color: #4e4;
-    z-index: 5000;
 }
 .drop-active {
     border: 2px dashed #046ca3;
@@ -233,5 +246,4 @@ ul.menu li.send {
     font-weight: bold;
     color: #ffffff;
     background-color: rgba(0,0,0,0.5);
-    z-index: 50000;
 }

@@ -16,12 +16,8 @@ interact('.artifact')
                 $element.removeClass('active');
                 $('svg [data-artifact=' + $element.attr('id') + ']').remove();
             }
-            var maxZ = Math.max.apply(null,
-                $.map($('body > *'), function (e, n) {
-                    if ($(e).css('position') != 'static')
-                        return parseInt($(e).css('z-index')) || 1;
-                }));
-            $element.css('z-index', maxZ + 1);
+            $element.css('z-index', ZINDEX);
+            ZINDEX++;
         },
         onmove: function (event) {
             var $element = $(event.target),
@@ -70,19 +66,31 @@ interact('.ZP > .artifact')
         }
     })
     .on('tap', function(event) {
-        var $element = $(event.currentTarget);
-        if ($element.hasClass('active')) {
-            $element.removeClass('active');
-            $('svg [data-artifact=' + $element.attr('id') + ']').remove();
+        var $artifact = $(event.currentTarget);
+        $artifact.css('z-index', ZINDEX);
+        ZINDEX++;
+        if ($artifact.hasClass('active')) {
+            $artifact.removeClass('active');
+            $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();
         } else {
-            $element.addClass('active');
             var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                $ZE = $('.ZE1');
+            $artifact.addClass('active');
             shape.setAttributeNS(null, "data-ZE", 1);
-            shape.setAttributeNS(null, "data-artifact", $element.attr('id'));
-            shape.setAttributeNS(null, "x1", $('.ZE1').offset().left + $('.ZE1').width() / 2);
-            shape.setAttributeNS(null, "y1", $('.ZE1').offset().top + $('.ZE1').height() / 2);
-            shape.setAttributeNS(null, "x2", parseFloat($element.attr('data-x')) + $element.width() / 2);
-            shape.setAttributeNS(null, "y2", parseFloat($element.attr('data-y')) + $element.height() / 2);
+            shape.setAttributeNS(null, "data-artifact", $artifact.attr('id'));
+            switch($ZE.attr('data-orientation')) {
+                case 'top':
+                case 'bottom':
+                    shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.width() / 2);
+                    shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.height() / 2);
+                    break;
+                case 'left':
+                case 'right':
+                    shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.height() / 2);
+                    shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.width() / 2);
+            }
+            shape.setAttributeNS(null, "x2", parseFloat($artifact.attr('data-x')) + $artifact.width() / 2);
+            shape.setAttributeNS(null, "y2", parseFloat($artifact.attr('data-y')) + $artifact.height() / 2);
             shape.setAttributeNS(null, "stroke", "black");
             shape.setAttributeNS(null, "stroke-width", 3);
             document.getElementsByTagName('svg')[0].appendChild(shape);

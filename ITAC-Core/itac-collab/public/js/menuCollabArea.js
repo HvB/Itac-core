@@ -6,6 +6,10 @@ interact('.menu').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
+    onstart: function(event) {
+        $('.menu').css('z-index', ZINDEX);
+        ZINDEX++;
+    },
     onmove: function (event) {
         var $element = $(event.target),
             x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
@@ -19,6 +23,10 @@ interact('.menu').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
+    onstart: function(event) {
+        $('.menu').css('z-index', ZINDEX);
+        ZINDEX++;
+    },
     onmove: function (event) {
         var $element = $(event.target),
             x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
@@ -37,6 +45,8 @@ interact('.menu').draggable({
  */
 interact('.menu li').on('tap', function () {
     $('.menu').circleMenu($('ul').hasClass('circleMenu-open') ? 'close' : 'open');
+    $('.menu').css('z-index', ZINDEX);
+    ZINDEX++;
 });
 
 /* ----------------------------------------- 
