@@ -352,8 +352,8 @@ describe ("Test serveur", function (){
                         });
                     });
                     var okZA = new Promise((resolve, reject) => {
-                        socketZA.on("EVT_ReceptionArtefactIntoZP", function (pseudo, zp, chaineJSON) {
-                            expect(pseudo).to.equal('pseudo1');
+                        socketZA.on("EVT_ReceptionArtefactIntoZP", function (ze, zp, chaineJSON) {
+                            expect(ze).to.equal(idZE);
                             expect(zp).to.equal(idZP);
                             expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
                             resolve(artifactMessage2.id);
@@ -498,13 +498,28 @@ describe ("Test serveur", function (){
 
             it('Expect transfert artifacts to ZP', function(done){
                 this.timeout(90000);
-                socketZA.on('EVT_Deconnexion', function (pseudo, ze){
-                    expect(pseudo).to.equal('pseudo1');
-                    expect(ze).to.equal(idZE);
-                    done();
+                var p1 = new Promise((resolve, reject)=> {
+                    socketZA.on('EVT_Deconnexion', function (pseudo, ze) {
+                        //expect(pseudo).to.equal('pseudo1');
+                        expect(ze).to.equal(idZE);
+                        resolve(ze);
+                    });
                 });
+                var p2 = new Promise((resolve, reject)=>{
+                    socketZA.on("EVT_Envoie_ArtefactdeZEversZP", function (idArt, ze) {
+                        expect(ze).to.equal(idZE);
+                        expect(idArt).to.equal(artifactMessage1.id);
+                        resolve(artifactMessage1.id);
+                    });
+                });
+                // var p3 = new Promise((resolve, reject)=>{
+                //     socketZE0.on('disconnect', ()=>{
+                //         resolve();
+                //     })
+                // });
+
                 socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
-                //socketZE0.close();
+                Promise.all([p1,p2]).then(() => done()).catch((reason) => done(reason));
             });
         });
 
@@ -536,13 +551,28 @@ describe ("Test serveur", function (){
 
             it('Expect transfert artifacts to ZP', function(done){
                 this.timeout(90000);
-                socketZA.on('EVT_Deconnexion', function (pseudo, ze) {
-                    //expect(pseudo).to.equal('pseudo1');
-                    expect(ze).to.equal(idZE);
-                    done();
+                var p1 = new Promise((resolve, reject)=> {
+                    socketZA.on('EVT_Deconnexion', function (pseudo, ze) {
+                        //expect(pseudo).to.equal('pseudo1');
+                        expect(ze).to.equal(idZE);
+                        resolve(ze);
+                    });
                 });
-                //socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
-                socketZE0.close();
+                var p2 = new Promise((resolve, reject)=>{
+                    socketZA.on("EVT_Envoie_ArtefactdeZEversZP", function (idArt, ze) {
+                        expect(ze).to.equal(idZE);
+                        expect(idArt).to.equal(artifactMessage1.id);
+                        resolve(artifactMessage1.id);
+                    });
+                });
+                // var p3 = new Promise((resolve, reject)=>{
+                //     socketZE0.on('disconnect', ()=>{
+                //         resolve();
+                //     });
+                // });
+
+                socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
+                Promise.all([p1,p2]).then(() => done()).catch((reason) => done(reason));
             });
         });
 
@@ -690,7 +720,7 @@ describe ("Test serveur", function (){
                 });
                 var p2 = new Promise((resolve, reject)=>{
                     socketZA.on('EVT_ReceptionArtefactIntoZP', function (pseudo, zp, chaineJSON){
-                        //expect(pseudo).to.equal('pseudo1');
+                        expect(pseudo).to.equal('');
                         expect(zp).to.equal(idZP);
                         expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
                         resolve(artifactMessage2.id);
@@ -698,7 +728,7 @@ describe ("Test serveur", function (){
                 });
                 var p3 = new Promise((resolve, reject)=>{
                     socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
-                        //expect(pseudo).to.equal('pseudo1');
+                        expect(pseudo).to.equal('pseudo1');
                         expect(ze).to.equal(idZE);
                         expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
                         resolve(artifactMessage1.id);
