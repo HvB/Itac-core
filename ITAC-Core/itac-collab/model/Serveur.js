@@ -270,7 +270,7 @@ module.exports = class Serveur {
                     socket.disconnect();
                     logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
                 } else {
-                    var idZE = this.ZP.createZE(idZEP,socket.id, true, pseudo, posAvatar, login, password);
+                    var idZE = this.ZP.createZE(idZEP,socket.id, true, pseudo, posAvatar, login);
 
                     if (idZE != null) {
                         logger.info('=> demandeConnexionZE : creation  de ZE  pour pseudo=' + pseudo +' [OK] --> idZE calcule =' + idZE );
