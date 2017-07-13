@@ -12,6 +12,8 @@ module.exports = function (router) {
     var ZonePartage = require('../model/ZonePartage');
     var ZoneEchange = require('../model/ZoneEchange');
     const BaseAuthentification = require("../utility/authentication");
+    const LdapAuthenticator = require("../utility/LdapAuthenticator");
+    const UsmbLdapAuthenticator = require("../utility/UsmbLdapAuthenticator");
     var Session = require('../model/Session');
 
     // utilisation logger
