@@ -356,18 +356,32 @@ describe ("Test serveur", function (){
                 this.timeout(6000);
                 session = new Session(config);
 
-                // connection ZA et connection ZE
                 socketZA = io(url, socketParams);
                 socketZE0 = io(url0, socketParams);
-                connectZA(socketZA, '', 'Table1')
+                // reception artefact1
+                let p2 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
+                        resolve(artifactMessage1.id);
+                    });
+                });
+                // reception artefact2
+                let p3 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZP', function (ze, zp, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
+                        resolve(artifactMessage2.id);
+                    });
+                 });
+                // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
+                let p1 = connectZA(socketZA, '', 'Table1')
                     .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
-                    }))
-                    .then(() => done())
-                    .catch((x) => done(new Error(x)));
+                    }));
+                // on peut passer a la suite quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
+                Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
             });
             afterEach(function (done) {
                 this.timeout(200000);
@@ -455,18 +469,32 @@ describe ("Test serveur", function (){
                 this.timeout(6000);
                 session = new Session(config);
 
-                // connection ZA et connection ZE
                 socketZA = io(url, socketParams);
                 socketZE0 = io(url0, socketParams);
-                connectZA(socketZA, '', 'Table1')
+                // reception artefact1
+                let p2 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
+                        resolve(artifactMessage1.id);
+                    });
+                });
+                // reception artefact2
+                let p3 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZP', function (ze, zp, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
+                        resolve(artifactMessage2.id);
+                    });
+                });
+                // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
+                let p1 = connectZA(socketZA, '', 'Table1')
                     .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
-                    }))
-                    .then(() => done())
-                    .catch((x) => done(new Error(x)));
+                    }));
+                // on peut passer a la suite quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
+                Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
             });
             after(function (done) {
                 this.timeout(200000);
@@ -509,18 +537,32 @@ describe ("Test serveur", function (){
                 this.timeout(6000);
                 session = new Session(config);
 
-                // connection ZA et connection ZE
                 socketZA = io(url, socketParams);
                 socketZE0 = io(url0, socketParams);
-                connectZA(socketZA, '', 'Table1')
+                // reception artefact1
+                let p2 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
+                        resolve(artifactMessage1.id);
+                    });
+                });
+                // reception artefact2
+                let p3 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZP', function (ze, zp, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
+                        resolve(artifactMessage2.id);
+                    });
+                });
+                // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
+                let p1 = connectZA(socketZA, '', 'Table1')
                     .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
-                    }))
-                    .then(() => done())
-                    .catch((x) => done(new Error(x)));
+                    }));
+                // on peut passer a la suite quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
+                Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
             });
             after(function (done) {
                 this.timeout(200000);
@@ -563,9 +605,31 @@ describe ("Test serveur", function (){
                 this.timeout(6000);
                 session = new Session(config);
 
-                // connection ZA et connection ZE
                 socketZA = io(url, socketParams);
                 socketZE0 = io(url0, socketParams);
+                // reception artefact1
+                let p2 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
+                        resolve(artifactMessage1.id);
+                    });
+                });
+                // reception artefact2
+                let p3 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZP', function (ze, zp, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
+                        resolve(artifactMessage2.id);
+                    });
+                });
+                // obtention deconnexion ZE
+                let p4 = new Promise((resolve, reject)=> {
+                    socketZA.on('EVT_Deconnexion', function (pseudo, ze) {
+                        //expect(pseudo).to.equal('pseudo1');
+                        expect(ze).to.equal(idZE);
+                        resolve(ze);
+                    });
+                });
+                // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
                 let p1 = connectZA(socketZA, '', 'Table1')
                     .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
                         idZE = ze;
@@ -573,18 +637,10 @@ describe ("Test serveur", function (){
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
                     }));
-                let p2 = new Promise((resolve,reject)=>{
-                    setTimeout(()=>{
-                        socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
-                        resolve(idZE);
-                    }, 2000);
-                });
-                let p3 = new Promise((resolve,reject)=>{
-                    setTimeout(()=>{
-                        resolve(idZE);
-                    }, 3000);
-                });
-                Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
+                // on peut deconnecter la ZE quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
+                Promise.all([p1,p2,p3]).then(()=>{socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);}).catch((reason) => done(reason));
+                // on attend ensuite la detetection de la deconnection de la ZE par la ZA
+                p4.then(() => done()).catch((reason) => done(reason));
             });
             after(function (done) {
                 this.timeout(200000);
@@ -615,9 +671,31 @@ describe ("Test serveur", function (){
                 this.timeout(6000);
                 session = new Session(config);
 
-                // connection ZA et connection ZE
                 socketZA = io(url, socketParams);
                 socketZE0 = io(url0, socketParams);
+                // reception artefact1
+                let p2 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
+                        resolve(artifactMessage1.id);
+                    });
+                });
+                // reception artefact2
+                let p3 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZP', function (ze, zp, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
+                        resolve(artifactMessage2.id);
+                    });
+                });
+                // obtention deconnexion ZE
+                let p4 = new Promise((resolve, reject)=> {
+                    socketZA.on('EVT_Deconnexion', function (pseudo, ze) {
+                        //expect(pseudo).to.equal('pseudo1');
+                        expect(ze).to.equal(idZE);
+                        resolve(ze);
+                    });
+                });
+                // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
                 let p1 = connectZA(socketZA, '', 'Table1')
                     .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
                         idZE = ze;
@@ -625,19 +703,10 @@ describe ("Test serveur", function (){
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
                     }));
-                let p2 = new Promise((resolve,reject)=>{
-                    setTimeout(()=>{
-                        //socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);
-                        socketZE0.close();
-                        resolve(idZE);
-                    }, 2000);
-                });
-                let p3 = new Promise((resolve,reject)=>{
-                    setTimeout(()=>{
-                        resolve(idZE);
-                    }, 3000);
-                });
-                Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
+                // on peut deconnecter la ZE quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
+                Promise.all([p1,p2,p3]).then(() => {socketZE0.close();}).catch((reason) => done(reason));
+                // on attend ensuite la detetection de la deconnection de la ZE par la ZA
+                p4.then(() => done()).catch((reason) => done(reason));
             });
             after(function (done) {
                 this.timeout(200000);
@@ -668,18 +737,32 @@ describe ("Test serveur", function (){
                 this.timeout(6000);
                 session = new Session(config);
 
-                // connection ZA et connection ZE
                 socketZA = io(url, socketParams);
                 socketZE0 = io(url0, socketParams);
-                connectZA(socketZA, '', 'Table1')
+                // reception artefact1
+                let p2 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZE', function (pseudo, ze, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage1);
+                        resolve(artifactMessage1.id);
+                    });
+                });
+                // reception artefact2
+                let p3 = new Promise((resolve, reject)=>{
+                    socketZA.on('EVT_ReceptionArtefactIntoZP', function (ze, zp, chaineJSON){
+                        expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
+                        resolve(artifactMessage2.id);
+                    });
+                });
+                // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
+                let p1 = connectZA(socketZA, '', 'Table1')
                     .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
-                    }))
-                    .then(() => {socketZA.close(); done();})
-                    .catch((x) => done(new Error(x)));
+                    }));
+                // on peut deconnecter la ZA quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
+                Promise.all([p1,p2,p3]).then(() => {socketZA.close(); done();}).catch((reason) => done(reason));
             });
             after(function (done) {
                 this.timeout(200000);
@@ -700,8 +783,8 @@ describe ("Test serveur", function (){
                     });
                 });
                 let p2 = new Promise((resolve, reject)=>{
-                    socketZA.on('EVT_ReceptionArtefactIntoZP', function (pseudo, zp, chaineJSON){
-                        expect(pseudo).to.equal('');
+                    socketZA.on('EVT_ReceptionArtefactIntoZP', function (ze, zp, chaineJSON){
+                        expect(ze).to.equal('');   // on ne sait pas de quelle ZE l'artefact provient lors d'une reconnection...
                         expect(zp).to.equal(idZP);
                         expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
                         resolve(artifactMessage2.id);
