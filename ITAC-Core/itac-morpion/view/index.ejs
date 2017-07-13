@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+</head>
+<body>
+<a href="/" id="menu">Revenir au menu</a>
+<table class="morpion">
+    <tr>
+        <td id="lgn0col0" onclick="ctrl_morpion(0,0,tt_morpion);" background="img/1.jpg" class="animated"
+            class="fadeOut"></td>
+        <td id="lgn0col1" onclick="ctrl_morpion(0,1,tt_morpion);" background="img/2.jpg" class="animated"
+            class="fadeOut"></td>
+        <td id="lgn0col2" onclick="ctrl_morpion(0,2,tt_morpion);" background="img/3.jpg" class="animated"
+            class="fadeOut"></td>
+    </tr>
+    <tr>
+        <td id="lgn1col0" onclick="ctrl_morpion(1,0,tt_morpion);" background="img/4.jpg" class="animated"
+            class="fadeOut"></td>
+        <td id="lgn1col1" onclick="ctrl_morpion(1,1,tt_morpion);" background="img/5.jpg" class="animated"
+            class="fadeOut"></td>
+        <td id="lgn1col2" onclick="ctrl_morpion(1,2,tt_morpion);" background="img/6.jpg" class="animated"
+            class="fadeOut"></td>
+    </tr>
+    <tr>
+        <td id="lgn2col0" onclick="ctrl_morpion(2,0,tt_morpion);" background="img/7.jpg" class="animated"
+            class="fadeOut"></td>
+        <td id="lgn2col1" onclick="ctrl_morpion(2,1,tt_morpion);" background="img/8.jpg" class="animated"
+            class="fadeOut"></td>
+        <td id="lgn2col2" onclick="ctrl_morpion(2,2,tt_morpion);" background="img/9.jpg" class="animated"
+            class="fadeOut"></td>
+    </tr>
+</table>
+<div id="info">
+    <p>
+        C&rsquo;est au tour de <span id="joueur"> <img src="img/rond.png" width="60%"/> </span><br/>
+        <img src="img/croix.png" width="30%"/> : <span id="scorecroix"> 0 </span> points <br/>
+        <img src="img/rond.png" width="30%"/> : <span id="scorerond"> 0</span> points
+    </p>
+</div>
+<div class="clr"></div>
+<div id="gain"></div>
+<script type="text/javascript" src="js/control.js"></script>
+<script type="text/javascript" src="js/view.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
