@@ -125,8 +125,11 @@ module.exports = {
     },
     error: {
         ConnexionZEP_Erreur1: 'Pas de zone affichage valide',
-        ConnexionZEP_Erreur2: 'Nb de connexion maximum atteinte',
+        // ToDo : permetre au client de faire la disctinction entre l'erreur 2 et l'erreur 4
+        ConnexionZEP_Erreur2: 'Client deja connecté ou nb de connexion maximum atteint',
+        //ConnexionZEP_Erreur2: 'Nb de connexion maximum atteinte',
         ConnexionZEP_Erreur3: 'Authentification invalide',
+        ConnexionZEP_Erreur4: 'Client déjà connecté'
     },
     type: {
         artifact: {
