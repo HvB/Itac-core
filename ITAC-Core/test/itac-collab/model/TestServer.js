@@ -174,9 +174,10 @@ describe ("Test serveur", function (){
                     // connection 1ere ZE
                     socketZE0 = io(url0, socketParams);
                     socketZE1 = io(url1, socketParams);
-                    var p2 = connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;});
-                    Promise.all([p1,p2]).then(()=>done()).catch((reason)=>done(reason));
-                });
+                    p1.then(()=>connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;}))
+                        .then(()=>done())
+                        .catch((reason)=>done(reason));
+                 });
                 after(function(done){
                     socketZE1.close();
                     socketZE0.close();
@@ -211,9 +212,11 @@ describe ("Test serveur", function (){
                     socketZE0 = io(url0, socketParams);
                     socketZE2 = io(url2, socketParams);
                     socketZE1 = io(url1, socketParams);
-                    var p2 = connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;});
-                    var p3 = connectTablette(socketZE1, 'pseudo2', '2', login, password, (ze, zep)=>{idZE1=ze;});
-                    Promise.all([p1,p2]).then(()=>done()).catch((reason)=>done(reason));
+                    p1.then(()=>Promise.all(
+                        [connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;}),
+                        connectTablette(socketZE1, 'pseudo2', '2', login, password, (ze, zep)=>{idZE1=ze;})]))
+                        .then(()=>done())
+                        .catch((reason)=>done(reason));
                 });
                 after(function(done){
                     socketZE2.close();
