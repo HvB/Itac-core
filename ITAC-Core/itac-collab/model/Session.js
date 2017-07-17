@@ -13,6 +13,8 @@
  */
 const ZoneCollaborative = require('./ZoneCollaborative');
 const BaseAuthentification = require("../utility/authentication");
+const LdapAuthenticator= require("../utility/LdapAuthenticator");
+const UsmbLdapAuthenticator= require("../utility/UsmbLdapAuthenticator");
 const crypto = require('crypto');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
@@ -220,7 +222,6 @@ class Session {
      */
     close(callback){
         logger.info('=> fermeture session %s', this.name);
-        Session.unregisterSession(this);
         let zc = this.ZC;
         if (zc) zc.close((err)=>{
             if (err){
@@ -228,6 +229,7 @@ class Session {
             } else {
                 logger.info('=> fermeture ZC %s OK', zc.getId());
             }
+            Session.unregisterSession(this);
             if (callback && callback instanceof Function) {
                 callback(err);
             }

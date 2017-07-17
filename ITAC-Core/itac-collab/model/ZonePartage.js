@@ -391,6 +391,9 @@ getZEbySocket(idsocket) {
                 // conversion json en objet
                 IdArtefact = this.ZC.addArtifactFromJSON(artefactenjson);
 
+                this.ZC.getArtifact(IdArtefact).setLastZE(idZE);
+                logger.debug('=> addArtifactFromZEPtoZP : affectation du LastZE [OK] = ' + idZE);
+
                 // affectation de l'artifact à la zone ZE
                 if (!(this.ZC.setArtifactIntoZE(IdArtefact, idZE))) {
                     logger.debug('=> addArtifactFromZEPtoZE : pas denvoi en ZE car non trouvé');
@@ -433,6 +436,10 @@ getZEbySocket(idsocket) {
             // conversion json en objet
             IdArtefact = this.ZC.addArtifactFromJSON(artefactenjson);
             logger.debug('=> addArtifactFromZEPtoZP : recuperation idArtefact [OK] = ' + IdArtefact);
+
+            this.ZC.getArtifact(IdArtefact).setLastZE(idZE);
+            logger.debug('=> addArtifactFromZEPtoZP : affectation du LastZE [OK] = ' + idZE);
+
 
             logger.debug('=> addArtifactFromZEPtoZP : changement de zone  vers ZP=' + this.getId());
 

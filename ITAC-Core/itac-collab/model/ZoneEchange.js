@@ -10,7 +10,7 @@ var logger = itacLogger.child({component: 'ZoneEchange'});
 
 
 module.exports = class ZoneEchange {
-    constructor(ZP, idZE, idZEP, idSocket, visible, pseudo, posAvatar, login, password) {
+    constructor(ZP, idZE, idZEP, idSocket, visible, pseudo, posAvatar, login) {
         this.ZP = ZP;
         this.idZE = idZE;
         this.idZEP = idZEP;
@@ -19,7 +19,6 @@ module.exports = class ZoneEchange {
         this.pseudo = pseudo;
         this.posAvatar = posAvatar;
         this.login= login;
-        this.password = password;
         logger.info(' Création d une ZE: ZP parent = ' + this.ZP.idZP + ' | idZE = ' + this.idZE +  ' | idSocket = ' + this.idSocket + ' | idZEP associé = ' + this.idZEP + ' | visibility = ' + this.visible);
     }
 
@@ -46,9 +45,4 @@ module.exports = class ZoneEchange {
     getLogin() {
         return this.login;
     }
-
-    getPassword() {
-        return this.password;
-    }
-
 };

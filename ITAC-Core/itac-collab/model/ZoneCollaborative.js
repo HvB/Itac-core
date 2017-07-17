@@ -8,7 +8,8 @@
  * @requires Artifact
  * @requires constant
  * @requires bunyan
- * @requires loggers
+ * @requires itacLogger
+ * @requires mkdirp
  *
  * @author philippe pernelle
  */
@@ -21,6 +22,7 @@ const TYPE = constant.type;
 const DIRECTORY = constant.directory.artifact;
 const ZoneEchange = require('./ZoneEchange');
 const fs = require("fs");
+const mkdirp = require('mkdirp');
 
 
 const uuidv4 = require('uuid/v4');
@@ -39,13 +41,6 @@ var logger = itacLogger.child({component: 'ZoneCollaborative'});
  * @author philippe pernelle
  */
 module.exports = class ZoneCollaborative {
-    get pathArtifacts() {
-        return this._pathArtifacts;
-    }
-
-    set pathArtifacts(value) {
-        this._pathArtifacts = value;
-    }
     constructor(parametreZC) {
         /**
          * listes des artefacts associée à la zone collaborative globale
@@ -66,7 +61,7 @@ module.exports = class ZoneCollaborative {
          *
          * @private
          */
-        this._pathArtifacts = ''; ///= DIRECTORY + this.idZC; //'artifact/';
+        this._pathArtifacts = DIRECTORY+this.idZC ; //repertoire par defaut, mais en pratique on utilisera celui fournit par la ZC
 
         /**
          * email de contact de la zone collaborative
@@ -127,8 +122,6 @@ module.exports = class ZoneCollaborative {
         logger.info('Création de la ZC --> [OK] : ZoneCollaborative  (idZC= ' + this.idZC + ') - [OK] : nbZP total creees = ' + this.getNbZP());
 
     };
-
-
 
 
     /**
@@ -245,16 +238,50 @@ module.exports = class ZoneCollaborative {
         this.setArtifactIntoZP(idAr, idZPcible);
     };
 
+
+    /**
+     * Getter pour obtenir le chemin contenant les artefacts de la zone collaborative
+     * En fait on delegue a la session, car il s'agit du repertoire de sauvegarde de la session
+     *
+     * @public
+     * @returns {string} - le repertoire de sauvegarde des artefacts
+     *
+     * @author Stephane Talbot
+     */
+    get pathArtifacts() {
+        // si on n'a pas de session ou de repertoire fourni par la session (c'est a dire jamais), on utilise la valeur par defaut : ./artifact/idZC
+        if (this.session && this.session.pathArtifacts){
+            this.pathArtifacts = this.session.pathArtifacts;
+        }
+        return this._pathArtifacts;
+    }
+
+    /**
+     * Setter pour le chemin contenant les artefacts de la zone collaborative
+     * En pratique ne sert a rien, car c'est le chemin founi par la session qui compte
+     *
+     *
+     * @public
+     * @param {string} path - le repertoire de sauvegarde des artefacts
+     *
+     * @author Stephane Talbot
+     *
+     * ToDo : a supprimer car inutile
+     */
+    set pathArtifacts(path) {
+        this._pathArtifacts = path;
+    }
+
     /**
      * retourne le chemin contenant les artefacts de la zone collaborative
      *
      * @public
-     * @returns {String} path
+     * @returns {string} path
      *
      * @author philippe pernelle
      */
     getPathArtifacts() {
-        return this._pathArtifacts;
+        return this.pathArtifacts;
     };
 
     /**
@@ -273,7 +300,7 @@ module.exports = class ZoneCollaborative {
      * retourne la liste des Artefacts de la zone collaborative
      *
      * @public
-     * @returns {artifacts} liste des artifacts
+     * @returns {Map.<key, Artifact>} liste des artifacts
      *
      * @author philippe pernelle
      */
@@ -421,12 +448,14 @@ module.exports = class ZoneCollaborative {
         this.artifacts.set(id,monArtifact);
         logger.info('=> addArtifactFromJSON : total artifact =' + this.artifacts.size);
 
+        // creation des repetoires si necessaire
+        mkdirp.sync(this.getPathArtifacts());
+
         //sauvegarde du fichier JSON
         var chaine = JSON.stringify(monArtifact);
         var path = this.getPathArtifacts() + '/' + monArtifact.getId();
         logger.info('=> addArtifactFromJSON :  sauvegarde artifact depuis un json, de type=' + monArtifact.getType() + ' de path =' + path);
         fs.writeFileSync(path, chaine, "UTF-8");
-
 
         //sauvegarde du fichier contenu
         if (monArtifact.getType() === TYPE.artifact.image) {
@@ -531,7 +560,7 @@ module.exports = class ZoneCollaborative {
         let zps = this.getAllZP();
         let promises = [];
         logger.debug('=> close : fermeture de des ZP de la ZC ' + idZC);
-        for (var i in zps){
+        for (let i in zps){
             let p = new Promise(function(resolve, reject){
                 zps[i].close((err)=> ((err) ? reject(err) : resolve()));
             });
