@@ -114,7 +114,7 @@ module.exports = class Serveur {
         socket.on(EVENT.DemandeConnexionZEP, (function (pseudo, posAvatar,login,password) {
             logger.info('*** EVENT : ' + EVENT.DemandeConnexionZEP + ' from IP('+clientIp+')*** --> Demande de connexion de la ZEP avec IP= ' + clientIp + ' et pseudo= ' + pseudo);
             // Comme la verification de l'authetification est asynchrone, cette methode l'est aussi !!!!
-            this.demandeConnexionZE(socket, clientIp, pseudo, posAvatar,login,password);
+            this.demandeConnexionZE(socket, clientIp,  pseudo, posAvatar,login,password);
             // plus pertinent ici car le methode precedente est asynchrone
         }).bind(this));
 
@@ -252,21 +252,21 @@ module.exports = class Serveur {
      * @author philippe pernelle
      * @authos Stephane Talbot
      */
-    demandeConnexionZE(socket, clientIp, pseudo, posAvatar, login , password) {
+    demandeConnexionZE(socket, clientIp, pseudo, posAvatar, login , password ) {
         // creation de l'identifiant ZEP on choisit l'adresse IP
         var idZEP = clientIp;
 
-        logger.info('=> demandeConnexionZE : test authentification  pour la ZEP= ' + idZEP + ' avec le pseudo= ' + pseudo);
+        logger.info('=> demandeConnexionZE : test authentification  pour la ZEP = ' + idZEP + ' | login = ' + login+ ' | pseudo = '+pseudo);
         // recuperation de la promesse d'authentification
         let authPromise = this.getAuthentification(login,password);
         authPromise.then(
             // est appele quand la promesse est tenue (authentification OK)
             (userId)=>{
-                logger.info('=> demandeConnexionZE :  authentification [OK] pour le login ='+login );
+                logger.info('=> demandeConnexionZE : authentification [OK] pour le login = '+login+ ' | pseudo = '+pseudo );
                 if (!this.ZP.isZAConnected()) {
                     // connexion refusé pour les ZE tant qu'il n'y a pas au moins une ZA connecté
                     socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur1);
-                    logger.info('=> demandeConnexionZE : pas de ZA connecté, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+                    logger.info('=> demandeConnexionZE : pas de ZA connecté, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP);
                     socket.disconnect();
                     logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
                 } else {
@@ -278,17 +278,19 @@ module.exports = class Serveur {
                         socket.join(this.ZP.getId());
                         // emission accusé de reception
                         socket.emit(EVENT.ReponseOKConnexionZEP, idZE, idZEP);
-                        logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ') | idZE = '+idZE+' Evenement envoyé= ' + EVENT.ReponseOKConnexionZEP);
+                        logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ') | idZE = '+idZE+' Evenement envoyé = ' + EVENT.ReponseOKConnexionZEP);
 
                         // il faut emmetre à la ZA la nouvelle connexion
                         this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.NewZEinZP, pseudo, idZE, idZEP, posAvatar);
-                        logger.info('=> demandeConnexionZE : envoi d un evenement a la ZA (' + this.ZP.getClientZAsocket() + ') pour lui indique la nouvelle connexion   Evenement envoyé= ' + EVENT.NewZEinZP);
+                        logger.info('=> demandeConnexionZE : envoi d un evenement a la ZA (' + this.ZP.getClientZAsocket() + ') pour lui indique la nouvelle connexion   Evenement envoyé = ' + EVENT.NewZEinZP);
                     } else {
-                        //ToDO : disctinguer le cas ou la ZE est deja conectee du cas ou il n'y a plus d'emplacement disponible
-                        logger.info('=> demandeConnexionZE : creation de ZE  pour ' + pseudo + ' ' + idZEP + ' [NOK]');
+                        // disctinguer le cas ou la ZE est deja conectee du cas ou il n'y a plus d'emplacement disponible
+                        if (this.ZP.getNbZE()>= this.ZP.getNbZEmax()) {var codeerr= ERROR.ConnexionZEP_Erreur2; }
+                        else {var codeerr= ERROR.ConnexionZEP_Erreur4; }
                         // emission accusé de reception
-                        socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur2);
-                        logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+                        socket.emit(EVENT.ReponseNOKConnexionZEP, codeerr);
+                        logger.info('=> demandeConnexionZE : envoi accusé de reception [NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP + ' avec '+codeerr);
+
                         socket.disconnect();
                         logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
                     }
@@ -298,7 +300,7 @@ module.exports = class Serveur {
             // est appele quand la promesse n'est tenue (authentification KO)
             (raison)=>{
                 socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur3);
-                logger.info('=> demandeConnexionZE : mauvaise authentification, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZEP);
+                logger.info('=> demandeConnexionZE : mauvaise authentification, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP);
                 logger.debug('*** fin EVENT :' + EVENT.DemandeConnexionZEP + ' *** ');
             });
     };
