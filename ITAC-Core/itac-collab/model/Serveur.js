@@ -278,7 +278,7 @@ module.exports = class Serveur {
                         socket.join(this.ZP.getId());
                         // emission accusé de reception
                         socket.emit(EVENT.ReponseOKConnexionZEP, idZE, idZEP);
-                        logger.info('=> demandeConnexionZE : envoi accusé de reception à ZEP (' + idZEP + ') | idZE = '+idZE+' Evenement envoyé = ' + EVENT.ReponseOKConnexionZEP);
+                        logger.info('=> demandeConnexionZE : envoi AR-[OK] à ZEP (' + idZEP + ') | idZE = '+idZE+' Evenement envoyé = ' + EVENT.ReponseOKConnexionZEP);
 
                         // il faut emmetre à la ZA la nouvelle connexion
                         this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.NewZEinZP, pseudo, idZE, idZEP, posAvatar);
@@ -289,7 +289,7 @@ module.exports = class Serveur {
                         else {var codeerr= ERROR.ConnexionZEP_Erreur4; }
                         // emission accusé de reception
                         socket.emit(EVENT.ReponseNOKConnexionZEP, codeerr);
-                        logger.info('=> demandeConnexionZE : envoi accusé de reception [NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP + ' avec '+codeerr);
+                        logger.info('=> demandeConnexionZE : envoi AR-[NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP + ' avec '+codeerr);
 
                         socket.disconnect();
                         logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
@@ -300,7 +300,11 @@ module.exports = class Serveur {
             // est appele quand la promesse n'est tenue (authentification KO)
             (raison)=>{
                 socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur3);
-                logger.info('=> demandeConnexionZE : mauvaise authentification, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP);
+                logger.info('=> demandeConnexionZE : mauvaise authentification, envoi AR-[NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP + ' avec '+ERROR.ConnexionZEP_Erreur3);
+
+                socket.disconnect();
+                logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
+                
                 logger.debug('*** fin EVENT :' + EVENT.DemandeConnexionZEP + ' *** ');
             });
     };
