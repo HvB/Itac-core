@@ -20,6 +20,15 @@ console.log('*******************************************************************
 console.log('');
 console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + urldemande);
 
+var addZero = function (value) {
+    return value > 9 ? value : '0' + value;
+}
+var getFormattedDate = function (d) {
+    var date = new Date(d);
+    return addZero(date.getUTCDate()) + '/' + addZero(date.getUTCMonth() + 1) + '/' + date.getUTCFullYear()
+        + ' - ' + addZero(date.getUTCHours()) + ':' + addZero(date.getUTCMinutes());
+};
+
 /* -----------------------------------*/
 /*  creation du menu                */
 /* -----------------------------------*/
@@ -85,57 +94,96 @@ socket.on('connect', function () {
     /* --- cas où une tablette a été autorisée à se connecter à l'espace de travail --*/
     socket.on('EVT_NewZEinZP', function (login, idZE, idZP, posAvatar) {
         console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZP + '\n pour pseudo=' + login);
-        var $element = $('.template .ZE').clone();
-        nbZE = $('.ZP > .ZE').length;
+        var $element = $('.template .ZE').clone(),
+            nbZE = $('.ZP > .ZE').length;
         $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
         $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
         $element.find('.login').text(login);
         $element.find('img').attr('id', 'avatar' + posAvatar);
+
+        var matrix = $element.css('transform'),
+            angle = 0,
+            orientation = 'bottom';
+        if (matrix !== 'none') {
+            var values = matrix.split('(')[1].split(')')[0].split(',');
+            angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
+        }
+        switch (angle) {
+            case 90:
+                orientation = 'left';
+                break;
+            case 180:
+                orientation = 'top';
+                break;
+            case 270:
+                orientation = 'right';
+        }
+        $element.attr('data-orientation', orientation);
     });
 
 
     /* ------------------------------------------- */
     /* ----- arrivée d'un artefact dans une ZE ----*/
     /* ------------------------------------------- */
-    socket.on('EVT_ReceptionArtefactIntoZE', function (pseudo, idZE, chaineJSON) {
+    socket.on('EVT_ReceptionArtefactIntoZE', function (login, idZE, data) {
         console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReceptionArtefactIntoZE] pour ZE= ' + idZE);
-
-        // on récupère l'artifact en parsant le JSON
-        var target, art = JSON.parse(chaineJSON)
-
-        // en fonction du type d'artefact, on crée la DIV correspondante "image" ou "texte"
-        if (art.type == "image") {
-            art.content = (art.content).replace(/(\r\n|\n|\r)/gm, ""); //supprimer les caractères spéciaux
-
-            target = $("<div id=" + art.id + " class='draggable artefact img dropped-image' style='background-image: url(data:image/png;base64," + art.content + ")'> </div>");
+        var artifact = JSON.parse(data),
+            $element = $('.template .artifact.' + artifact.type).clone();
+        switch (artifact.type) {
+            case 'message':
+                $element.find('h1').text(artifact.title);
+                $element.find('p').first().text(artifact.content);
+                break;
+            case 'image':
+                $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
         }
-        else {
-            art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "</br>"); //pour le saut de ligne
-            target = $("<div id=" + art.id + " class='draggable artefact dropped-msg'>  <h1> " + art.title + " </h1> <p style ='display: none'> " + art.content + " </p> </div>");
+        $element.find('.historic .creator').text(artifact.creator);
+        $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
+        $element.find('.historic .owner').text(artifact.owner);
+        var $temp = $element.find('.historic .modification');
+        for (var i = 0; i < artifact.history.length; i++) {
+            var $clone = $temp().clone();
+            $clone.find('.modifier').text(artifact.history[i].modifier);
+            $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
+            $element.find('.history').append($clone);
         }
-
-        target.appendTo($('#' + idZE).find('.container'));
-
-    })
+        $temp.remove();
+        $element.attr('id', artifact.id);
+        $element.attr('data-ZE', artifact.lastZE);
+        $element.addClass('dropped');
+        $element.appendTo($('#' + idZE).find('.container'));
+    });
 
     /* ------------------------------------------------- */
     /* ----- arrivée d'un artefact directement en ZP ----*/
     /* ------------------------------------------------- */
-    socket.on('EVT_ReceptionArtefactIntoZP', function (pseudo, idZP, chaineJSON) {
-
+    socket.on('EVT_ReceptionArtefactIntoZP', function (pseudo, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReceptionArtefactIntoZP] pour ZP= ' + idZP);
-
-        var target, art = JSON.parse(chaineJSON);
-
-        if (art.type == "image") {
-            art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "");
-            target = $('<div id="' + art.id + '" data-x="300" data-y="300" class="draggable artefact img" style="transform: translate(300px, 300px); background-image: url(data:image/png;base64,' + art.content + ')"> </div>');
-        } else {
-            art.content = (art.content).replace(/(\r\n|\n|\r)/gm, "</br>");
-            target = $('<div id="' + art.id + '" data-x="300" data-y="300" class="draggable artefact" style="transform: translate(300px, 300px);"><h1>' + art.title + '</h1><p>' + art.content + '</p></div>');
+        var artifact = JSON.parse(data),
+            $element = $('.template .artifact.' + artifact.type).clone();
+        switch (artifact.type) {
+            case 'message':
+                $element.find('h1').text(artifact.title);
+                $element.find('p').first().text(artifact.content);
+                break;
+            case 'image':
+                $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
         }
-        target.appendTo(".ZP");
-    })
+        $element.find('.historic .creator').text(artifact.creator);
+        $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
+        $element.find('.historic .owner').text(artifact.owner);
+        var $temp = $element.find('.historic .modification');
+        for (var i = 0; i < artifact.history.length; i++) {
+            var $clone = $temp().clone();
+            $clone.find('.modifier').text(artifact.history[i].modifier);
+            $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
+            $element.find('.history').append($clone);
+        }
+        $temp.remove();
+        $element.attr('id', artifact.id);
+        $element.attr('data-ZE', artifact.lastZE);
+        $element.appendTo('.ZP');
+    });
 
     /* ------------------------------------------------ */
     /* ----- Suppression d'un artefact d'une ZE ----*/
@@ -176,5 +224,7 @@ socket.on('connect', function () {
     /* ------------------------------ */
     socket.on('disconnect', function () {
         $('.overlay').show();
+        $('.overlay').css('z-index', ZINDEX);
+        ZINDEX++;
     });
 });

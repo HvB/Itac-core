@@ -6,6 +6,10 @@ interact('.menu').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
+    onstart: function(event) {
+        $('.menu').css('z-index', ZINDEX);
+        ZINDEX++;
+    },
     onmove: function (event) {
         var $element = $(event.target),
             x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
@@ -19,8 +23,11 @@ interact('.menu').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
+    onstart: function(event) {
+        $('.menu').css('z-index', ZINDEX);
+        ZINDEX++;
+    },
     onmove: function (event) {
-        console.log(event.dx, event.dy, event.ds, event.da)
         var $element = $(event.target),
             x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
             y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
@@ -38,6 +45,8 @@ interact('.menu').draggable({
  */
 interact('.menu li').on('tap', function () {
     $('.menu').circleMenu($('ul').hasClass('circleMenu-open') ? 'close' : 'open');
+    $('.menu').css('z-index', ZINDEX);
+    ZINDEX++;
 });
 
 /* ----------------------------------------- 
@@ -47,28 +56,19 @@ interact('.menu li').on('tap', function () {
 
 interact('.circleMenu-open .send').dropzone({
     //accepter que les elements avec ce CSS selector
-    accept: '.artefact',
+    accept: '.artifact',
     // il faut 10% de l'element overlap pour que le drop soit possible
     overlap: 0.1,
     // les evenements de drop:
     ondragenter: function (event) {
-        var draggableElement = event.relatedTarget;   // l'objet ddeplacé
-        var dropzoneElement = event.target;			  // le conteneur
-        console.log("menu ITAC -> ZP.ondragenter , draggableElement=" + draggableElement);
-        //$(event.relatedTarget)
-        // on masque l'élément
-
-        $(event.relatedTarget).find("h1").hide();
-        $(event.relatedTarget).find("p").hide();
-        dropzoneElement.classList.add('trash-target');
-        draggableElement.classList.add('can-delete');
+        console.log("menu ITAC -> ZP.ondragenter");
+        event.target.classList.add('trash-target');
+        event.relatedTarget.classList.add('can-delete');
     },
 
     ondragleave: function (event) {
         event.target.classList.remove('trash-target');
         event.relatedTarget.classList.remove('can-delete');
-        $(event.relatedTarget).find("h1").show();
-        $(event.relatedTarget).find("p").show();
     },
 
     ondrop: function (event) {
@@ -96,27 +96,18 @@ interact('.circleMenu-open .send').dropzone({
 
 interact('.circleMenu-open .trash').dropzone({
     //accepter que les elements avec ce CSS selector
-    accept: '.artefact',
+    accept: '.artifact',
     // il faut 10% de l'element overlap pour que le drop soit possible
     overlap: 0.1,
     // les evenements de drop:
     ondragenter: function (event) {
-        var draggableElement = event.relatedTarget;   // l'objet ddeplacé
-        var dropzoneElement = event.target;			  // le conteneur
-
-        //$(event.relatedTarget)
-        // on masque l'élément
-        $(event.relatedTarget).find("h1").hide();
-        $(event.relatedTarget).find("p").hide();
-        dropzoneElement.classList.add('trash-target');
-        draggableElement.classList.add('can-delete');
+        event.target.classList.add('trash-target');
+        event.relatedTarget.classList.add('can-delete');
     },
 
     ondragleave: function (event) {
         event.target.classList.remove('trash-target');
         event.relatedTarget.classList.remove('can-delete');
-        $(event.relatedTarget).find("h1").show();
-        $(event.relatedTarget).find("p").show();
     },
 
     ondrop: function (event) {
@@ -140,7 +131,7 @@ interact('.circleMenu-open .trash').dropzone({
 
 interact('.circleMenu-open .background').dropzone({
     //accepter que les elements avec ce CSS selector
-    accept: '.artefact.img',
+    accept: '.artifact.image',
     // il faut 10% de l'element overlap pour que le drop soit possible
     overlap: 0.1,
     // les evenements de drop:

@@ -5,7 +5,7 @@
 interact('.ZE')
     .dropzone({
         // --> accepter juste les element de la class artefact
-        accept: '.artefact',
+        accept: '.artifact',
         // --> il faut 10% de l'element soit dans la zone pour que le drop est possible
         overlap: 0.1,
         // -- >les evenement de drop
@@ -19,7 +19,7 @@ interact('.ZE')
         ondragenter: function (event) {
             $(event.target).addClass('drop-target');
             $(event.relatedTarget).addClass('can-drop');
-            $(event.relatedTarget).removeClass('dropped-image dropped-msg left right top');
+            $(event.relatedTarget).removeClass('dropped left right top');
             $(event.relatedTarget).find("p").show();
             $(event.relatedTarget).remove().appendTo('.ZP');
         },
@@ -47,7 +47,7 @@ interact('.ZE')
             $(event.relatedTarget).find("p").hide();
             $(event.relatedTarget).remove().css('transform', '').appendTo($(event.target).find('.container'));
             $(event.relatedTarget).removeClass('can-drop');
-            $(event.relatedTarget).addClass($(event.relatedTarget).hasClass('img') ? 'dropped-image' : 'dropped-msg');
+            $(event.relatedTarget).addClass('dropped');
         },
 
         ondropdeactivate: function (event) {
@@ -56,6 +56,13 @@ interact('.ZE')
         }
     })
     .draggable({
+        onstart: function (event) {
+            var $element = $(event.target);
+            $('.artifact[data-ze=' + $element.attr('id') + ']').removeClass('active');
+            $('svg [data-ze=' + $element.attr('id') + ']').remove();
+            $element.css('z-index', ZINDEX);
+            ZINDEX++;
+        },
         onmove: function (event) {
             var $element = $(event.target),
                 x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
