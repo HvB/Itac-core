@@ -13,11 +13,13 @@ const itacLogger = require('../utility/loggers').itacLogger;
 var logger = itacLogger.child({component: 'Artefact'});
 
 module.exports = class Artifact {
-    constructor(id, creator, owner, type, idContainer, typeContainer, dateCreation, history, title, content) {
+    constructor(id, creator, owner, lastZE, type, idContainer, typeContainer, dateCreation, history, title, position, content) {
 
         this.id = id;
         this.creator = creator;
         this.owner = owner;
+        this.lastZE = lastZE;
+        this.position = position;
         this.type = type;
         this.idContainer  = idContainer;
         this.typeContainer  = typeContainer;
@@ -30,6 +32,22 @@ module.exports = class Artifact {
 
         // ajouter la sauvegarde de l'articat dans un repertoire temporaire
     }
+
+    getLastZE() {
+        return this.lastZE;
+    }
+
+    /**
+     *
+     */
+    setLastZE(lastZE) {
+        this.lastZE = lastZE;
+    };
+
+    getPosition() {
+        return this.position;
+    }
+
 
     isInto(idContainer, typeContainer) {
         return ((this.typeContainer == typeContainer) && (this.idContainer == idContainer));
@@ -179,7 +197,7 @@ module.exports = class Artifact {
         logger.debug('creation Artefact from JSON : OBJ =' + JSON.parse(artifact_json_string));
 
         var temp = JSON.parse(artifact_json_string);
-        var art = new Artifact(id, temp.creator, temp.owner,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.content);
+        var art = new Artifact(id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content);
         art.setId(id) ;
         return art;
     }
