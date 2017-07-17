@@ -57,7 +57,10 @@ interact('.ZE')
     })
     .draggable({
         onstart: function (event) {
-            $(event.target).css('z-index', ZINDEX);
+            var $element = $(event.target);
+            $('.artifact[data-ze=' + $element.attr('id') + ']').removeClass('active');
+            $('svg [data-ze=' + $element.attr('id') + ']').remove();
+            $element.css('z-index', ZINDEX);
             ZINDEX++;
         },
         onmove: function (event) {

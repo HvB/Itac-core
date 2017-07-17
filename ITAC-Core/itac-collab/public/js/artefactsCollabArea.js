@@ -12,10 +12,8 @@ interact('.artifact')
             if ($(event.target).hasClass('dropped')) {
                 $element.attr('data-x', offset.left).attr('data-y', offset.top);
             }
-            if ($element.hasClass('active')) {
-                $element.removeClass('active');
-                $('svg [data-artifact=' + $element.attr('id') + ']').remove();
-            }
+            $element.removeClass('active');
+            $('svg [data-artifact=' + $element.attr('id') + ']').remove();
             $element.css('z-index', ZINDEX);
             ZINDEX++;
         },
@@ -74,10 +72,10 @@ interact('.ZP > .artifact')
             $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();
         } else {
             var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                $ZE = $('.ZE1');
+                $ZE = $('#' + $artifact.attr('data-ze'));
             $artifact.addClass('active');
-            shape.setAttributeNS(null, "data-ZE", 1);
-            shape.setAttributeNS(null, "data-artifact", $artifact.attr('id'));
+            shape.setAttributeNS(null, 'data-ze', $artifact.attr('data-ze'));
+            shape.setAttributeNS(null, 'data-artifact', $artifact.attr('id'));
             switch($ZE.attr('data-orientation')) {
                 case 'top':
                 case 'bottom':

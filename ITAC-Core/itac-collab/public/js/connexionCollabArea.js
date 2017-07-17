@@ -20,10 +20,10 @@ console.log('*******************************************************************
 console.log('');
 console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + urldemande);
 
-var addZero = function(value) {
+var addZero = function (value) {
     return value > 9 ? value : '0' + value;
 }
-var getFormattedDate = function(d) {
+var getFormattedDate = function (d) {
     var date = new Date(d);
     return addZero(date.getUTCDate()) + '/' + addZero(date.getUTCMonth() + 1) + '/' + date.getUTCFullYear()
         + ' - ' + addZero(date.getUTCHours()) + ':' + addZero(date.getUTCMinutes());
@@ -100,6 +100,25 @@ socket.on('connect', function () {
         $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
         $element.find('.login').text(login);
         $element.find('img').attr('id', 'avatar' + posAvatar);
+
+        var matrix = $element.css('transform'),
+            angle = 0,
+            orientation = 'bottom';
+        if (matrix !== 'none') {
+            var values = matrix.split('(')[1].split(')')[0].split(',');
+            angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
+        }
+        switch (angle) {
+            case 90:
+                orientation = 'left';
+                break;
+            case 180:
+                orientation = 'top';
+                break;
+            case 270:
+                orientation = 'right';
+        }
+        $element.attr('data-orientation', orientation);
     });
 
 
@@ -130,6 +149,7 @@ socket.on('connect', function () {
         }
         $temp.remove();
         $element.attr('id', artifact.id);
+        $element.attr('data-ZE', artifact.lastZE);
         $element.addClass('dropped');
         $element.appendTo($('#' + idZE).find('.container'));
     });
@@ -161,6 +181,7 @@ socket.on('connect', function () {
         }
         $temp.remove();
         $element.attr('id', artifact.id);
+        $element.attr('data-ZE', artifact.lastZE);
         $element.appendTo('.ZP');
     });
 
