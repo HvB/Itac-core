@@ -13,6 +13,8 @@
  */
 const ZoneCollaborative = require('./ZoneCollaborative');
 const BaseAuthentification = require("../utility/authentication");
+const LdapAuthenticator= require("../utility/LdapAuthenticator");
+const UsmbLdapAuthenticator= require("../utility/UsmbLdapAuthenticator");
 const crypto = require('crypto');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
