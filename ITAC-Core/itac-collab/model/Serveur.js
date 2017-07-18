@@ -304,7 +304,7 @@ module.exports = class Serveur {
 
                 socket.disconnect();
                 logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
-                
+
                 logger.debug('*** fin EVENT :' + EVENT.DemandeConnexionZEP + ' *** ');
             });
     };
@@ -325,80 +325,46 @@ module.exports = class Serveur {
         var lesZE;
         var lesArtifacts;
 
-        // on ajoute le cas ou la ZA s'est accidentellement déconnecté
+        //  cas d'une premiere connexion de ZA ou d'une reconnexion ZA
         if (!this.ZP.isZAConnected() || this.ZP.isClientZAreconnect()) {
 
-            if (this.ZP.isClientZAreconnect())  console.log('    ---- socket : demande de connexion ZA --> on traite  une demande de reconnexion');
+            if (this.ZP.isClientZAreconnect()) logger.info('=> demandeConnexionZA : on traite une demande de reconnexion');
 
             logger.info('=> demandeConnexionZA : demande de connexion ZA Url-Demandé = ' + urldemande + ' ZP-Demandé = ' + idZPdemande);
             // création d'une ROOM pour la ZP
             socket.join(this.ZP.getId());
 
-            // affectation de la socket courante
+            // affectation de la socket de la ZA
             this.ZP.setClientZAsocket(socket.id);
 
+            // recupération de la ZC parent
             myZC = this.ZP.ZC.getJSON();
             logger.info('=> demandeConnexionZA : demande connexion ZA [OK], ZC identifié associe a la ZP =  ' + JSON.stringify(myZC));
+
             // emission accusé de reception avec en JSON la ZC associé
             socket.emit(EVENT.ReponseOKConnexionZA, myZC);
             logger.info('=> demandeConnexionZA : envoi accusé de reception à ZA (' + this.ZP.getClientZAsocket() + ')  Evenement envoyé= ' + EVENT.ReponseOKConnexionZA);
 
+            // cas spécifique d'une re-connexion
             if (this.ZP.isClientZAreconnect())
             {
-
+                // on ferme le flag de reconnexion
                 this.ZP.setClientZAreconnect(false);
 
-                lesZE = this.ZP.getAllZE();
-                logger.info('=> demandeConnexionZA : demande de connexion ZA (une demande de reconnexion) -> lancement re-activation des ZE nb='+lesZE.length);
+                // lancement du repeuplement ZP et ZE
+                this.repeuplementZA(socket,constant.type.repeuplement.ZPetZE);
 
-                lesZE.forEach((function (item, key, mapObj) {
-                    socket.emit(EVENT.NewZEinZP, item.getPseudo(), item.getId(), item.getIdZEP(), item.getPosAvatar());
-                    logger.info('=> demandeConnexionZA : re-activation des ZE -> envoi d un evenement a la ZA (' + this.ZP.getClientZAsocket() + ') pour lui indique la reconnexion  | Evenement envoyé= ' + EVENT.NewZEinZP);
-                }).bind(this));
+            }
 
+            // cas spécifique d'un load
+            if (this.ZP.loadSession)
+            {
+                // on ferme le flag de reconnexion
+                this.ZP.loadSession=false;
 
+                // lancement du repeuplement ZP et ZE
+                this.repeuplementZA(socket,constant.type.repeuplement.uniquementZP);
 
-                lesArtifacts = this.ZP.getALLArtifacts();
-                logger.info('=> demandeConnexionZA : demande de connexion ZA (une demande de reconnexion) -> lancement re-activation des artefacts nb='+lesArtifacts.size);
-                lesArtifacts.forEach((function (item, key, mapObj) {
-                    var chaineJSON = JSON.stringify(item);
-                    logger.debug('=> demandeConnexionZA : re-activation des artefacts : traitement de l artefact ===>'+chaineJSON);
-
-                    logger.debug('=> demandeConnexionZA : re-activation des artefacts : conteneur artefact ='+item.getTypeContainer());
-                    // à la place de la chaine on envoie l'idard dans acquittement pour la tablette
-                    if (item.isInto(this.ZP.getId(),constant.type.container.ZP))
-                    {
-                        socket.emit(EVENT.ReceptionArtefactIntoZP, "", this.ZP.getId(),chaineJSON);
-                        logger.debug('=> demandeConnexionZA : re-activation des artefact dans la ZP (' + this.ZP.getId() + ') | Evenement envoyé= ' + EVENT.ReceptionArtefactIntoZP);
-                    }
-
-                    // il faut emmetre à la ZA la nouvelle connexion
-                    else {
-                        logger.debug('=> demandeConnexionZA : re-activation des artefact dans la ZE (' + item.getIdContainer() + ') ');
-                        var maZE= this.ZP.getZE(item.getIdContainer());
-                        if (maZE == null)
-                        {
-                            logger.error('=> demandeConnexionZA : impossible recuperer ZE de l artefact  (' + item.getIdContainer() + ') ');
-                        }
-                        else
-                        {
-                            socket.emit(EVENT.ReceptionArtefactIntoZE, maZE.getPseudo(),maZE.getId() , chaineJSON);
-                            logger.info('=> demandeConnexionZA : re-activation des ZE -> envoi d un evenement a la ZA (' + this.ZP.getClientZAsocket() + ') pour lui indique la reconnexion  | Evenement envoyé= ' + EVENT.ReceptionArtefactIntoZE);
-
-                        }
-
-
-
-                    }
-
-                    /*
-                     if (item.isInto(idZE, TYPE.container.ZE)) {
-                     logger.info('=> tansfertAllArtifactsInZP : suppression artefacts Id=' + item.getId());
-
-                     this.setArtifactIntoZP(item.getId(),idZP)
-                     }
-                     */
-                }).bind(this));
             }
         }
         else {
@@ -651,6 +617,66 @@ module.exports = class Serveur {
         }
     };
 
+    /**
+     * Cette fonction permet de repeupler une ZA
+     *
+     * @param {constante} type  - type de repeuplement
+     *
+     * @author philippe pernelle
+     */
+    repeuplementZA( socket,type) {
+
+        var lesZE;
+        var lesArtifacts;
+        //var socket=this.ZP.clientZAsocket;
+
+        if (type == constant.type.repeuplement.ZPetZE) {
+            // on recupere toutes les ZE encore connecté
+            lesZE = this.ZP.getAllZE();
+            logger.info('=> repeuplementZA : lancement re-activation des ZE nb=' + lesZE.length);
+
+            // pour chaque ZE, on emet un evenement de connexion pour la ZA
+            lesZE.forEach((function (item, key, mapObj) {
+                socket.emit(EVENT.NewZEinZP, item.getPseudo(), item.getId(), item.getIdZEP(), item.getPosAvatar());
+                logger.info('=> repeuplementZA : re-activation des ZE -> envoi d un evenement a la ZA (' + this.ZP.getClientZAsocket() + ') pour lui indique la reconnexion  | Evenement envoyé= ' + EVENT.NewZEinZP);
+            }).bind(this));
+
+        }
+
+        if (type == constant.type.repeuplement.ZPetZE || type == constant.type.repeuplement.uniquementZP) {
+            // on recupere tous les artefacts encore présent en ZC ( soit en ZE ou en ZP)
+            lesArtifacts = this.ZP.getALLArtifacts();
+            logger.info('=> demandeConnexionZA : demande de connexion ZA (une demande de reconnexion) -> lancement re-activation des artefacts nb=' + lesArtifacts.size);
+
+            // pour chaque artefacts, on emet levenement pour la ZE ou la ZP selon ou il se trouve
+            lesArtifacts.forEach((function (item, key, mapObj) {
+                var chaineJSON = JSON.stringify(item);
+                logger.debug('=> demandeConnexionZA : re-activation des artefacts : traitement de l artefact ===>' + chaineJSON);
+
+                logger.debug('=> demandeConnexionZA : re-activation des artefacts : conteneur artefact =' + item.getTypeContainer());
+
+                // si l'artefact est en ZP
+                if (item.isInto(this.ZP.getId(), constant.type.container.ZP))    {
+                    socket.emit(EVENT.ReceptionArtefactIntoZP, "", this.ZP.getId(), chaineJSON);
+                    logger.debug('=> demandeConnexionZA : re-activation des artefact dans la ZP (' + this.ZP.getId() + ') | Evenement envoyé= ' + EVENT.ReceptionArtefactIntoZP);
+                }
+
+                // sinon l'artefact est en ZE et on veut un repeuplement aussi de ZE
+                else if (type == constant.type.repeuplement.ZPetZE){
+                    logger.debug('=> demandeConnexionZA : re-activation des artefact dans la ZE (' + item.getIdContainer() + ') ');
+                    var maZE = this.ZP.getZE(item.getIdContainer());
+                    if (maZE == null) {
+                        logger.error('=> demandeConnexionZA : impossible recuperer ZE de l artefact  (' + item.getIdContainer() + ') ');
+                    }
+                    else {
+                        socket.emit(EVENT.ReceptionArtefactIntoZE, maZE.getPseudo(), maZE.getId(), chaineJSON);
+                        logger.info('=> demandeConnexionZA : re-activation des ZE -> envoi d un evenement a la ZA (' + this.ZP.getClientZAsocket() + ') pour lui indique la reconnexion  | Evenement envoyé= ' + EVENT.ReceptionArtefactIntoZE);
+                    }
+                }
+            }).bind(this));
+
+        }
+    }
     /**
      * @callback closeCallback
      * @param  {Error} err - Erreur qui s'est produite lors de la fermeture ou rien si tout s'est bien passe.

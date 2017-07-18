@@ -193,12 +193,22 @@ module.exports = class Artifact {
     };
 
     static fromJSON(artifact_json_string, id) {
-        logger.debug('creation Artefact from JSON : CHAINE =' + artifact_json_string);
-        logger.debug('creation Artefact from JSON : OBJ =' + JSON.parse(artifact_json_string));
+        logger.debug('=> fromJSON : creation Artefact from JSON : CHAINE =' + artifact_json_string);
 
         var temp = JSON.parse(artifact_json_string);
-        var art = new Artifact(id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content);
-        art.setId(id) ;
+        logger.debug('=> fromJSON : creation Artefact from JSON : OBJ =' + temp);
+
+        if (id === undefined)
+        {
+            logger.debug('=> fromJSON : creation Artefact , pas de id passé en parametre');
+            var art = new Artifact(temp.id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content);
+        }
+        else{
+            logger.debug('=> fromJSON : creation Artefact , id passé en parametre = '+id);
+            var art = new Artifact(id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content);
+            art.setId(id) ;
+        }
+
         return art;
     }
 };

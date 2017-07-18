@@ -140,7 +140,11 @@ module.exports = {
             EP: 'EP',
             ZE: 'ZE',
             ZP: 'ZP'
-        }
+        },
+        repeuplement: {
+            uniquementZP: 'ZP',
+            ZPetZE: 'ZPetZE'
+        },
     },
     log: {
         level : {

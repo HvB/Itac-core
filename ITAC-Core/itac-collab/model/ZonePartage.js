@@ -93,11 +93,29 @@ module.exports = class ZonePartage {
          */
         this.clientZAreconnect = false;
 
+        /**
+         * indicateur en cas de chargement de session
+         *
+         * @private
+         */
+        this._loadSession = false;
+
+
+
         // création du serveur de socket associée
         this.server = new Serveur(this, portWebSocket);
         logger.info('Creation ZonePartage --> ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
 
     };
+
+    get loadSession() {
+        return this._loadSession;
+    }
+
+    set loadSession(value) {
+        logger.debug('=> loadSession : affectation du loadsession à  '+value);
+        this._loadSession = value;
+    }
 
 
     /**
@@ -445,6 +463,8 @@ getZEbySocket(idsocket) {
 
             // affectation de l'artifact à la zone ZP
             this.ZC.setArtifactIntoZP(IdArtefact, this.getId());
+
+            this.ZC.saveArtifact(IdArtefact);
         }
         // renvoie l'id de l'artifcat créé
         logger.debug('=> addArtifactFromZEPtoZP : renvoi IdArtefact utilise =' + IdArtefact);
