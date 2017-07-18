@@ -237,6 +237,8 @@ module.exports = class ZoneCollaborative {
      * @author philippe pernelle
      */
     transfertArtefactZPtoZP(idAr, idZPsource, idZPcible) {
+
+        logger.debug('=> transfertArtefactZPtoZP : pas de modification de LastZE [OK] = ' );
         logger.info('=> transfertArtefactZPtoZP : appel deplacement de idArt= ' + idAr + 'vers une ZP=' + idZPcible);
         this.setArtifactIntoZP(idAr, idZPcible);
     };
@@ -350,6 +352,11 @@ module.exports = class ZoneCollaborative {
         logger.info('=> transfertAllArtifactsInZP : recherche pour transfert, tous les artefacts de ZE=' + idZE);
         this.artifacts.forEach((function (item, key, mapObj) {
             if (item.isInto(idZE, TYPE.container.ZE)) {
+
+
+                this.getArtifact(idAr).setLastZE(idZE);
+                logger.debug('=> transfertAllArtifactsInZP : affectation du LastZE [OK] = ' + idZE);
+
                 logger.info('=> transfertAllArtifactsInZP : changement conteneur artefacts Id=' + item.getId());
                 this.setArtifactIntoZP(item.getId(),idZP)
                 ret.push(item.getId());

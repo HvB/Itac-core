@@ -371,7 +371,14 @@ getZEbySocket(idsocket) {
      * @param {idZP}    Zone de Partage cible
      */
     sendArFromZEtoZP(idAr, idZP) {
+
+        var idZE = this.ZC.getArtifact(idAr).getIdContainer();
+        this.ZC.getArtifact(idAr).setLastZE(idZE);
+        logger.debug('=> sendArFromZEtoZP : affectation du LastZE [OK] = ' + idZE);
+
         this.ZC.setArtifactIntoZP(idAr, idZP);
+        // on indique d'ou vient l'artefact
+
     };
 
     /**
@@ -409,11 +416,17 @@ getZEbySocket(idsocket) {
                 // conversion json en objet
                 IdArtefact = this.ZC.addArtifactFromJSON(artefactenjson);
 
+                // on indique d'ou vient l'artefact
                 this.ZC.getArtifact(IdArtefact).setLastZE(idZE);
                 logger.debug('=> addArtifactFromZEPtoZP : affectation du LastZE [OK] = ' + idZE);
 
                 // affectation de l'artifact à la zone ZE
-                if (!(this.ZC.setArtifactIntoZE(IdArtefact, idZE))) {
+                if (this.ZC.setArtifactIntoZE(IdArtefact, idZE)) {
+                    logger.debug('=> addArtifactFromZEPtoZE : envoi en ZE et sauvegarde');
+                    // sauvegarde de l'artefact
+                    this.ZC.saveArtifact(IdArtefact);
+                }
+                else {
                     logger.debug('=> addArtifactFromZEPtoZE : pas denvoi en ZE car non trouvé');
                 }
                 ;
@@ -464,6 +477,7 @@ getZEbySocket(idsocket) {
             // affectation de l'artifact à la zone ZP
             this.ZC.setArtifactIntoZP(IdArtefact, this.getId());
 
+            // sauvegarde de l'artefact
             this.ZC.saveArtifact(IdArtefact);
         }
         // renvoie l'id de l'artifcat créé
