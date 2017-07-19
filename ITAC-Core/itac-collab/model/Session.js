@@ -210,6 +210,9 @@ class Session {
             //let filename = crypto.createHash('sha1').update(name,'utf8').digest('hex');
             let data = fs.readFileSync(configFilename);
             session = new Session(JSON.parse(data));
+
+            // ajout PP : chargement des fichiers artefact
+            session.ZC.loadArtefacts();
         }
         return session;
     }

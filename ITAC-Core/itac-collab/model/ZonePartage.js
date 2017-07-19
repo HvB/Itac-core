@@ -93,11 +93,29 @@ module.exports = class ZonePartage {
          */
         this.clientZAreconnect = false;
 
+        /**
+         * indicateur en cas de chargement de session
+         *
+         * @private
+         */
+        this._loadSession = false;
+
+
+
         // création du serveur de socket associée
         this.server = new Serveur(this, portWebSocket);
         logger.info('Creation ZonePartage --> ZC parent = ' + this.ZC.getId() + ' | IdZP = ' + this.idZP + ' | typeZP = ' + this.typeZP + ' | nbZEMin = ' + this.nbZEmin + ' | nbZEMax = ' + this.nbZEmax + ' | port = ' + this.portWebSocket);
 
     };
+
+    get loadSession() {
+        return this._loadSession;
+    }
+
+    set loadSession(value) {
+        logger.debug('=> loadSession : affectation du loadsession à  '+value);
+        this._loadSession = value;
+    }
 
 
     /**
@@ -353,7 +371,14 @@ getZEbySocket(idsocket) {
      * @param {idZP}    Zone de Partage cible
      */
     sendArFromZEtoZP(idAr, idZP) {
+
+        var idZE = this.ZC.getArtifact(idAr).getIdContainer();
+        this.ZC.getArtifact(idAr).setLastZE(idZE);
+        logger.debug('=> sendArFromZEtoZP : affectation du LastZE [OK] = ' + idZE);
+
         this.ZC.setArtifactIntoZP(idAr, idZP);
+        // on indique d'ou vient l'artefact
+
     };
 
     /**
@@ -391,11 +416,17 @@ getZEbySocket(idsocket) {
                 // conversion json en objet
                 IdArtefact = this.ZC.addArtifactFromJSON(artefactenjson);
 
+                // on indique d'ou vient l'artefact
                 this.ZC.getArtifact(IdArtefact).setLastZE(idZE);
                 logger.debug('=> addArtifactFromZEPtoZP : affectation du LastZE [OK] = ' + idZE);
 
                 // affectation de l'artifact à la zone ZE
-                if (!(this.ZC.setArtifactIntoZE(IdArtefact, idZE))) {
+                if (this.ZC.setArtifactIntoZE(IdArtefact, idZE)) {
+                    logger.debug('=> addArtifactFromZEPtoZE : envoi en ZE et sauvegarde');
+                    // sauvegarde de l'artefact
+                    this.ZC.saveArtifact(IdArtefact);
+                }
+                else {
                     logger.debug('=> addArtifactFromZEPtoZE : pas denvoi en ZE car non trouvé');
                 }
                 ;
@@ -445,6 +476,9 @@ getZEbySocket(idsocket) {
 
             // affectation de l'artifact à la zone ZP
             this.ZC.setArtifactIntoZP(IdArtefact, this.getId());
+
+            // sauvegarde de l'artefact
+            this.ZC.saveArtifact(IdArtefact);
         }
         // renvoie l'id de l'artifcat créé
         logger.debug('=> addArtifactFromZEPtoZP : renvoi IdArtefact utilise =' + IdArtefact);
