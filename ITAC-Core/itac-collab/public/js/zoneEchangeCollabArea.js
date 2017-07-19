@@ -5,7 +5,7 @@
 interact('.ZE')
     .dropzone({
         // --> accepter juste les element de la class artefact
-        accept: '.artifact',
+        accept: '.artifact.message, .artifact.image',
         // --> il faut 10% de l'element soit dans la zone pour que le drop est possible
         overlap: 0.1,
         // -- >les evenement de drop
