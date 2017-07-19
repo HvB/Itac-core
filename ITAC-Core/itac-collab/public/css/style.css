@@ -176,6 +176,12 @@ ul.menu li.send {
     background-repeat: no-repeat;
     background-size: contain;
 }
+.artifact.point {
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    background-color: #ff0000;
+}
 .artifact.dropped {
     position: relative;
     float: left;

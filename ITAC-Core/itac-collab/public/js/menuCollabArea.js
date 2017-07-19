@@ -6,7 +6,7 @@ interact('.menu').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
-    onstart: function(event) {
+    onstart: function (event) {
         $('.menu').css('z-index', ZINDEX);
         ZINDEX++;
     },
@@ -23,7 +23,7 @@ interact('.menu').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
-    onstart: function(event) {
+    onstart: function (event) {
         $('.menu').css('z-index', ZINDEX);
         ZINDEX++;
     },
@@ -150,7 +150,8 @@ interact('.circleMenu-open .background').dropzone({
             .css('background-image', $(event.relatedTarget).css('background-image'))
             .css('background-position', 'center')
             .css('background-repeat', 'no-repeat')
-            .css('background-size', 'contain');
+            .css('background-size', 'contain')
+            .addClass('background');
         event.target.classList.remove('trash-target');
         event.relatedTarget.classList.remove('can-delete');
     }
@@ -165,5 +166,6 @@ interact('.circleMenu-open .background').on('hold', function (event) {
         .css('background-image', '')
         .css('background-position', '')
         .css('background-repeat', '')
-        .css('background-size', '');
+        .css('background-size', '')
+        .removeClass('background');
 });
