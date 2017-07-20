@@ -620,8 +620,13 @@ module.exports = class ZoneCollaborative {
 
     }
 
-
-
+    /**
+     * Fermeture de la ZC et de toutes ses ZP
+     *
+     * @param callback
+     *
+     * @author Stephane Talbot
+     */
     close(callback){
         let server = this.server;
         let idZC = this.idZC;
@@ -637,7 +642,7 @@ module.exports = class ZoneCollaborative {
         }
         if (callback && callback instanceof Function) {
             logger.debug('=> close : appel du callback de fermeture de la ZC ' + this.getId());
-            if (promises.length >0 )Promise.all(promises).then(()=>callback(), (err)=>callback(new Error(err)));
+            if (promises.length >0 )Promise.all(promises).then(()=>callback(), (err)=>callback(err));
             else callback();
         }
     }
