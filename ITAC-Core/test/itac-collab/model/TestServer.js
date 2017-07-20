@@ -15,15 +15,20 @@ const BasicAuthentication = require('../../../itac-collab/utility/authentication
 const LdapAuthenticator = require('../../../itac-collab/utility/LdapAuthenticator');
 const parseDN = require('ldapjs').parseDN;
 
-function connectTablette(socket, pseudo, avatar, login, password, callback){
+function connectTablette(socket, pseudo, avatar, login, password, deviceId, callback){
     return new Promise((resolve, reject)=>{
         function clean(){
             socket.off('EVT_ReponseOKConnexionZEP', success)
             socket.off('EVT_ReponseNOKConnexionZEP', fail);
             socket.off('disconnect', fail);
-            socket.off('connect_error', fail);
+            socket.off('connect_error', failOnError);
+            socket.off('error', failOnError);
             socket.off('connect',connect);
         }
+        let failOnError = function (reason){
+            clean(socket);
+            reject(reason);
+        };
         let fail = function (reason){
             clean(socket);
             reject(new Error(reason));
@@ -34,12 +39,13 @@ function connectTablette(socket, pseudo, avatar, login, password, callback){
             resolve({ze:ze, zep:zep});
         };
         let connect = function (){
-            socket.emit('EVT_DemandeConnexionZEP', pseudo, avatar, login, password);
+            socket.emit('EVT_DemandeConnexionZEP', pseudo, avatar, login, password, deviceId);
         };
         socket.on('EVT_ReponseOKConnexionZEP', success)
         socket.on('EVT_ReponseNOKConnexionZEP', fail);
         socket.on('disconnect', fail);
-        socket.on('connect_error', fail);
+        socket.on('connect_error', failOnError);
+        socket.on('error', failOnError);
         socket.on('connect',connect);
         socket.open();
     });
@@ -50,9 +56,14 @@ function connectZA(socket, url, zp, callback){
             socket.off('EVT_ReponseOKConnexionZA', success)
             socket.off('EVT_ReponseNOKConnexionZA', fail);
             socket.off('disconnect', fail);
-            socket.off('connect_error', fail);
+            socket.off('connect_error', failOnError);
+            socket.off('error', failOnError);
             socket.off('connect',connect);
         }
+        let failOnError = function (reason){
+            clean(socket);
+            reject(reason);
+        };
         let fail = function (reason){
             clean(socket);
             reject(new Error(reason));
@@ -69,7 +80,8 @@ function connectZA(socket, url, zp, callback){
         socket.on('EVT_ReponseOKConnexionZA', success)
         socket.on('EVT_ReponseNOKConnexionZA', fail);
         socket.on('disconnect', fail);
-        socket.on('connect_error', fail);
+        socket.on('connect_error', failOnError);
+        socket.on('error', failOnError);
         socket.on('connect',connect);
         socket.open();
     });
@@ -81,6 +93,9 @@ describe ("Test serveur", function (){
         var url0 = 'http://127.0.0.1:8080';
         var url1 = 'http://127.0.0.2:8080';
         var url2 = 'http://127.0.0.3:8080';
+        var devId0 = "00000000000";
+        var devId1 = "11111111111";
+        var devId2 = "22222222222";
         var login="test_user";
         var idZE0, idZE1;
         var password;
@@ -162,7 +177,7 @@ describe ("Test serveur", function (){
                             resolve(pseudo);
                         });
                     });
-                    let okZE = connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;});
+                    let okZE = connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep)=>{idZE0=ze;});
                     Promise.all([okZA,okZE]).then(()=>done()).catch((reason)=>done(reason));
                 });
             });
@@ -175,7 +190,7 @@ describe ("Test serveur", function (){
                     // connection 1ere ZE
                     socketZE0 = io(url0, socketParams);
                     socketZE1 = io(url1, socketParams);
-                    p1.then(()=>connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;}))
+                    p1.then(()=>connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep)=>{idZE0=ze;}))
                         .then(()=>done())
                         .catch((reason)=>done(reason));
                  });
@@ -196,7 +211,7 @@ describe ("Test serveur", function (){
                             resolve(pseudo);
                         });
                     });
-                    let okZE = connectTablette(socketZE1, 'pseudo2', '2', login, password,(ze, zep)=>{idZE1=ze;});
+                    let okZE = connectTablette(socketZE1, 'pseudo2', '2', login, password, devId1, (ze, zep)=>{idZE1=ze;});
                     Promise.all([okZA,okZE]).then(()=>done()).catch((reason)=>done(reason));
                 });
             });
@@ -211,8 +226,8 @@ describe ("Test serveur", function (){
                     socketZE2 = io(url2, socketParams);
                     socketZE1 = io(url1, socketParams);
                     p1.then(()=>Promise.all(
-                        [connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep)=>{idZE0=ze;}),
-                        connectTablette(socketZE1, 'pseudo2', '2', login, password, (ze, zep)=>{idZE1=ze;})]))
+                        [connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep)=>{idZE0=ze;}),
+                        connectTablette(socketZE1, 'pseudo2', '2', login, password, devId1, (ze, zep)=>{idZE1=ze;})]))
                         .then(()=>done())
                         .catch((reason)=>done(reason));
                 });
@@ -226,7 +241,7 @@ describe ("Test serveur", function (){
                     session.close(done);
                 });
                 it("Expect connection to fail",function(done){
-                    connectTablette(socketZE2, 'pseudo3', '3', login, password).then(()=>done(new Error("Should not connect"))).catch(()=>done());
+                    connectTablette(socketZE2, 'pseudo3', '3', login, password, devId2).then(()=>done(new Error("Should not connect"))).catch(()=>done());
                 });
             });
         });
@@ -236,6 +251,7 @@ describe ("Test serveur", function (){
         var session;
         var url = 'http://127.0.0.1:8080';
         var url0 = 'http://127.0.0.1:8080';
+        var devId0 = "00000000000";
         var login = "test_user";
         var password;
         var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
@@ -291,7 +307,7 @@ describe ("Test serveur", function (){
                 socketZA = io(url, socketParams);
                 socketZE0 = io(url0, socketParams);
                 connectZA(socketZA, '', 'Table1')
-                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep
                     }))
@@ -377,7 +393,7 @@ describe ("Test serveur", function (){
                  });
                 // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
                 let p1 = connectZA(socketZA, '', 'Table1')
-                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
@@ -420,6 +436,7 @@ describe ("Test serveur", function (){
         var session;
         var url = 'http://127.0.0.1:8080';
         var url0 = 'http://127.0.0.1:8080';
+        var devId0 = "12345689";
         var login = "test_user";
         var password;
         var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
@@ -490,7 +507,7 @@ describe ("Test serveur", function (){
                 });
                 // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
                 let p1 = connectZA(socketZA, '', 'Table1')
-                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
@@ -558,7 +575,7 @@ describe ("Test serveur", function (){
                 });
                 // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
                 let p1 = connectZA(socketZA, '', 'Table1')
-                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
@@ -634,7 +651,7 @@ describe ("Test serveur", function (){
                 });
                 // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
                 let p1 = connectZA(socketZA, '', 'Table1')
-                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
@@ -665,7 +682,7 @@ describe ("Test serveur", function (){
                         resolve(pseudo);
                     });
                 });
-                let okZE = connectTablette(socketZE0, 'pseudo1', '1', login, password);
+                let okZE = connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0);
                 Promise.all([okZA,okZE]).then(()=>done()).catch((reason)=>done(reason));
             });
         });
@@ -700,7 +717,7 @@ describe ("Test serveur", function (){
                 });
                 // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
                 let p1 = connectZA(socketZA, '', 'Table1')
-                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
@@ -731,7 +748,7 @@ describe ("Test serveur", function (){
                         resolve(pseudo);
                     });
                 });
-                let okZE = connectTablette(socketZE0, 'pseudo1', '1', login, password);
+                let okZE = connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0);
                 Promise.all([okZA,okZE]).then(()=>done()).catch((reason)=>done(reason));
              });
         });
@@ -758,7 +775,7 @@ describe ("Test serveur", function (){
                 });
                 // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
                 let p1 = connectZA(socketZA, '', 'Table1')
-                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, (ze, zep) => {
+                    .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep) => {
                         idZE = ze;
                         idZEP = zep;
                         socketZE0.emit('EVT_NewArtefactInZE', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
@@ -1026,6 +1043,7 @@ describe ("Test serveur", function (){
             var url0 = 'http://127.0.0.1:8080';
             var url1 = 'http://127.0.0.2:8080';
             var url2 = 'http://127.0.0.3:8080';
+            var devId0 = "12345689";
             var login="test_user";
             var idZE0, idZE1;
             var password;
@@ -1093,11 +1111,11 @@ describe ("Test serveur", function (){
                             resolve(pseudo);
                         });
                     });
-                    let okZE = connectTablette(socketZE0, 'pseudo1', '1', 'joe', 'joe', (ze, zep)=>{idZE0=ze;});
+                    let okZE = connectTablette(socketZE0, 'pseudo1', '1', 'joe', 'joe', devId0, (ze, zep)=>{idZE0=ze;});
                     Promise.all([okZA,okZE]).then(()=>done()).catch((reason)=>done(reason));
                 });
                 it("Expect connection to fail",function(done){
-                    connectTablette(socketZE0, 'pseudo3', '3', 'joe', 'abcd').then(()=>done(new Error("Should not connect"))).catch(()=>done());
+                    connectTablette(socketZE0, 'pseudo3', '3', 'joe', 'abcd', devId0).then(()=>done(new Error("Should not connect"))).catch(()=>done());
                 });
             });
         });
