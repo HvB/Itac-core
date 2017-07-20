@@ -2,15 +2,23 @@
  * classe Artifact
  *
  *
+ * @requires fs
+ * @requires mkdirp
  * @requires bunyan
  * @requires loggers
+ * @requires itacLogger
+ * @requires Constant
  * 
  * @author philippe pernelle
+ * @author Stephane Talbot
  */
 
 // utilisation logger
 const itacLogger = require('../utility/loggers').itacLogger;
-var logger = itacLogger.child({component: 'Artefact'});
+const logger = itacLogger.child({component: 'Artefact'});
+const fs = require("fs");
+const mkdirp = require('mkdirp');
+const TYPE = require('../constant').type;
 
 module.exports = class Artifact {
     constructor(id, creator, owner, lastZE, type, idContainer, typeContainer, dateCreation, history, title, position, content) {
@@ -191,6 +199,120 @@ module.exports = class Artifact {
     equals(artefact) {
         return this.idAr == artefact.getId();
     };
+
+    /**
+     *  Sauvegarde de l'artefact (JSON)
+     *
+     * @param path - repertoire de sauvagarde de l'artefact
+     * @param callback - callback a appeler
+     * @returns {Promise}
+     *
+     * @author Stephane Talbot
+     */
+    saveJson(path, callback){
+        let p =  new Promise((resolve, reject) => {
+            logger.debug('*** sauvegarde artefact :' + this.id);
+            logger.debug('*** creation du dossier de sauvegarde =' + path);
+            mkdirp(path, (err) => {
+                if (err && err.code !== 'EEXIST') {
+                    logger.debug('*** erreur lors de la creation du dossier sauvegarde de l\'artefact : ' + err.code);
+                    reject(err);
+                } else {
+                    if (err) logger.debug('*** dossier de sauvegarde pour l\'artefact existe : ' + err.code);
+                    else logger.debug('*** dossier de sauvegarde pour l\'artefact cree');
+                    logger.info('*** debut de la sauvegarde de l\'artefact :' + this.id );
+                    let filename = path + '/' + this.id;
+                    fs.writeFile(filename, JSON.stringify(this), "utf8",
+                        (err) => {
+                            if (err) {
+                                logger.error('*** erreur lor de la sauvegarde de l\'artefact : ' + this.id + ' :' + err.code);
+                                reject(err);
+                            } else {
+                                logger.info('*** fin de la sauvegarde de l\'artefact : ' + this.id);
+                                resolve(filename)
+                            }
+                        });
+                }
+            });
+        });
+        // appel callback
+        if (callback && callback instanceof Function) {
+            p.then(() => callback()).catch(callback);
+        }
+        return p;
+    }
+
+    /**
+     *  Sauvegarde du contenu de l'artefact.
+     *
+     * @param path - repertoire de sauvagarde de l'artefact
+     * @param callback - callback a appeler
+     * @returns {Promise}
+     *
+     * @author Stephane Talbot
+     */
+    saveContent(path, callback){
+        let p = new Promise ((resolve, reject)=>{
+            //sauvegarde du fichier contenu
+            if (this.getType() === TYPE.artifact.image) {
+                let filename = path + '/' + this.id + '.png';
+                logger.debug('=> saveContent : sauvegarde image : ' + filename);
+                let base64Data = this.content.replace(/^data:image\/png;base64,/, "");
+                base64Data += base64Data.replace('+', ' ');
+                let binaryData = new Buffer(base64Data, 'base64').toString('binary');
+                fs.writeFile(filename, binaryData, "binary", function (err) {
+                    if (err) {
+                        logger.error(err);
+                        logger.debug('=> saveContent : sauvegarde image [NOK]: ' + filename);
+                        reject(err);
+                    } else {
+                        logger.debug('=> saveContent : sauvegarde image [OK]: ' + filename);
+                        resolve(filename);
+                    }
+                });
+            } else if (this.getType() === TYPE.artifact.message) {
+                let filename = path + '/' + this.id + '.txt';
+                logger.debug('=> saveContent : sauvegarde message : ' + filename);
+                fs.writeFile(filename, this.content, "UTF-8", function (err) {
+                    if (err) {
+                        logger.error(err);
+                        logger.debug('=> saveContent : sauvegarde message [NOK]: ' + filename);
+                        reject(err);
+                    } else {
+                        logger.debug('=> saveContent : sauvegarde message [OK]: ' + filename);
+                        resolve(filename);
+                    }
+                });
+            } else {
+                // artefact de type autre que image ou message
+                resolve();
+            }
+        });
+        // appel callback
+        if (callback && callback instanceof Function) {
+            p.then(() => callback()).catch(callback);
+        }
+        return p;
+    }
+
+    /**
+     *  Sauvegarde de l'artefact (JSON+contenu)
+     *
+     * @param path - repertoire de sauvagarde de l'artefact
+     * @param callback - callback a appeler
+     * @returns {Promise}
+     *
+     * @author Stephane Talbot
+     */
+    save(path, callback) {
+        let p1 = this.saveJson(path);
+        let p2 = p1.then(()=>this.saveContent(path));
+        // appel callback
+        if (callback && callback instanceof Function) {
+            p2.then(() => callback()).catch(callback);
+        }
+        return p2;
+    }
 
     static fromJSON(artifact_json_string, id) {
         logger.debug('=> fromJSON : creation Artefact from JSON : CHAINE =' + artifact_json_string);

@@ -470,6 +470,8 @@ module.exports = class ZoneCollaborative {
     saveArtifact(id) {
 
         var monArtifact=this.getArtifact(id);
+        var p;
+        /*
         //sauvegarde du fichier JSON
         var chaine = JSON.stringify(monArtifact);
         var path = this.getPathArtifacts() + '/' + monArtifact.getId();
@@ -499,8 +501,37 @@ module.exports = class ZoneCollaborative {
             });
 
         }
+        */
+        if (monArtifact){
+            p =  monArtifact.save(this.pathArtifacts);
+        } else {
+            let err = new Error("No artefact with id : " +id);
+            logger.error(err,'=> saveArtifact :  pas d\'artefact avec cet id : ' + id);
+            p = Promise.reject(err);
+        }
+        return p;
     }
 
+    /**
+     * Sauvegarde des artefacts de la ZC.
+     *
+     * @param callback
+     * @returns {Promise}
+     *
+     * @author Stephane Talbot
+     */
+    saveArtifacts(callback){
+        let path = this.pathArtifacts;
+        let p = Promise.resolve();
+        if (this.getAllArtifacts().size > 0) {
+            p = Promise.all(Array.from(this.getAllArtifacts().values()).map((artifact) => artifact.save(path)));
+        }
+        // appel callback
+        if (callback && callback instanceof Function) {
+            p.then(() => callback()).catch(callback);
+        }
+        return p;
+    }
     /**
      * Change le conteneur d'un artefact pour le mettre dans une ZE
      *
