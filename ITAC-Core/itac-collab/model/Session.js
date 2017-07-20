@@ -163,35 +163,42 @@ class Session {
      * @returns {Promise} Si elle est tenue, la valeur de la promesse correspond au nom nom du fichier de sauvegarde
      */
     saveSession() {
-        return new Promise((resolve, reject) => {
-            //var sessionDirName = DIRECTORY + crypto.createHash('sha1').update(this.name, 'utf8').digest('hex') + "/";
-            var sessionDirName = this.pathArtifacts;
-            var configFilename = sessionDirName + "config.json";
-            logger.info('*** traitement de la demande de sauvegarde de sauvegarde la session=' + this.name);
-            logger.info('*** creation du dossier de sauvegarde de la session=' + sessionDirName);
-            //fs.mkdir(sessionDirName, (err) => {
-            mkdirp(sessionDirName, (err) => {
-                if (err && err.code !== 'EEXIST') {
-                    logger.debug('*** erreur lors de la creation du dossier sauvegarde pour les sessions :' + err.code);
-                    reject(err);
-                } else {
-                    if (err) logger.info('*** dossier de sauvegarde pour les sessions existe : ' + err.code);
-                    else logger.info('*** dossier de sauvegarde pour les sessions cree');
-                    var filename = crypto.createHash('sha1').update(this.name, 'utf8').digest('hex');
-                    logger.info('*** debut de la sauvegarde de la session ' + this.name + ' : ' + configFilename);
-                    fs.writeFile(configFilename, JSON.stringify(this, null, 2), "utf8",
-                            (err) => { 
-                                if (err) {
-                                    logger.error('*** erreur lor de la sauvegarde de la sessions ' + this.name + ' :' + err.code);
-                                    reject(err);
-                                } else {
-                                    logger.info('*** fin de la sauvegarde de la sessions ' + this.name + ' : ' + configFilename);
-                                    resolve(configFilename)
-                                }
-                            });
-                }
-            });
-        });
+        //sauvegarde des artefacts
+        let p = this.ZC.saveArtifacts()
+            .then(()=>
+                // sauvegarde de la configuration actuelle
+                new Promise((resolve, reject) => {
+                    //var sessionDirName = DIRECTORY + crypto.createHash('sha1').update(this.name, 'utf8').digest('hex') + "/";
+                    var sessionDirName = this.pathArtifacts;
+                    var configFilename = sessionDirName + "config.json";
+                    logger.info('*** traitement de la demande de sauvegarde de sauvegarde la session=' + this.name);
+                    logger.info('*** creation du dossier de sauvegarde de la session=' + sessionDirName);
+                    //fs.mkdir(sessionDirName, (err) => {
+                    mkdirp(sessionDirName, (err) => {
+                        if (err && err.code !== 'EEXIST') {
+                            logger.debug('*** erreur lors de la creation du dossier sauvegarde pour les sessions :' + err.code);
+                            reject(err);
+                        } else {
+                            if (err) logger.info('*** dossier de sauvegarde pour les sessions existe : ' + err.code);
+                            else logger.info('*** dossier de sauvegarde pour les sessions cree');
+                            var filename = crypto.createHash('sha1').update(this.name, 'utf8').digest('hex');
+                            logger.info('*** debut de la sauvegarde de la session ' + this.name + ' : ' + configFilename);
+                            fs.writeFile(configFilename, JSON.stringify(this, null, 2), "utf8",
+                                (err) => {
+                                    if (err) {
+                                        logger.error('*** erreur lor de la sauvegarde de la sessions ' + this.name + ' :' + err.code);
+                                        reject(err);
+                                    } else {
+                                        logger.info('*** fin de la sauvegarde de la sessions ' + this.name + ' : ' + configFilename);
+                                        resolve(configFilename)
+                                    }
+                                });
+                        }
+                    });
+                })
+            );
+        //return p.then(()=>this.ZC.saveArtifacts());
+        return p;
     }
 
     /**
