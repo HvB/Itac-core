@@ -622,22 +622,26 @@ module.exports = class ZoneCollaborative {
         if (artifactIds && artifactIds instanceof Array) {
             artifactIds.forEach((id) => {
                 logger.debug('=> loadArtefacts : chargement du fichier  = '+ this.pathArtifacts + id);
-                let tmpfile = fs.readFileSync(this.pathArtifacts + id, "UTF-8");
-                logger.debug('=> loadArtefacts : chargement du fichier [OK] chaine JSON = '+tmpfile);
-                // création de l'artifact à partir du JSON
-                let monArtifact = Artifact.fromJSON(tmpfile);
-                logger.info('=> loadArtefacts : type de conteneur de l artefact = ' + monArtifact.getTypeContainer());
-                // si l'artefact étaient en ZP on le remet dedans
-                if (monArtifact.getTypeContainer() == constant.type.container.ZP) {
-                    this.artifacts.set(monArtifact.getId(),monArtifact);
-                    // pas besoin de la ligne suivante normalement
-                    //this.setArtifactIntoZP(monArtifact.getId(), monArtifact.getIdContainer());
-                    logger.info('=> loadArtefacts : chargement artefac en ZP =' + monArtifact.getIdContainer() );
+                try {
+                    let tmpfile = fs.readFileSync(this.pathArtifacts + id, "UTF-8");
+                    logger.debug('=> loadArtefacts : chargement du fichier [OK] chaine JSON = '+tmpfile);
+                    // création de l'artifact à partir du JSON
+                    let monArtifact = Artifact.fromJSON(tmpfile);
+                    logger.info('=> loadArtefacts : type de conteneur de l artefact = ' + monArtifact.getTypeContainer());
+                    // si l'artefact étaient en ZP on le remet dedans
+                    if (monArtifact.getTypeContainer() == constant.type.container.ZP) {
+                        this.artifacts.set(monArtifact.getId(),monArtifact);
+                        // pas besoin de la ligne suivante normalement
+                        //this.setArtifactIntoZP(monArtifact.getId(), monArtifact.getIdContainer());
+                        logger.info('=> loadArtefacts : chargement artefac en ZP =' + monArtifact.getIdContainer() );
 
-                    this.getZP(monArtifact.getIdContainer()).loadSession=true;
-                    logger.info('=> loadArtefacts : flag relaod de  ZP ' + monArtifact.getIdContainer()+') à TRUE' );
+                        this.getZP(monArtifact.getIdContainer()).loadSession=true;
+                        logger.info('=> loadArtefacts : flag relaod de  ZP ' + monArtifact.getIdContainer()+') à TRUE' );
 
-                    i++;
+                        i++;
+                    }
+                } catch (err){
+                    logger.error(err, '=> loadArtefacts : erreur lors du chargement du fichier  = '+ this.pathArtifacts + id);
                 }
                 nb++;
             });
