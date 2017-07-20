@@ -600,42 +600,69 @@ module.exports = class ZoneCollaborative {
 
 
     /**
-     * charge les artefacts depuis la session associée dans les ZP
+     * Charge les artefacts depuis la session associée dans les ZP
      *
      * todo : decider ce que l'on fait des artefacts en ZE
      *
      * @public
-     *
+     * @param {Array.<string>} artifactIds - liste des ids des artefacts a charger
      * @author philippe pernelle
+     * @author Stephane Talbot
      */
-    loadArtefacts() {
+    loadArtefacts(artifactIds) {
         var tmpfile;
         var fileExt;
         var file;
 
 
         var path = this.pathArtifacts;
-        var nb=0;
-        var i=0;
-        logger.info('=> loadArtefacts : chargement des artefacts depuis path = '+path);
-        fs.readdirSync(path).forEach( file=> {
+        var nb = 0;
+        var i = 0;
+        logger.info('=> loadArtefacts : chargement des artefacts depuis path = ' + path);
+        /*
+         fs.readdirSync(path).forEach( file=> {
 
-            fileExt = file.split('.').pop();
-            if (fileExt==file) {
-                logger.debug('=> loadArtefacts : chargement du fichier  = '+file);
-                tmpfile = fs.readFileSync(path+file, "UTF-8");
+         fileExt = file.split('.').pop();
+         if (fileExt==file) {
+         logger.debug('=> loadArtefacts : chargement du fichier  = '+file);
+         tmpfile = fs.readFileSync(path+file, "UTF-8");
+         logger.debug('=> loadArtefacts : chargement du fichier [OK] chaine JSON = '+tmpfile);
+
+         // création de l'artifact à partir du JSON
+         var monArtifact = Artifact.fromJSON(tmpfile);
+         logger.info('=> loadArtefacts : creation artifact depuis un json id = ' + monArtifact.getId());
+
+         logger.info('=> loadArtefacts : type de conteneur de l artefact = ' + monArtifact.getTypeContainer());
+         // si l'artefact étaient en ZP on le remet dedans
+         if (monArtifact.getTypeContainer() == constant.type.container.ZP)
+         {
+         this.artifacts.set(monArtifact.getId(),monArtifact);
+         this.setArtifactIntoZP(monArtifact.getId(), monArtifact.getIdContainer());
+         logger.info('=> loadArtefacts : chargement artefac en ZP =' + monArtifact.getIdContainer() );
+
+         this.getZP(monArtifact.getIdContainer()).loadSession=true;
+         logger.info('=> loadArtefacts : flag relaod de  ZP ' + monArtifact.getIdContainer()+') à TRUE' );
+
+         i++;
+         }
+         nb++;
+
+         }
+         });
+         */
+        if (artifactIds && artifactIds instanceof Array) {
+            artifactIds.forEach((id) => {
+                logger.debug('=> loadArtefacts : chargement du fichier  = '+ this.pathArtifacts + id);
+                let tmpfile = fs.readFileSync(this.pathArtifacts + id, "UTF-8");
                 logger.debug('=> loadArtefacts : chargement du fichier [OK] chaine JSON = '+tmpfile);
-
                 // création de l'artifact à partir du JSON
-                var monArtifact = Artifact.fromJSON(tmpfile);
-                logger.info('=> loadArtefacts : creation artifact depuis un json id = ' + monArtifact.getId());
-
+                let monArtifact = Artifact.fromJSON(tmpfile);
                 logger.info('=> loadArtefacts : type de conteneur de l artefact = ' + monArtifact.getTypeContainer());
                 // si l'artefact étaient en ZP on le remet dedans
-                if (monArtifact.getTypeContainer() == constant.type.container.ZP)
-                {
+                if (monArtifact.getTypeContainer() == constant.type.container.ZP) {
                     this.artifacts.set(monArtifact.getId(),monArtifact);
-                    this.setArtifactIntoZP(monArtifact.getId(), monArtifact.getIdContainer());
+                    // pas besoin de la ligne suivante normalement
+                    //this.setArtifactIntoZP(monArtifact.getId(), monArtifact.getIdContainer());
                     logger.info('=> loadArtefacts : chargement artefac en ZP =' + monArtifact.getIdContainer() );
 
                     this.getZP(monArtifact.getIdContainer()).loadSession=true;
@@ -644,11 +671,9 @@ module.exports = class ZoneCollaborative {
                     i++;
                 }
                 nb++;
-
-            }
-        });
-        logger.info('=> loadArtefacts : chargement des artefacts [OK] nb fichier chargé = '+i +' sur un total de '+nb);
-
+            });
+        }
+        logger.info('=> loadArtefacts : chargement des artefacts [OK] nb fichier chargé = ' + i + ' sur un total de ' + nb);
     }
 
 
