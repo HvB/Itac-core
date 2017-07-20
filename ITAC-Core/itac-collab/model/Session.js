@@ -104,6 +104,8 @@ class Session {
         this.ZC =new ZoneCollaborative(confZC);
         this.ZC.session=this;
         logger.info("Creation de la Session ->  attachement de la session à la ZC : " + this.ZC.getId());
+        logger.debug("Creation de la Session ->  chargement des artefacts de la session : ");
+        this.ZC.loadArtefacts(context.session.artifactIds);
         Session.registerSession(this);
         logger.info('Creation de la Session ->  [OK]');
     }
@@ -212,7 +214,8 @@ class Session {
             session = new Session(JSON.parse(data));
 
             // ajout PP : chargement des fichiers artefact
-            session.ZC.loadArtefacts();
+            // deplace dans le constructeur
+            //session.ZC.loadArtefacts();
         }
         return session;
     }
