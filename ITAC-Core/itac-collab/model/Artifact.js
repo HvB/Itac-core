@@ -204,8 +204,8 @@ module.exports = class Artifact {
      *  Sauvegarde de l'artefact (JSON)
      *
      * @param path - repertoire de sauvagarde de l'artefact
-     * @param callback - callback a appeler
-     * @returns {Promise}
+     * @param {saveCallback} callback - callback a appeler
+     * @returns {Promise} - indique si la sauvegarde s'est bien terminee
      *
      * @author Stephane Talbot
      */
@@ -215,17 +215,17 @@ module.exports = class Artifact {
             logger.debug('*** creation du dossier de sauvegarde =' + path);
             mkdirp(path, (err) => {
                 if (err && err.code !== 'EEXIST') {
-                    logger.debug('*** erreur lors de la creation du dossier sauvegarde de l\'artefact : ' + err.code);
+                    logger.error(err, '*** erreur lors de la creation du dossier sauvegarde de l\'artefact');
+                    logger.error(new Error(err), '*** erreur lors de la creation du dossier sauvegarde de l\'artefact');
                     reject(err);
                 } else {
-                    if (err) logger.debug('*** dossier de sauvegarde pour l\'artefact existe : ' + err.code);
-                    else logger.debug('*** dossier de sauvegarde pour l\'artefact cree');
                     logger.info('*** debut de la sauvegarde de l\'artefact :' + this.id );
                     let filename = path + '/' + this.id;
                     fs.writeFile(filename, JSON.stringify(this), "utf8",
                         (err) => {
                             if (err) {
-                                logger.error('*** erreur lor de la sauvegarde de l\'artefact : ' + this.id + ' :' + err.code);
+                                logger.error(err, '*** erreur lor de la sauvegarde de l\'artefact : ' + this.id);
+                                logger.error(new Error(err), '*** erreur lor de la sauvegarde de l\'artefact : ' + this.id);
                                 reject(err);
                             } else {
                                 logger.info('*** fin de la sauvegarde de l\'artefact : ' + this.id);
@@ -237,7 +237,7 @@ module.exports = class Artifact {
         });
         // appel callback
         if (callback && callback instanceof Function) {
-            p.then(() => callback()).catch(callback);
+            p.then((v) => callback(null, v)).catch(callback);
         }
         return p;
     }
@@ -246,8 +246,8 @@ module.exports = class Artifact {
      *  Sauvegarde du contenu de l'artefact.
      *
      * @param path - repertoire de sauvagarde de l'artefact
-     * @param callback - callback a appeler
-     * @returns {Promise}
+     * @param {saveCallback} callback - callback a appeler
+     * @returns {Promise} - indique si la sauvegarde s'est bien terminee
      *
      * @author Stephane Talbot
      */
@@ -255,15 +255,16 @@ module.exports = class Artifact {
         let p = new Promise ((resolve, reject)=>{
             //sauvegarde du fichier contenu
             if (this.getType() === TYPE.artifact.image) {
+                // ToDo : en fait ce ne sont pas tjs des png
                 let filename = path + '/' + this.id + '.png';
                 logger.debug('=> saveContent : sauvegarde image : ' + filename);
                 let base64Data = this.content.replace(/^data:image\/png;base64,/, "");
                 base64Data += base64Data.replace('+', ' ');
-                let binaryData = new Buffer(base64Data, 'base64').toString('binary');
+                let binaryData = Buffer.from(base64Data, 'base64').toString('binary');
                 fs.writeFile(filename, binaryData, "binary", function (err) {
                     if (err) {
-                        logger.error(err);
-                        logger.debug('=> saveContent : sauvegarde image [NOK]: ' + filename);
+                        logger.error(err, '=> saveContent : sauvegarde image [NOK]: ' + filename);
+                        logger.error(new Error(err), '=> saveContent : sauvegarde image [NOK]: ' + filename);
                         reject(err);
                     } else {
                         logger.debug('=> saveContent : sauvegarde image [OK]: ' + filename);
@@ -275,8 +276,8 @@ module.exports = class Artifact {
                 logger.debug('=> saveContent : sauvegarde message : ' + filename);
                 fs.writeFile(filename, this.content, "UTF-8", function (err) {
                     if (err) {
-                        logger.error(err);
-                        logger.debug('=> saveContent : sauvegarde message [NOK]: ' + filename);
+                        logger.error(err, '=> saveContent : sauvegarde message [NOK]: ' + filename);
+                        logger.error(new Error(err), '=> saveContent : sauvegarde message [NOK]: ' + filename);
                         reject(err);
                     } else {
                         logger.debug('=> saveContent : sauvegarde message [OK]: ' + filename);
@@ -291,7 +292,7 @@ module.exports = class Artifact {
         });
         // appel callback
         if (callback && callback instanceof Function) {
-            p.then(() => callback()).catch(callback);
+            p.then((v) => callback(null, v)).catch(callback);
         }
         return p;
     }
@@ -300,8 +301,8 @@ module.exports = class Artifact {
      *  Sauvegarde de l'artefact (JSON+contenu)
      *
      * @param path - repertoire de sauvagarde de l'artefact
-     * @param callback - callback a appeler
-     * @returns {Promise}
+     * @param {simpleCallback} callback - callback a appeler
+     * @returns {Promise} - indique si la sauvegarde s'est bien terminee
      *
      * @author Stephane Talbot
      */
@@ -315,10 +316,70 @@ module.exports = class Artifact {
         return p2;
     }
 
+    /**
+     *  Sauvegarde de l'artefact (JSON)
+     *  Version synchrone de la methode saveJson
+     *
+     * @deprecated
+     * @param path - repertoire de sauvagarde de l'artefact
+     * @throws {Error} erreur d'acces au systeme de fichier
+     */
+    saveJsonSync(path){
+        // creation du dossier de sauvegarde, si necessaire
+        mkdirp.sync(path);
+        //sauvegarde du fichier JSON
+        let chaine = JSON.stringify(this);
+        let filename = path + '/' + this.getId();
+        logger.info('=> saveJsonSync :  sauvegarde artifact depuis un json, de type=' + this.getType() + ' de path =' + filename);
+        fs.writeFileSync(filename, chaine, "UTF-8");
+    }
+
+    /**
+     *  Sauvegarde du contenu de l'artefact.
+     *  Version synchrone de la methode saveContent
+     *
+     * @deprecated
+     * @param path - repertoire de sauvagarde de l'artefact
+     * @throws {Error} erreur d'acces au systeme de fichier
+     */
+    saveContentSync(path){
+        let basename = path + '/' + this.getId();
+        //sauvegarde du fichier contenu
+        if (this.getType() === TYPE.artifact.image) {
+            // ToDo : en fait ce ne sont pas tjs des png
+            let filename = basename + '.png';
+            logger.info('=> saveContentSync : creation artifact : creation image ' + filename);
+            let base64Data = this.content.replace(/^data:image\/png;base64,/, "");
+            base64Data += base64Data.replace('+', ' ');
+            let binaryData = Buffer.from(base64Data, 'base64').toString('binary');
+            fs.writeFileSync(filename, binaryData, "binary");
+        } else if (this.getType() === TYPE.artifact.message) {
+            let filename = basename + '.txt';
+            logger.info('=> saveContentSync : creation artifact : creation text ' + filename);
+            fs.writeFileSync(filename, this.content, "UTF-8");
+        } else {
+            // ToDo : prevoir le cas des artefacts qui ne sont ni des images ni des messages
+            // artefact de type autre que image ou message
+        }
+    }
+
+    /**
+     *  Sauvegarde de l'artefact (JSON+contenu)
+     *  Version synchrone de la methode save
+     *
+     * @deprecated
+     * @param path - repertoire de sauvagarde de l'artefact
+     * @throws {Error} erreur d'acces au systeme de fichier
+     */
+    saveSync(path){
+        this.saveJsonSync(path);
+        this.saveContentSync(path)
+    }
+
     static fromJSON(artifact_json_string, id) {
         logger.debug('=> fromJSON : creation Artefact from JSON : CHAINE =' + artifact_json_string);
 
-        var temp = JSON.parse(artifact_json_string);
+        let temp = JSON.parse(artifact_json_string);
         logger.debug('=> fromJSON : creation Artefact from JSON : OBJ =' + temp);
 
         if (id === undefined)
@@ -355,21 +416,29 @@ module.exports = class Artifact {
     }
 
     /**
+     * Callback to use with methods loading an artifact.
+     *
+     * @callback loadArtifactCallback
+     * @param {Error} error - the Error which happened.
+     * @param {Artifact} artifact - artifact loaded.
+     *
+     */
+    /**
      * Chargement asynchrone d'un artefact sauvegarde au format JSON.
      * Le fichier doit etre au format JSON et encodé en UTF-8
      *
      * @param {string} path - chemin d'acces au fichier
-     * @param {Function.<Error, Artifact>} callback - callback
+     * @param {loadArtifactCallback} callback - callback
      * @returns {Promise.<Artifact>} - L'artefact cree en cas de succes, un objet error en cas d'echec (a priori soit un pb JSON, soit un pb d'acces au systeme de fichier)
      *
      * @author Stephane Talbot
      */
     static load(path, callback){
-        // ToDo : ecrire le methodes
         let p = new Promise((resolve, reject) => {
             fs.readFile(path, "UTF-8", (err, data)=>{
                 if (err){
-                    logger.error(err, "=> load : Error lors du chargement de l'artefact : " + path);
+                    logger.error(err, "=> load : Erreur lors du chargement de l'artefact : " + path);
+                    logger.error(new Error(err), "=> load : Erreur lors du chargement de l'artefact : " + path);
                     reject(err);
                 } else {
                     try {
@@ -377,7 +446,7 @@ module.exports = class Artifact {
                         let artifact = Artifact.fromJSON(data);
                         resolve(artifact);
                     } catch (err) {
-                        logger.error(err, "=> load : Error lors du chargement de l'artefact : " + path);
+                        logger.error(err, "=> load : Erreur lors du chargement de l'artefact : " + path);
                         reject(err);
                     }
                 }
@@ -385,7 +454,7 @@ module.exports = class Artifact {
         });
         // appel du callback eventuel
         if (callback && callback instanceof Function) {
-            p.then((artifact) => {callback(null,artifact);}).catch((err)=>{callback(err);});
+            p.then((artifact) => {callback(null,artifact);}).catch(callback);
         }
         return p;
     }

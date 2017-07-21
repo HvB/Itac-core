@@ -467,41 +467,62 @@ module.exports = class ZoneCollaborative {
 
     };
 
-    saveArtifact(id) {
+    /**
+     * Sauvegarde de d'un artefact de la ZC.
+     * Version synchrone de la methode saveArtifact
+     *
+     * @deprecated
+     * @param id - id de l'artefact a sauvegarder
+     * @throws {Error} erreur d'acces au systeme de fichier
+     */
+    saveArtifactSync(id) {
+        let monArtifact = this.getArtifact(id);
+        if (monArtifact) monArtifact.save(this.pathArtifacts);
+        // remplace par une methode sur l'artefact
+        // //sauvegarde du fichier JSON
+        // var chaine = JSON.stringify(monArtifact);
+        // var path = this.getPathArtifacts() + '/' + monArtifact.getId();
+        // logger.info('=> saveArtifact :  sauvegarde artifact depuis un json, de type=' + monArtifact.getType() + ' de path =' + path);
+        // fs.writeFileSync(path, chaine, "UTF-8");
+        //
+        // //sauvegarde du fichier contenu
+        // if (monArtifact.getType() === TYPE.artifact.image) {
+        //
+        //     path = path + '.png';
+        //     logger.info('=> saveArtifact : creation artifact : creation image ' + path);
+        //     var base64Data = monArtifact.content.replace(/^data:image\/png;base64,/, "");
+        //     base64Data += base64Data.replace('+', ' ');
+        //     var binaryData = new Buffer(base64Data, 'base64').toString('binary');
+        //
+        //     fs.writeFile(path, binaryData, "binary", function (err) {
+        //         logger.error(err); // writes out file without error, but it's not a valid image
+        //     });
+        //
+        // }
+        // if (monArtifact.getType() === TYPE.artifact.message) {
+        //     path = path + '.txt';
+        //     logger.info('=> saveArtifact : creation artifact : creation text ' + path);
+        //
+        //     fs.writeFile(path, monArtifact.content, "UTF-8", function (err) {
+        //         logger.error(err); // writes out file without error, but it's not a valid image
+        //     });
+        //
+        // }
+    }
 
-        var monArtifact=this.getArtifact(id);
-        var p;
-        /*
-        //sauvegarde du fichier JSON
-        var chaine = JSON.stringify(monArtifact);
-        var path = this.getPathArtifacts() + '/' + monArtifact.getId();
-        logger.info('=> saveArtifact :  sauvegarde artifact depuis un json, de type=' + monArtifact.getType() + ' de path =' + path);
-        fs.writeFileSync(path, chaine, "UTF-8");
-
-        //sauvegarde du fichier contenu
-        if (monArtifact.getType() === TYPE.artifact.image) {
-
-            path = path + '.png';
-            logger.info('=> saveArtifact : creation artifact : creation image ' + path);
-            var base64Data = monArtifact.content.replace(/^data:image\/png;base64,/, "");
-            base64Data += base64Data.replace('+', ' ');
-            var binaryData = new Buffer(base64Data, 'base64').toString('binary');
-
-            fs.writeFile(path, binaryData, "binary", function (err) {
-                logger.error(err); // writes out file without error, but it's not a valid image
-            });
-
-        }
-        if (monArtifact.getType() === TYPE.artifact.message) {
-            path = path + '.txt';
-            logger.info('=> saveArtifact : creation artifact : creation text ' + path);
-
-            fs.writeFile(path, monArtifact.content, "UTF-8", function (err) {
-                logger.error(err); // writes out file without error, but it's not a valid image
-            });
-
-        }
-        */
+    /**
+     * Sauvegarde de d'un artefact de la ZC.
+     * Version asynchrone de la methode.
+     *
+     * @param id
+     * @param {simpleCallback} callback - callback a appeler
+     * @returns {Promise} - indique si la sauvegarde s'est bien terminee
+     *
+     * @author Stephane Talbot
+     */
+     saveArtifact(id, callback) {
+        let monArtifact=this.getArtifact(id);
+        let p;
         if (monArtifact){
             p =  monArtifact.save(this.pathArtifacts);
         } else {
@@ -509,13 +530,29 @@ module.exports = class ZoneCollaborative {
             logger.error(err,'=> saveArtifact :  pas d\'artefact avec cet id : ' + id);
             p = Promise.reject(err);
         }
+        // appel callback
+        if (callback && callback instanceof Function) {
+            p.then(() => callback(null)).catch(callback);
+        }
         return p;
     }
 
     /**
      * Sauvegarde des artefacts de la ZC.
+     * Version synchrone de la methode.
      *
-     * @param callback
+     * @deprecated
+     * @throws {Error} erreur d'acces au systeme de fichier
+     */
+    saveArtifactsSync(){
+        let path = this.pathArtifacts;
+        this.getAllArtifacts().forEach((artifact, id, map) => artifact.save(path));
+    }
+
+     /**
+     * Sauvegarde des artefacts de la ZC.
+     *
+     * @param {simpleCallback} callback - callback
      * @returns {Promise}
      *
      * @author Stephane Talbot
@@ -528,7 +565,7 @@ module.exports = class ZoneCollaborative {
         }
         // appel callback
         if (callback && callback instanceof Function) {
-            p.then(() => callback()).catch(callback);
+            p.then(() => callback(null)).catch(callback);
         }
         return p;
     }
@@ -610,7 +647,7 @@ module.exports = class ZoneCollaborative {
      * @author philippe pernelle
      * @author Stephane Talbot
      */
-    loadArtefactsSync(artifactIds) {
+    loadArtifactsSync(artifactIds) {
         var tmpfile;
         var fileExt;
         var file;
@@ -619,7 +656,7 @@ module.exports = class ZoneCollaborative {
         var path = this.pathArtifacts;
         var nb = 0;
         var i = 0;
-        logger.info('=> loadArtefactsSync : chargement des artefacts depuis path = ' + path);
+        logger.info('=> loadArtifactsSync : chargement des artefacts depuis path = ' + path);
         /*
          fs.readdirSync(path).forEach( file=> {
 
@@ -653,30 +690,30 @@ module.exports = class ZoneCollaborative {
         */
         if (artifactIds && artifactIds instanceof Array) {
             artifactIds.forEach((id) => {
-                logger.debug('=> loadArtefactsSync : chargement du fichier  = ' + this.pathArtifacts + id);
+                logger.debug('=> loadArtifactsSync : chargement du fichier  = ' + this.pathArtifacts + id);
                 try {
                     // création de l'artifact à partir du JSON
                     let monArtifact = Artifact.loadSync(this.pathArtifacts + id);
-                    logger.info('=> loadArtefactsSync : type de conteneur de l artefact = ' + monArtifact.getTypeContainer());
+                    logger.info('=> loadArtifactsSync : type de conteneur de l artefact = ' + monArtifact.getTypeContainer());
                     // si l'artefact étaient en ZP on le remet dedans
                     if (monArtifact.getTypeContainer() == constant.type.container.ZP) {
                         this.artifacts.set(monArtifact.getId(), monArtifact);
                         // pas besoin de la ligne suivante normalement
                         //this.setArtifactIntoZP(monArtifact.getId(), monArtifact.getIdContainer());
-                        logger.info('=> loadArtefactsSync : chargement artefac en ZP =' + monArtifact.getIdContainer());
+                        logger.info('=> loadArtifactsSync : chargement artefac en ZP =' + monArtifact.getIdContainer());
 
                         this.getZP(monArtifact.getIdContainer()).loadSession = true;
-                        logger.info('=> loadArtefactsSync : flag relaod de  ZP ' + monArtifact.getIdContainer() + ') à TRUE');
+                        logger.info('=> loadArtifactsSync : flag relaod de  ZP ' + monArtifact.getIdContainer() + ') à TRUE');
 
                         i++;
                     }
                 } catch (err) {
-                    logger.error(err, '=> loadArtefactsSync : erreur lors du chargement du fichier  = ' + this.pathArtifacts + id);
+                    logger.error(err, '=> loadArtifactsSync : erreur lors du chargement du fichier  = ' + this.pathArtifacts + id);
                 }
                 nb++;
             });
         }
-        logger.info('=> loadArtefactsSync : chargement des artefacts [OK] nb fichier chargé = ' + i + ' sur un total de ' + nb);
+        logger.info('=> loadArtifactsSync : chargement des artefacts [OK] nb fichier chargé = ' + i + ' sur un total de ' + nb);
     }
 
     /**
@@ -686,36 +723,42 @@ module.exports = class ZoneCollaborative {
      * todo : decider ce que l'on fait des artefacts en ZE
      *
      * @param {Array.<string>} artifactIds - liste des ids des artefacts a charger
+     * @param {loadArtifactsCallback} callback - callback
      * @returns {Promise.<number>} - nombre d'artefacts charges
      * @author Stephane Talbot
      */
-    loadArtefacts(artifactIds) {
-        var i = 0;
-        var p = Promise.resolve(0);
-        logger.debug('=> loadArtefacts : chargement des artefacts depuis path = ' + + this.pathArtifacts);
+    loadArtifacts(artifactIds, callback) {
+        let i = 0;
+        let p = Promise.resolve(0);
+        logger.debug('=> loadArtifacts : chargement des artefacts depuis path = ' + + this.pathArtifacts);
         if (artifactIds && artifactIds instanceof Array && artifactIds.length) {
             p = Promise.all(artifactIds.map((id) =>
                 Artifact.load(this.pathArtifacts + id, (err, artifact) => {
                     if (err) {
-                        logger.error(err, '=> loadArtefacts : erreur lors du chargement du fichier  = ' + this.pathArtifacts + id);
+                        logger.error(err, '=> loadArtifacts : erreur lors du chargement du fichier  = ' + this.pathArtifacts + id);
                     } else {
-                        logger.debug('=> loadArtefacts : type de conteneur de l artefact = ' + artifact.getTypeContainer());
+                        logger.debug('=> loadArtifacts : type de conteneur de l artefact = ' + artifact.getTypeContainer());
                         // si l'artefact étaient en ZP on le remet dedans
                         if (artifact.getTypeContainer() == constant.type.container.ZP) {
                             this.artifacts.set(artifact.getId(), artifact);
                             // pas besoin de la ligne suivante normalement
                             //this.setArtifactIntoZP(artifact.getId(), artifact.getIdContainer());
-                            logger.info('=> loadArtefacts : chargement artefac en ZP =' + artifact.getIdContainer());
+                            logger.info('=> loadArtifacts : chargement artefac en ZP =' + artifact.getIdContainer());
                             this.getZP(artifact.getIdContainer()).loadSession = true;
-                            logger.info('=> loadArtefacts : flag relaod de  ZP ' + artifact.getIdContainer() + ') à TRUE');
+                            logger.info('=> loadArtifacts : flag relaod de  ZP ' + artifact.getIdContainer() + ') à TRUE');
                             i++;
                         }
                     }
                 }).catch(() => Promise.resolve())))
                 .then(() => {
-                    logger.info('=> loadArtefacts : chargement des artefacts [OK] nb fichier chargé = ' + i + ' sur un total de ' + artifactIds.length);
+                    logger.info('=> loadArtifacts : chargement des artefacts [OK] nb fichier chargé = ' + i + ' sur un total de ' + artifactIds.length);
                     return Promise.resolve(i);
                 });
+        }
+        // normalement on ne devrait jamais avoir d'erreur (la promesse est tjs tenue)
+        if (callback && callback instanceof Function) {
+            logger.debug('=> loadArtifacts : appel du callback de fin de chargement des artefacts');
+            p.then((nb) => callback(null, nb)).catch((err) => callback(err, i));
         }
         return p;
     }
