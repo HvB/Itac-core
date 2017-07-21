@@ -15,7 +15,7 @@
 
 // utilisation logger
 const itacLogger = require('../utility/loggers').itacLogger;
-const logger = itacLogger.child({component: 'Artefact'});
+const logger = itacLogger.child({component: 'Artifact'});
 const fs = require("fs");
 const mkdirp = require('mkdirp');
 const TYPE = require('../constant').type;
@@ -284,6 +284,7 @@ module.exports = class Artifact {
                     }
                 });
             } else {
+                // ToDo : prevoir le cas des artefacts qui ne sont ni des images ni des messages
                 // artefact de type autre que image ou message
                 resolve();
             }
@@ -332,5 +333,60 @@ module.exports = class Artifact {
         }
 
         return art;
+    }
+
+    /**
+     * Chargement synchrone d'un artefact sauvegarde au format JSON.
+     * Le fichier doit etre au format JSON et encodé en UTF-8
+     *
+     * @deprecated
+     * @param {string} path - chemin d'acces au fichier
+     * @returns {Artifact}
+     * @throws {SyntaxError|Error} - erreur qui s'est produite (a priori soit un pb JSON, soit un pb d'acces au systeme de fichier)
+     *
+     * @Author Stephane Talbot
+     */
+    static loadSync(path){
+        logger.debug('=> loadSync : chargement du fichier  = '+ path);
+        let tmpfile = fs.readFileSync(path, "UTF-8");
+        logger.debug('=> loadSync : chargement du fichier [OK] chaine JSON = '+tmpfile);
+        // création de l'artifact à partir du JSON
+        return Artifact.fromJSON(tmpfile);
+    }
+
+    /**
+     * Chargement asynchrone d'un artefact sauvegarde au format JSON.
+     * Le fichier doit etre au format JSON et encodé en UTF-8
+     *
+     * @param {string} path - chemin d'acces au fichier
+     * @param {Function.<Error, Artifact>} callback - callback
+     * @returns {Promise.<Artifact>} - L'artefact cree en cas de succes, un objet error en cas d'echec (a priori soit un pb JSON, soit un pb d'acces au systeme de fichier)
+     *
+     * @author Stephane Talbot
+     */
+    static load(path, callback){
+        // ToDo : ecrire le methodes
+        let p = new Promise((resolve, reject) => {
+            fs.readFile(path, "UTF-8", (err, data)=>{
+                if (err){
+                    logger.error(err, "=> load : Error lors du chargement de l'artefact : " + path);
+                    reject(err);
+                } else {
+                    try {
+                        logger.debug("=> load : chargement du fichier [OK] chaine JSON = " + data);
+                        let artifact = Artifact.fromJSON(data);
+                        resolve(artifact);
+                    } catch (err) {
+                        logger.error(err, "=> load : Error lors du chargement de l'artefact : " + path);
+                        reject(err);
+                    }
+                }
+            });
+        });
+        // appel du callback eventuel
+        if (callback && callback instanceof Function) {
+            p.then((artifact) => {callback(null,artifact);}).catch((err)=>{callback(err);});
+        }
+        return p;
     }
 };

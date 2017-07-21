@@ -605,11 +605,12 @@ module.exports = class ZoneCollaborative {
      * todo : decider ce que l'on fait des artefacts en ZE
      *
      * @public
+     * @deprecated
      * @param {Array.<string>} artifactIds - liste des ids des artefacts a charger
      * @author philippe pernelle
      * @author Stephane Talbot
      */
-    loadArtefacts(artifactIds) {
+    loadArtefactsSync(artifactIds) {
         var tmpfile;
         var fileExt;
         var file;
@@ -618,7 +619,7 @@ module.exports = class ZoneCollaborative {
         var path = this.pathArtifacts;
         var nb = 0;
         var i = 0;
-        logger.info('=> loadArtefacts : chargement des artefacts depuis path = ' + path);
+        logger.info('=> loadArtefactsSync : chargement des artefacts depuis path = ' + path);
         /*
          fs.readdirSync(path).forEach( file=> {
 
@@ -649,36 +650,76 @@ module.exports = class ZoneCollaborative {
 
          }
          });
-         */
+        */
         if (artifactIds && artifactIds instanceof Array) {
             artifactIds.forEach((id) => {
-                logger.debug('=> loadArtefacts : chargement du fichier  = '+ this.pathArtifacts + id);
+                logger.debug('=> loadArtefactsSync : chargement du fichier  = ' + this.pathArtifacts + id);
                 try {
-                    let tmpfile = fs.readFileSync(this.pathArtifacts + id, "UTF-8");
-                    logger.debug('=> loadArtefacts : chargement du fichier [OK] chaine JSON = '+tmpfile);
                     // création de l'artifact à partir du JSON
-                    let monArtifact = Artifact.fromJSON(tmpfile);
-                    logger.info('=> loadArtefacts : type de conteneur de l artefact = ' + monArtifact.getTypeContainer());
+                    let monArtifact = Artifact.loadSync(this.pathArtifacts + id);
+                    logger.info('=> loadArtefactsSync : type de conteneur de l artefact = ' + monArtifact.getTypeContainer());
                     // si l'artefact étaient en ZP on le remet dedans
                     if (monArtifact.getTypeContainer() == constant.type.container.ZP) {
-                        this.artifacts.set(monArtifact.getId(),monArtifact);
+                        this.artifacts.set(monArtifact.getId(), monArtifact);
                         // pas besoin de la ligne suivante normalement
                         //this.setArtifactIntoZP(monArtifact.getId(), monArtifact.getIdContainer());
-                        logger.info('=> loadArtefacts : chargement artefac en ZP =' + monArtifact.getIdContainer() );
+                        logger.info('=> loadArtefactsSync : chargement artefac en ZP =' + monArtifact.getIdContainer());
 
-                        this.getZP(monArtifact.getIdContainer()).loadSession=true;
-                        logger.info('=> loadArtefacts : flag relaod de  ZP ' + monArtifact.getIdContainer()+') à TRUE' );
+                        this.getZP(monArtifact.getIdContainer()).loadSession = true;
+                        logger.info('=> loadArtefactsSync : flag relaod de  ZP ' + monArtifact.getIdContainer() + ') à TRUE');
 
                         i++;
                     }
-                } catch (err){
-                    logger.error(err, '=> loadArtefacts : erreur lors du chargement du fichier  = '+ this.pathArtifacts + id);
+                } catch (err) {
+                    logger.error(err, '=> loadArtefactsSync : erreur lors du chargement du fichier  = ' + this.pathArtifacts + id);
                 }
                 nb++;
             });
         }
-        logger.info('=> loadArtefacts : chargement des artefacts [OK] nb fichier chargé = ' + i + ' sur un total de ' + nb);
+        logger.info('=> loadArtefactsSync : chargement des artefacts [OK] nb fichier chargé = ' + i + ' sur un total de ' + nb);
     }
+
+    /**
+     * Charge les artefacts depuis la session associée dans les ZP
+     * Il s'agit de la version asynchrone de la methode.
+     *
+     * todo : decider ce que l'on fait des artefacts en ZE
+     *
+     * @param {Array.<string>} artifactIds - liste des ids des artefacts a charger
+     * @returns {Promise.<number>} - nombre d'artefacts charges
+     * @author Stephane Talbot
+     */
+    loadArtefacts(artifactIds) {
+        var i = 0;
+        var p = Promise.resolve(0);
+        logger.debug('=> loadArtefacts : chargement des artefacts depuis path = ' + + this.pathArtifacts);
+        if (artifactIds && artifactIds instanceof Array && artifactIds.length) {
+            p = Promise.all(artifactIds.map((id) =>
+                Artifact.load(this.pathArtifacts + id, (err, artifact) => {
+                    if (err) {
+                        logger.error(err, '=> loadArtefacts : erreur lors du chargement du fichier  = ' + this.pathArtifacts + id);
+                    } else {
+                        logger.debug('=> loadArtefacts : type de conteneur de l artefact = ' + artifact.getTypeContainer());
+                        // si l'artefact étaient en ZP on le remet dedans
+                        if (artifact.getTypeContainer() == constant.type.container.ZP) {
+                            this.artifacts.set(artifact.getId(), artifact);
+                            // pas besoin de la ligne suivante normalement
+                            //this.setArtifactIntoZP(artifact.getId(), artifact.getIdContainer());
+                            logger.info('=> loadArtefacts : chargement artefac en ZP =' + artifact.getIdContainer());
+                            this.getZP(artifact.getIdContainer()).loadSession = true;
+                            logger.info('=> loadArtefacts : flag relaod de  ZP ' + artifact.getIdContainer() + ') à TRUE');
+                            i++;
+                        }
+                    }
+                }).catch(() => Promise.resolve())))
+                .then(() => {
+                    logger.info('=> loadArtefacts : chargement des artefacts [OK] nb fichier chargé = ' + i + ' sur un total de ' + artifactIds.length);
+                    return Promise.resolve(i);
+                });
+        }
+        return p;
+    }
+
 
     /**
      * Fermeture de la ZC et de toutes ses ZP
