@@ -8,6 +8,7 @@
  * @requires loggers
  * @requires itacLogger
  * @requires Constant
+ * @requires fast-json-patch
  * 
  * @author philippe pernelle
  * @author Stephane Talbot
@@ -19,6 +20,7 @@ const logger = itacLogger.child({component: 'Artifact'});
 const fs = require("fs");
 const mkdirp = require('mkdirp');
 const TYPE = require('../constant').type;
+const jsonpatch = require('fast-json-patch');
 
 class Artifact {
     constructor(id, creator, owner, lastZE, type, idContainer, typeContainer, dateCreation, history, title, position, content, jsonSrc) {
@@ -398,6 +400,53 @@ class Artifact {
         });
         return res;
     }
+
+    /**
+     * Application d'un patch JSON a l'artefact.
+     *
+     * @param patch - le patch JSON a appliquer
+     *
+     * @author Stephane Talbot
+     */
+    patch(patch){
+        this.jsonSrc = jsonpatch.applyPatch(this.jsonSrc, patch).newDocument;
+        // mise a jour des attributs geres par l'artefact
+        this.updateFromJSON(null);
+    }
+
+    /**
+     * Validation de l'application d'un patch JSON a l'artefact.
+     *
+     * @param patch - le patch JSON a appliquer
+     * @returns {PatchError} - erreur liee a l'application du patch JSON (undefined sinon)
+     */
+    validatePatch(patch){
+        return jsonpatch.validate(patch, this.jsonSrc);
+    }
+
+    /**
+     * Modification d'un artefact en le remplacant par une nouvelle version.
+     * Remarques certaines propriétes ne peuvent pas êter modifiées de cette facon
+     * ("id", "creator", "owner", "lastZE", "type", "idContainer", "typeContainer", "dateCreation").
+     *
+     * Si l'artefact passe en parametre est null, on fait juste une synchronisation des attributs communs entre
+     * l'artefact et ceux de la version JSON interne.
+     *
+     * @param {JSONObject} newArtifact - nouvelle version de l'artefact
+     *
+     * @author Stephane Talbot
+     */
+    updateFromJSON(newArtifact){
+        if (newArtifact) {
+            this.jsonSrc = newArtifact;
+        }
+        // maj des ptes geree par l'artefact et authorisees à la modification
+        let attributes = ["history", "title", "position", "content"];
+        attributes.forEach((att) => {
+            this[att] = this.jsonSrc[att];
+        });
+    }
+
 
     static fromJSON(artifact_json_string, id) {
         logger.debug('=> fromJSON : creation Artefact from JSON : CHAINE =' + artifact_json_string);
