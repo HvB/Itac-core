@@ -390,7 +390,7 @@ describe ("Test serveur", function (){
                         expect(JSON.parse(chaineJSON)).to.deep.include(artifactMessage2);
                         resolve(artifactMessage2.id);
                     });
-                 });
+                });
                 // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
                 let p1 = connectZA(socketZA, '', 'Table1')
                     .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep) => {
@@ -427,6 +427,172 @@ describe ("Test serveur", function (){
                         done();
                     });
                     socketZA.emit('EVT_Envoie_ArtefactdeZPversZE', artifactMessage2.id, idZE);
+                });
+            });
+        });
+    });
+
+    describe("Artifact modification", function() {
+        var session;
+        var url = 'http://127.0.0.1:8080';
+        var url0 = 'http://127.0.0.1:8080';
+        var devId0 = "00000000000";
+        var login = "test_user";
+        var password;
+        var socketParams = {forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']};
+        var config = {
+            "session": {
+                "name": "Session_Test",
+                "artifactIds": []
+            },
+            "authentification": {
+                "factory": "factory",
+                "config": {
+                    "type": "YesAuthenticator",
+                    "params": ""
+                }
+            },
+            "zc": {
+                "config": {
+                    "idZC": "ZC_test",
+                    "emailZC": "jonh.doe@gmail.com",
+                    "descriptionZC": "ZC de test",
+                    "nbZP": "1",
+                    "ZP": [
+                        {
+                            "idZP": "Table1",
+                            "typeZP": "Table2",
+                            "nbZEmin": "2",
+                            "nbZEmax": "2",
+                            "urlWebSocket": "http://localhost",
+                            "portWebSocket": "8080"
+                        }                ]
+                }
+            }
+        };
+        var socketZA, socketZE0;
+        var idZE, idZEP;
+        var idZP = 'Table1';
+        var artifactMessage1 ,artifactMessage2 ;
+
+        const jsonpatch = require('fast-json-patch');
+
+        beforeEach(function (done) {
+            this.timeout(6000);
+            artifactMessage1 = {
+                "id": "message1", "creator": "mocha", "owner": "mocha", "type": "message",
+                "dateCreation": "2017-06-29T15:08:12.765Z", "title": "Message1", "content": "test de contenu 1"
+            };
+
+            artifactMessage2 = {
+                "id": "message2", "creator": "mocha", "owner": "mocha", "type": "message",
+                "dateCreation": "2017-06-30T15:08:12.765Z", "title": "Message2", "content": "test de contenu 2",
+                "position": {x:400, y:376, scale:1.0, angle:45.0},
+                "linksTo": ['message4']
+            };
+
+            session = new Session(config);
+
+            socketZA = io(url, socketParams);
+            socketZE0 = io(url0, socketParams);
+            // reception artefact1
+            let p2 = new Promise((resolve, reject)=>{
+                socketZA.on('EVT_ReceptionArtefactIntoZP', function (ze, zp, chaineJSON){
+                    let artifact = JSON.parse(chaineJSON);
+                    if (artifact.id == artifactMessage1.id) {
+                        expect(artifact).to.deep.include(artifactMessage1);
+                        resolve(artifactMessage1.id);
+                    }
+                });
+            });
+            // reception artefact2
+            let p3 = new Promise((resolve, reject)=>{
+                socketZA.on('EVT_ReceptionArtefactIntoZP', function (ze, zp, chaineJSON){
+                    let artifact = JSON.parse(chaineJSON);
+                    if (artifact.id == artifactMessage2.id) {
+                        expect(artifact).to.deep.include(artifactMessage2);
+                        resolve(artifactMessage2.id);
+                    }
+                });
+            });
+            // connexion ZA, puis connexion ZE et enfin envoi d'artefacts en ZE et ZP
+            let p1 = connectZA(socketZA, '', 'Table1')
+                .then(() => connectTablette(socketZE0, 'pseudo1', '1', login, password, devId0, (ze, zep) => {
+                    idZE = ze;
+                    idZEP = zep;
+                    socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage1));
+                    socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
+                }));
+            // on peut passer a la suite quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
+            Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
+        });
+        afterEach(function (done) {
+            this.timeout(200000);
+            socketZE0.close();
+            socketZA.close();
+            // on attend la fermeture de la session
+            session.close(done);
+        });
+
+        describe("Single artefact / JSON Patch", function () {
+            let position = {x: 470, y: 346, scale: 1.0, angle: 64.0};
+            // let modifications = [{
+            //     id: 'message2',
+            //     patch: [{op: 'replace', path: '/position', value: position},
+            //         {op: 'add', path: '/linksTo/-', value: 'message1'}
+            //     ]
+            // }];
+            it('Expect modifications to be a success', function (done) {
+                let observer = jsonpatch.observe(artifactMessage2);
+                artifactMessage2.position = position;
+                artifactMessage2.linksTo.push(artifactMessage1.id);
+                let patch = jsonpatch.generate(observer);
+                jsonpatch.unobserve(artifactMessage2, observer);
+                socketZA.emit('EVT_ArtifactPartialUpdate', artifactMessage2.id, patch, (res) => {
+                    expect(res).to.be.null;
+                    expect(session.ZC.getArtifact('message2').toJSON().position).to.deep.equal(position);
+                    expect(session.ZC.getArtifact('message2').toJSON().linksTo).to.include(artifactMessage1.id);
+                    expect(session.ZC.getArtifact('message2').toJSON()).to.deep.include(artifactMessage2);
+                    done();
+                });
+            });
+        });
+        describe("Multiple artefacts / JSON Patch", function () {
+            let position = {x: 470, y: 346, scale: 1.0, angle: 64.0};
+            it('Expect modifications to be a success', function (done) {
+                let observer1 = jsonpatch.observe(artifactMessage1);
+                let observer2 = jsonpatch.observe(artifactMessage2);
+                artifactMessage1.position = position;
+                artifactMessage2.linksTo = ['message1'];
+                let patch1 = jsonpatch.generate(observer1);
+                let patch2 = jsonpatch.generate(observer2);
+                jsonpatch.unobserve(artifactMessage1, observer1);
+                jsonpatch.unobserve(artifactMessage2, observer2);
+                let modifications = [{id: artifactMessage2.id, patch: patch2}, {
+                    id: artifactMessage1.id,
+                    patch: patch1
+                }];
+                socketZA.emit('EVT_ArtifactsPartialUpdates', modifications, (res) => {
+                    expect(res).to.be.an('array').and.to.be.empty;
+                    expect(session.ZC.getArtifact('message1').toJSON().position).to.deep.equal(position);
+                    expect(session.ZC.getArtifact('message2').toJSON().linksTo).to.deep.equal(['message1']);
+                    expect(session.ZC.getArtifact('message2').toJSON()).to.deep.include(artifactMessage2);
+                    expect(session.ZC.getArtifact('message1').toJSON()).to.deep.include(artifactMessage1);
+                    done();
+                });
+            });
+        });
+        describe("Single artefact / Full ", function () {
+            let position = {x: 470, y: 346, scale: 1.0, angle: 64.0};
+            it('Expect modifications to be a success', function (done) {
+                artifactMessage2.position = position;
+                artifactMessage2.linksTo.push(artifactMessage1.id);
+                socketZA.emit('EVT_ArtifactFullUpdate', artifactMessage2.id , artifactMessage2, (res)=>{
+                    expect(res).to.be.null;
+                    expect(session.ZC.getArtifact('message2').toJSON().position).to.deep.equal(position);
+                    expect(session.ZC.getArtifact('message2').toJSON().linksTo).to.include(artifactMessage1.id);
+                    expect(session.ZC.getArtifact('message2').toJSON()).to.deep.include(artifactMessage2);
+                    done();
                 });
             });
         });
@@ -514,7 +680,9 @@ describe ("Test serveur", function (){
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
                     }));
                 // on peut passer a la suite quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
-                Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
+                Promise.all([p1,p2,p3])
+                    .then(() => {socketZA.off(); socketZE0.off(); done();})
+                    .catch((reason) => done(reason));
             });
             after(function (done) {
                 this.timeout(200000);
@@ -534,10 +702,10 @@ describe ("Test serveur", function (){
                     });
                 });
                 let p2 = new Promise((resolve, reject)=>{
-                    socketZA.on("EVT_Envoie_ArtefactdeZEversZP", function (idArt, ze) {
+                    socketZA.on("EVT_ReceptionArtefactIntoZP", function (ze, zp, artefact) {
                         expect(ze).to.equal(idZE);
-                        expect(idArt).to.equal(artifactMessage1.id);
-                        resolve(artifactMessage1.id);
+                        expect(JSON.parse(artefact)).to.deep.include(artifactMessage1);
+                         resolve(artifactMessage1.id);
                     });
                 });
                 // ne devrait-on pas être deconnecté par le serveur ?
@@ -582,7 +750,9 @@ describe ("Test serveur", function (){
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
                     }));
                 // on peut passer a la suite quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
-                Promise.all([p1,p2,p3]).then(() => done()).catch((reason) => done(reason));
+                Promise.all([p1,p2,p3])
+                    .then(() => {socketZA.off(); socketZE0.off(); done();})
+                    .catch((reason) => done(reason));
             });
             after(function (done) {
                 this.timeout(200000);
@@ -602,9 +772,9 @@ describe ("Test serveur", function (){
                     });
                 });
                 let p2 = new Promise((resolve, reject)=>{
-                    socketZA.on("EVT_Envoie_ArtefactdeZEversZP", function (idArt, ze) {
+                    socketZA.on("EVT_ReceptionArtefactIntoZP", function (ze, zp, artefact) {
                         expect(ze).to.equal(idZE);
-                        expect(idArt).to.equal(artifactMessage1.id);
+                        expect(JSON.parse(artefact)).to.deep.include(artifactMessage1);
                         resolve(artifactMessage1.id);
                     });
                 });
@@ -658,9 +828,12 @@ describe ("Test serveur", function (){
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
                     }));
                 // on peut deconnecter la ZE quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
-                Promise.all([p1,p2,p3]).then(()=>{socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);}).catch((reason) => done(reason));
+                Promise.all([p1,p2,p3])
+                    .then(()=>{socketZA.off('EVT_ReceptionArtefactIntoZP'); socketZE0.emit('EVT_Deconnexion', 'pseudo1', idZE);})
+                    .catch((reason) => done(reason));
                 // on attend ensuite la detetection de la deconnection de la ZE par la ZA
-                p4.then(() => done()).catch((reason) => done(reason));
+                p4.then(() => {socketZE0.off(); socketZA.off(); done();})
+                    .catch((reason) => done(reason));
             });
             after(function (done) {
                 this.timeout(200000);
@@ -724,9 +897,11 @@ describe ("Test serveur", function (){
                         socketZE0.emit('EVT_NewArtefactInZP', 'pseudo1', idZEP, idZE, JSON.stringify(artifactMessage2));
                     }));
                 // on peut deconnecter la ZE quand la ZA et la ZE se sont connectes et les artefacts arrives en ZE et ZP
-                Promise.all([p1,p2,p3]).then(() => {socketZE0.close();}).catch((reason) => done(reason));
+                Promise.all([p1,p2,p3]).then(() => {socketZA.off('EVT_ReceptionArtefactIntoZP'); socketZE0.close();}).catch((reason) => done(reason));
                 // on attend ensuite la detetection de la deconnection de la ZE par la ZA
-                p4.then(() => done()).catch((reason) => done(reason));
+                p4.then(() => {socketZA.off(); socketZE0.off(); done();})
+                    .catch((reason) => done(reason));
+
             });
             after(function (done) {
                 this.timeout(200000);
