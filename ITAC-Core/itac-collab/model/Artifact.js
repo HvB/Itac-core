@@ -20,8 +20,8 @@ const fs = require("fs");
 const mkdirp = require('mkdirp');
 const TYPE = require('../constant').type;
 
-module.exports = class Artifact {
-    constructor(id, creator, owner, lastZE, type, idContainer, typeContainer, dateCreation, history, title, position, content) {
+class Artifact {
+    constructor(id, creator, owner, lastZE, type, idContainer, typeContainer, dateCreation, history, title, position, content, jsonSrc) {
 
         this.id = id;
         this.creator = creator;
@@ -39,6 +39,13 @@ module.exports = class Artifact {
             ' | idContainer = ' + idContainer + ' | typeContainer = ' + typeContainer);
 
         // ajouter la sauvegarde de l'articat dans un repertoire temporaire
+
+        /**
+         * Version JSON originelle de l'artefact
+         * @type {JSONObject}
+         * @private
+         */
+        this.jsonSrc = jsonSrc ? jsonSrc : {};
     }
 
     getLastZE() {
@@ -376,6 +383,22 @@ module.exports = class Artifact {
         this.saveContentSync(path)
     }
 
+    /**
+     * Generation d'une representation JSON de l'artefact.
+     *
+     * @returns {JSONObject} - version JSON de l'artefact
+     *
+     * @author Stephane Talbot
+     */
+    toJSON(){
+        let res = this.jsonSrc;
+        // remplacement des attributs par ceux geres dans la classe Artefact
+        Artifact.managedAttributes.forEach((att) => {
+            res[att] = this[att];
+        });
+        return res;
+    }
+
     static fromJSON(artifact_json_string, id) {
         logger.debug('=> fromJSON : creation Artefact from JSON : CHAINE =' + artifact_json_string);
 
@@ -385,11 +408,11 @@ module.exports = class Artifact {
         if (id === undefined)
         {
             logger.debug('=> fromJSON : creation Artefact , pas de id passé en parametre');
-            var art = new Artifact(temp.id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content);
+            var art = new Artifact(temp.id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content, temp);
         }
         else{
             logger.debug('=> fromJSON : creation Artefact , id passé en parametre = '+id);
-            var art = new Artifact(id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content);
+            var art = new Artifact(id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content, temp);
             art.setId(id) ;
         }
 
@@ -459,3 +482,15 @@ module.exports = class Artifact {
         return p;
     }
 };
+
+/**
+ * Liste des noms d'attributs que sait gérer la classe Artefact.
+ * Comme ces attributs peuvent être présents à la fois dans au niveau de la classe et dans le source JSON,
+ * il faut éviter que des divergences amène à des incohérences.
+ *
+ * @private
+ * @type {Array.<String>}
+ */
+Artifact.managedAttributes = Object.freeze(["id", "creator", "owner", "lastZE", "type", "idContainer", "typeContainer", "dateCreation", "history", "title", "position", "content"]);
+
+module.exports = Artifact;
