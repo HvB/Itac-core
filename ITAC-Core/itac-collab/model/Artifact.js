@@ -441,8 +441,7 @@ class Artifact {
             this.jsonSrc = newArtifact;
         }
         // maj des ptes geree par l'artefact et authorisees à la modification
-        let attributes = ["history", "title", "position", "content"];
-        attributes.forEach((att) => {
+        Artifact.modifiableAttributes.forEach((att) => {
             this[att] = this.jsonSrc[att];
         });
     }
@@ -538,8 +537,19 @@ class Artifact {
  * il faut éviter que des divergences amène à des incohérences.
  *
  * @private
+ * @static
  * @type {Array.<String>}
  */
 Artifact.managedAttributes = Object.freeze(["id", "creator", "owner", "lastZE", "type", "idContainer", "typeContainer", "dateCreation", "history", "title", "position", "content"]);
+/**
+ * Liste des noms d'attributs gérés par la classe Artefact, mais qui doivent pouvoir être modifiés directement.
+ * Comme ces attributs peuvent être présents à la fois dans au niveau de la classe et dans le source JSON,
+ * il faut éviter que si on les modifie au niveau JSON, cela n'entraine des incohérences.
+ *
+ * @private
+ * @static
+ * @type {Array.<String>}
+ */
+Artifact.modifiableAttributes =  Object.freeze(["history", "title", "position", "content"]);
 
 module.exports = Artifact;
