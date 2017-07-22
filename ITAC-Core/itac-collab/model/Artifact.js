@@ -21,7 +21,7 @@ const mkdirp = require('mkdirp');
 const TYPE = require('../constant').type;
 
 module.exports = class Artifact {
-    constructor(id, creator, owner, lastZE, type, idContainer, typeContainer, dateCreation, history, title, position, content) {
+    constructor(id, creator, owner, lastZE, type, idContainer, typeContainer, dateCreation, history, title, position, content, jsonSrc) {
 
         this.id = id;
         this.creator = creator;
@@ -39,6 +39,9 @@ module.exports = class Artifact {
             ' | idContainer = ' + idContainer + ' | typeContainer = ' + typeContainer);
 
         // ajouter la sauvegarde de l'articat dans un repertoire temporaire
+
+        // source de l'artefac au format JSON
+        this.jsonSrc = jsonSrc ? jsonSrc : {};
     }
 
     getLastZE() {
@@ -376,6 +379,23 @@ module.exports = class Artifact {
         this.saveContentSync(path)
     }
 
+    /**
+     * Generation d'une representation JSON de l'artefact.
+     *
+     * @returns {JSONObject} - version JSON de l'artefact
+     *
+     * @author Stephane Talbot
+     */
+    toJSON(){
+        let res = this.jsonSrc;
+        // remplacement des attributs par ceux geres dans la classe Artefact
+        let attributes = ["id", "creator", "owner", "lastZE", "type", "idContainer", "typeContainer", "dateCreation", "history", "title", "position", "content"];
+        attributes.forEach((att) => {
+            res[att] = this[att];
+        });
+        return res;
+    }
+
     static fromJSON(artifact_json_string, id) {
         logger.debug('=> fromJSON : creation Artefact from JSON : CHAINE =' + artifact_json_string);
 
@@ -385,11 +405,11 @@ module.exports = class Artifact {
         if (id === undefined)
         {
             logger.debug('=> fromJSON : creation Artefact , pas de id passé en parametre');
-            var art = new Artifact(temp.id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content);
+            var art = new Artifact(temp.id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content, temp);
         }
         else{
             logger.debug('=> fromJSON : creation Artefact , id passé en parametre = '+id);
-            var art = new Artifact(id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content);
+            var art = new Artifact(id, temp.creator, temp.owner, temp.lastZE ,temp.type, temp.idContainer, temp.typeContainer, temp.dateCreation, temp.history, temp.title, temp.position, temp.content, temp);
             art.setId(id) ;
         }
 
