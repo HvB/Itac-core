@@ -20,7 +20,7 @@ const fs = require("fs");
 const mkdirp = require('mkdirp');
 const TYPE = require('../constant').type;
 
-module.exports = class Artifact {
+class Artifact {
     constructor(id, creator, owner, lastZE, type, idContainer, typeContainer, dateCreation, history, title, position, content, jsonSrc) {
 
         this.id = id;
@@ -40,7 +40,11 @@ module.exports = class Artifact {
 
         // ajouter la sauvegarde de l'articat dans un repertoire temporaire
 
-        // source de l'artefac au format JSON
+        /**
+         * Version JSON originelle de l'artefact
+         * @type {JSONObject}
+         * @private
+         */
         this.jsonSrc = jsonSrc ? jsonSrc : {};
     }
 
@@ -389,8 +393,7 @@ module.exports = class Artifact {
     toJSON(){
         let res = this.jsonSrc;
         // remplacement des attributs par ceux geres dans la classe Artefact
-        let attributes = ["id", "creator", "owner", "lastZE", "type", "idContainer", "typeContainer", "dateCreation", "history", "title", "position", "content"];
-        attributes.forEach((att) => {
+        Artefact.managedAttributes.forEach((att) => {
             res[att] = this[att];
         });
         return res;
@@ -479,3 +482,15 @@ module.exports = class Artifact {
         return p;
     }
 };
+
+/**
+ * Liste des noms d'attributs que sait gérer la classe Artefact.
+ * Comme ces attributs peuvent être présents à la fois dans au niveau de la classe et dans le source JSON,
+ * il faut éviter que des divergences amène à des incohérences.
+ *
+ * @private
+ * @type {Array.<String>}
+ */
+Artifact.managedAttributes = Object.freeze(["id", "creator", "owner", "lastZE", "type", "idContainer", "typeContainer", "dateCreation", "history", "title", "position", "content"]);
+
+module.exports = Artifact;
