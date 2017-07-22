@@ -393,7 +393,7 @@ class Artifact {
     toJSON(){
         let res = this.jsonSrc;
         // remplacement des attributs par ceux geres dans la classe Artefact
-        Artefact.managedAttributes.forEach((att) => {
+        Artifact.managedAttributes.forEach((att) => {
             res[att] = this[att];
         });
         return res;
