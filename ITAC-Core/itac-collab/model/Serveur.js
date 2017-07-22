@@ -237,6 +237,57 @@ module.exports = class Serveur {
                     logger.info('=> traitementSurConnexion : activation de la reconnnection ZA [Ok]');
             }
         }).bind(this));
+
+        /*
+         * 11 - Modification d'un artefact
+         *     cet evenement est envoye par un client qui souhaite modifier un artefact
+         *     La modification est la nouvelle version de l'artafact
+         */
+        socket.on(EVENT.ArtifactFullUpdate, (function (id, newArtefact, callback) {
+            logger.info('*** EVENT : ' + EVENT.ArtifactFullUpdate + ' ***** --> modification d\'artefact');
+            logger.debug({artifactId:id, newArtifact:newArtefact}, '*** EVENT : ' + EVENT.ArtifactFullUpdate + ' ***** --> modification d\'artefact');
+            // res est null si la modification s'est bien passe, il contient une liste d'erreurs sinon
+            let res = this.updateArtifact(id, newArtefact);
+            // envoi de la notification
+            if (callback && callback instanceof Function) {
+                callback(res);
+            }
+            logger.info('*** fin EVENT :' + EVENT.ArtifactFullUpdate + ' *** ');
+        }).bind(this));
+
+        /*
+         * 12 - Modification partielle d'un artefact
+         *     cet evenement est envoye par un client qui souhaite modifier un artefact
+         *     La modification est un patch JSON
+         */
+        socket.on(EVENT.ArtifactPartialUpdate, (function (id, patch, callback) {
+            logger.info('*** EVENT : ' + EVENT.ArtifactPartialUpdate + ' ***** --> modification d\'artefact');
+            logger.debug({artifactId:id, patch:patch},'*** EVENT : ' + EVENT.ArtifactPartialUpdate + ' ***** --> modification d\'artefact');
+            // res est null si la modification s'est bien passe, il contient une liste d'erreurs sinon
+            let res = this.patchArtifact(id, patch);
+            // envoi de la notification
+            if (callback && callback instanceof Function) {
+                callback(res);
+            }
+            logger.info('*** fin EVENT :' + EVENT.ArtifactPartialUpdate + ' *** ');
+        }).bind(this));
+
+        /*
+         * 13 - Modifications d'artefacts
+         *     cet evenement est envoye par un client qui souhaite modifier des artefacts
+         *     La modification est une liste de couples artifactId, patch : [{'id':'xxxx', 'patch': [...]}, {'id':'yyyy', 'patch': [...]}, ...]
+         */
+        socket.on(EVENT.ArtifactsPartialUpdates, (function (modifications, callback) {
+            logger.info('*** EVENT : ' + EVENT.ArtifactsPartialUpdates + ' ***** --> modification d\'artefacts');
+            logger.debug({modifications:modifications}, '*** EVENT : ' + EVENT.ArtifactsPartialUpdates + ' ***** --> modification d\'artefacts');
+            // res est vide si les modifications se sont bien passee, il contient une liste de listes d'erreurs sinon
+            let res = this.patchArtifacts(modifications);
+            // envoi de la notification
+            if (callback && callback instanceof Function) {
+                callback(res);
+            }
+            logger.info('*** fin EVENT :' + EVENT.ArtifactsPartialUpdates + ' *** ');
+        }).bind(this));
     };
 
     /**
@@ -677,6 +728,138 @@ module.exports = class Serveur {
 
         }
     }
+
+    /**
+     * Retourne un artefact identifie par son id
+     *
+     * @param {String} id - artifact id
+     * @returns {Artifact} artefact recherche
+     *
+     * @author Stephane Talbot
+     */
+    getArtifact(id){
+        return this.ZP.getArtifact(id);
+    }
+
+    /**
+     * Applique une liste de modifications aux artefacts.
+     * La liste de modifications est une liste de couples artifactId, patch :
+     * [{'id':'xxxx', 'patch': [...]}, {'id':'yyyy', 'patch': [...]}, ...]
+     *
+     * @param modifications
+     * @return {Array.<Array>} liste de problemes lors de l'application du patch (empty si pas de pb)
+     *
+     * @author Stephane Talbot
+     */
+    patchArtifacts(modifications){
+        let res = [];
+        try {
+            //let modifs = JSON.parse(modifications);
+            let modifs = modifications;
+            logger.debug({modif: modifs}, "=> patchArtifacts : debut application modifications");
+            if (modifs && modifs instanceof Array) {
+                logger.debug({modif: modifs}, "=> patchArtifacts : modifications est un tableau [OK]");
+                // validation des modifications
+                modifs.forEach(({id, patch}) => {
+                    let artifact = this.getArtifact(id);
+                    let validation = ["Unknown artifact "+id];
+                    if (artifact) {
+                        validation = artifact.validatePatch(patch);
+                    } else {
+                        logger.debug({artifactId: id, patch: patch}, "=> patchArtifacts : artifact non trouve : %s", id);
+                    }
+                    if (validation) res.push(validation);
+                });
+                if (res.length === 0) {
+                    modifs.forEach(({id, patch}) => {
+                        try {
+                            let artifact = this.getArtifact(id);
+                            if (artifact) {
+                                artifact.patch(patch);
+                            }
+                        } catch (err) {
+                            logger.error(err, "=> patchArtifacts : probleme lors de l'application du patch sur l'artifact : %s", id, patch);
+                        }
+                    });
+                } else {
+                    logger.error({errors: res}, "=> patchArtifacts : liste de modifications non valides : %s", modifications);
+                }
+            }
+        } catch (err) {
+            logger.error({err:err, modifications:modifications}, "=> patchArtifacts : probleme lors de la lecture des modifications");
+        }
+        return res;
+    }
+
+    /**
+     * Applique un patch JSON a un artefact.
+     *
+     * @param {String} id - artifcat id
+     * @param patch - patch JSON
+     * @return problemes lors de l'application du patch (undefined si pas de pb)
+     *
+     * @author Stephane Talbot
+     */
+    patchArtifact(id, jsonPatch){
+        let res = undefined;
+        try {
+            //let patch = JSON.parse(jsonPatch);
+            let patch = jsonPatch;
+            logger.debug({artifactId: id, patch: patch}, "=> patchArtifact : debut application modifications");
+            let artifact = this.getArtifact(id);
+            let res = ["Unknown artifact " + id];
+            if (artifact) {
+                res = artifact.validatePatch(patch);
+                if (!res) {
+                    try {
+                        artifact.patch(patch);
+                    } catch (err) {
+                        logger.error({err: err, artifactId: id, patch: patch},
+                            "=> patchArtifact : probleme lors de l'application du patch sur l'artifact : %s", id);
+                    }
+                } else {
+                    logger.error({errors: res}, "=> patchArtifact : JSON path non valides : %s");
+                }
+            } else {
+                logger.debug({artifactId: id, patch: patch}, "=> patchArtifact : artifact non trouve : %s", id);
+            }
+        } catch (err) {
+            logger.error({err:err, patch:jsonPatch}, "=> patchArtifacts : probleme lors de la lecture des modifications");
+        }
+        return res;
+    }
+
+    /**
+     * Mise a jour complete d'un artefact.
+     *
+     * @param {String} id - artifcat id
+     * @param newArtifact - nouvel artefact
+     * @return probleme lors de l'application de la mise a jour (ou null si pas de pb)
+     *
+     * @author Stephane Talbot
+     */
+    updateArtifact(id, myNewArtifact){
+         let res;
+        try {
+            //let newArtifact = JSON.parse(myNewArtifact);
+              let newArtifact = myNewArtifact;
+            logger.debug({artifactId:id, newArtifact:newArtifact}, "=> updateArtifact : debut application modifications");
+            let artifact = this.getArtifact(id);
+            try {
+                if (artifact) {
+                    artifact.updateFromJSON(newArtifact);
+                } else {
+                    logger.debug({artifactId: id, newArtifact: newArtifact}, "=> updateArtifact : artifact non trouve : %s", id);
+                }
+            } catch (err) {
+                logger.error({err: err, artifactId: id, newArtifact: newArtifact}, "=> updateArtifact : probleme lors de l'application du modifications sur l'artifact : %s", id);
+            }
+        } catch (err) {
+            logger.error({err:err, newArtifact:myNewArtifact}, "=> updateArtifact : probleme lors de la lecture des modifications");
+        }
+        return res;
+    }
+
     /**
      * @callback closeCallback
      * @param  {Error} err - Erreur qui s'est produite lors de la fermeture ou rien si tout s'est bien passe.

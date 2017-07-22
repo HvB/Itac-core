@@ -84,6 +84,22 @@ module.exports = {
         NewArtefactInZE: 'EVT_NewArtefactInZE',
 
         /**
+         * evenement envoyé pour modifier un artefact (maj complete de l'artefact)
+         */
+        ArtifactFullUpdate: 'EVT_ArtifactFullUpdate',
+
+        /**
+         * evenement envoyé pour modifier un artefact (maj partielle via un patch JSON)
+         */
+        ArtifactPartialUpdate: 'EVT_ArtifactPartialUpdate',
+
+        /**
+         * evenement envoyé pour modifier plusieur artefacts (maj partielle via un ensemble de patch JSON)
+         */
+        ArtifactsPartialUpdates: 'EVT_ArtifactsPartialUpdates',
+
+
+        /**
          * cet evenement est envoyé par le serveur de socket à la ZA quand un artefact est déposé dans la ZE
          * il est aussi renvoyé à la tablette comme acquittement à EVT_NewArtefactInZE
          */
