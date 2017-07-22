@@ -677,6 +677,19 @@ module.exports = class Serveur {
 
         }
     }
+
+    /**
+     * Retourne un artefact identifie par son id
+     *
+     * @param {String} id - artifact id
+     * @returns {Artifact} artefact recherche
+     *
+     * @author Stephane Talbot
+     */
+    getArtifact(id){
+        return this.ZP.getArtifact(id);
+    }
+
     /**
      * @callback closeCallback
      * @param  {Error} err - Erreur qui s'est produite lors de la fermeture ou rien si tout s'est bien passe.
