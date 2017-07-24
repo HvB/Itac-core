@@ -73,13 +73,22 @@ interact('.circleMenu-open .send').dropzone({
 
     ondrop: function (event) {
         // bizarre bug js ? pour relatedTarget il faut le value et pas pour target
-        var idAr = $(event.relatedTarget).attr('id');
+        var $artifact = $(event.relatedTarget);
+        var idAr = $artifact.attr('id');
         var idZPsource = zpdemande;
         var idZPcible = $(event.target).attr('data-ZP');
         console.log("menu ITAC -> ZP.ondrop : transfert ART = " + idAr + " de ZP=" + idZPsource + " vers ZP=" + idZPcible);
         socket.emit('EVT_Envoie_ArtefactdeZPversZP', idAr, idZPsource, idZPcible);
         console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
-        $(event.relatedTarget).remove();
+        $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function(index, element) {
+            var $shape = $(element),
+                $artifact = $('#' + $shape.attr('data-from'));
+            $shape.remove();
+            if ($artifact.hasClass('point') && $('line[data-from=' + $artifact.attr('id') + ']').length == 0) {
+                $artifact.remove();
+            }
+        });
+        $artifact.remove();
     },
 
     ondropdeactivate: function (event) {

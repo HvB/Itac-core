@@ -48,6 +48,14 @@ interact('.ZE')
             $(event.relatedTarget).remove().css('transform', '').appendTo($(event.target).find('.container'));
             $(event.relatedTarget).removeClass('can-drop');
             $(event.relatedTarget).addClass('dropped');
+            $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function(index, element) {
+                var $shape = $(element),
+                    $artifact = $('#' + $shape.attr('data-from'));
+                $shape.remove();
+                if ($artifact.hasClass('point') && $('line[data-from=' + $artifact.attr('id') + ']').length == 0) {
+                    $artifact.remove();
+                }
+            });
         },
 
         ondropdeactivate: function (event) {
