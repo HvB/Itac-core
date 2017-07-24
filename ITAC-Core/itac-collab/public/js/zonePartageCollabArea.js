@@ -40,30 +40,36 @@ interact('.ZP')
         }
     })
     .on('hold', function (event) {
-        var $ZP = $(event.currentTarget);
-        // if ($ZP.hasClass('background')) {
-        var $artifact = $('.template .artifact.point').clone();
-        $artifact.appendTo($ZP);
-        var x = event.clientX - $artifact.width() / 2,
-            y = event.clientY - $artifact.height() / 2,
-            id = guid();
-        $artifact.css('transform', 'translate(' + x + 'px, ' + y + 'px)');
-        $artifact.attr('id', id).attr('data-x', x).attr('data-y', y);
+        var $ZP = $(event.currentTarget),
+            $element = $(event.target);
+        if (($element.hasClass('artifact') && !$ZP.hasClass('background'))
+            || ((!$element.hasClass('artifact') || $element.hasClass('point')) && $ZP.hasClass('background'))) {
+            var x = parseFloat($element.attr('data-x')),
+                y = parseFloat($element.attr('data-y')),
+                id = $element.attr('id');
+            if (!$element.hasClass('artifact')) {
+                $element = $('.template .artifact.point').clone();
+                $element.appendTo($ZP);
+                x = event.clientX - $element.width() / 2;
+                y = event.clientY - $element.height() / 2;
+                id = guid();
+                $element.css('transform', 'translate(' + x + 'px, ' + y + 'px)');
+                $element.attr('id', id).attr('data-x', x).attr('data-y', y);
+            }
+            var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            shape.setAttributeNS(null, 'class', 'temporary');
+            shape.setAttributeNS(null, 'data-from', id);
+            shape.setAttributeNS(null, "x1", x + $element.width() / 2);
+            shape.setAttributeNS(null, "y1", y + $element.height() / 2);
+            shape.setAttributeNS(null, "x2", event.clientX);
+            shape.setAttributeNS(null, "y2", event.clientY);
+            shape.setAttributeNS(null, "stroke", "black");
+            shape.setAttributeNS(null, "stroke-width", 3);
+            document.getElementsByTagName('svg')[0].appendChild(shape);
 
-        var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        shape.setAttributeNS(null, 'class', 'temporary');
-        shape.setAttributeNS(null, 'data-in', id);
-        shape.setAttributeNS(null, "x1", event.clientX);
-        shape.setAttributeNS(null, "y1", event.clientY);
-        shape.setAttributeNS(null, "x2", event.clientX);
-        shape.setAttributeNS(null, "y2", event.clientY);
-        shape.setAttributeNS(null, "stroke", "black");
-        shape.setAttributeNS(null, "stroke-width", 3);
-        document.getElementsByTagName('svg')[0].appendChild(shape);
-
-        var interaction = event.interaction;
-        if (!interaction.interacting()) {
-            interaction.start({name: 'drag'}, interact('line'), shape);
+            var interaction = event.interaction;
+            if (!interaction.interacting()) {
+                interaction.start({name: 'drag'}, interact('line'), shape);
+            }
         }
-        // }
     });

@@ -56,7 +56,7 @@ interact('.menu li').on('tap', function () {
 
 interact('.circleMenu-open .send').dropzone({
     //accepter que les elements avec ce CSS selector
-    accept: '.artifact',
+    accept: '.artifact.message, .artifact.image',
     // il faut 10% de l'element overlap pour que le drop soit possible
     overlap: 0.1,
     // les evenements de drop:
@@ -111,10 +111,20 @@ interact('.circleMenu-open .trash').dropzone({
     },
 
     ondrop: function (event) {
-        var idAr = $(event.relatedTarget).context.attributes[0].value;
-        console.log("menu ITAC -> suppresion ART = " + idAr);
-        socket.emit('EVT_ArtefactDeletedFromZP', idAr);
-        $(event.relatedTarget).remove();
+        var $artifact = $(event.relatedTarget),
+            id = $artifact.attr('id');
+        console.log("menu ITAC -> suppresion ART = " + id);
+        socket.emit('EVT_ArtefactDeletedFromZP', id);
+        $('line[data-from=' + id + '], line[data-to=' + id + ']').each(function(index, element) {
+            var $shape = $(element),
+                $artifact = $('#' + $shape.attr('data-from'));
+            $shape.remove();
+            if ($artifact.hasClass('point') && $('line[data-from=' + $artifact.attr('id') + ']').length == 0) {
+                $artifact.remove();
+            }
+        });
+        $artifact.remove();
+
     },
 
     ondropdeactivate: function (event) {

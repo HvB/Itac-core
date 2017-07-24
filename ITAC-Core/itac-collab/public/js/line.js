@@ -4,6 +4,7 @@
  */
 interact('line')
     .draggable({
+        manualStart: true,
         onstart: function (event) {
         },
         onmove: function (event) {
