@@ -1,4 +1,9 @@
-var URL = window.location.hostname + ':' + 8080;
-var ZP = window.location.pathname.split('/')[5];
+var URL, ZP, ZINDEX;
+$.get(location.href + '/config.json', function(data) {
+    URL = window.location.hostname + ':' + data.configZP.portWebSocket;
+    ZP = data.configZP.portWebSocket.idZP;
 
-var ZINDEX = 1;
+    ZINDEX = 1;
+
+    startConnexion();
+});
