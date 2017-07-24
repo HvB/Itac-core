@@ -28,6 +28,7 @@
     "ldapjs": "*",
     "bunyan": "*",
     "mkdirp": "*",
-    "uuid": "*"
+    "uuid": "*",
+    "fast-json-patch":"*"
   }
 }

@@ -500,6 +500,20 @@ getZEbySocket(idsocket) {
         this.ZC.setArtifactIntoEP(idAr, idZE, idZEP);
     };
 
+
+    /**
+     * Retourne un artefact identifie par son id
+     *
+     * @param {String} id - artifact id
+     * @returns {Artifact} artefact recherche
+     *
+     * @author Stephane Talbot
+     */
+    getArtifact(id){
+        return this.ZC.getArtifact(id);
+    }
+
+
     close(callback){
         let server = this.server;
         let idZP = this.idZP;

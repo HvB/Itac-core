@@ -46,7 +46,8 @@ $('.menu').circleMenu({
     trigger: 'none',
     open: function () {
         var url = urldemande.split(/\/\/|:/),
-            qrcode = new QRious({value: JSON.stringify({ip: url[2], port: url[3]})});
+            //qrcode = new QRious({value: JSON.stringify({ip: url[2], port: url[3]})});
+            qrcode = new QRious({value: "itac://"+url[2]+":"+url[3]});
         $('.menu .qr-code').css('background-image', 'url("' + qrcode.toDataURL() + '")');
     }
 });
