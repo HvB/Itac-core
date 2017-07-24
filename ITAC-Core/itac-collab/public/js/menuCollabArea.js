@@ -6,7 +6,7 @@ interact('.menu').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
-    onstart: function(event) {
+    onstart: function (event) {
         $('.menu').css('z-index', ZINDEX);
         ZINDEX++;
     },
@@ -23,7 +23,7 @@ interact('.menu').draggable({
     inertia: true,
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
-    onstart: function(event) {
+    onstart: function (event) {
         $('.menu').css('z-index', ZINDEX);
         ZINDEX++;
     },
@@ -56,7 +56,7 @@ interact('.menu li').on('tap', function () {
 
 interact('.circleMenu-open .send').dropzone({
     //accepter que les elements avec ce CSS selector
-    accept: '.artifact',
+    accept: '.artifact.message, .artifact.image',
     // il faut 10% de l'element overlap pour que le drop soit possible
     overlap: 0.1,
     // les evenements de drop:
@@ -73,13 +73,22 @@ interact('.circleMenu-open .send').dropzone({
 
     ondrop: function (event) {
         // bizarre bug js ? pour relatedTarget il faut le value et pas pour target
-        var idAr = $(event.relatedTarget).attr('id');
+        var $artifact = $(event.relatedTarget);
+        var idAr = $artifact.attr('id');
         var idZPsource = zpdemande;
         var idZPcible = $(event.target).attr('data-ZP');
         console.log("menu ITAC -> ZP.ondrop : transfert ART = " + idAr + " de ZP=" + idZPsource + " vers ZP=" + idZPcible);
         socket.emit('EVT_Envoie_ArtefactdeZPversZP', idAr, idZPsource, idZPcible);
         console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
-        $(event.relatedTarget).remove();
+        $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function(index, element) {
+            var $shape = $(element),
+                $artifact = $('#' + $shape.attr('data-from'));
+            $shape.remove();
+            if ($artifact.hasClass('point') && $('line[data-from=' + $artifact.attr('id') + ']').length == 0) {
+                $artifact.remove();
+            }
+        });
+        $artifact.remove();
     },
 
     ondropdeactivate: function (event) {
@@ -111,10 +120,19 @@ interact('.circleMenu-open .trash').dropzone({
     },
 
     ondrop: function (event) {
-        var idAr = $(event.relatedTarget).context.attributes[0].value;
-        console.log("menu ITAC -> suppresion ART = " + idAr);
-        socket.emit('EVT_ArtefactDeletedFromZP', idAr);
-        $(event.relatedTarget).remove();
+        var $artifact = $(event.relatedTarget),
+            id = $artifact.attr('id');
+        console.log("menu ITAC -> suppresion ART = " + id);
+        socket.emit('EVT_ArtefactDeletedFromZP', id);
+        $('line[data-from=' + id + '], line[data-to=' + id + ']').each(function(index, element) {
+            var $shape = $(element),
+                $artifact = $('#' + $shape.attr('data-from'));
+            $shape.remove();
+            if ($artifact.hasClass('point') && $('line[data-from=' + $artifact.attr('id') + ']').length == 0) {
+                $artifact.remove();
+            }
+        });
+        $artifact.remove();
     },
 
     ondropdeactivate: function (event) {
@@ -146,13 +164,22 @@ interact('.circleMenu-open .background').dropzone({
     },
 
     ondrop: function (event) {
+        $('.point[data-reference=' + $('.ZP').attr('data-background') + ']').each(function(index, element) {
+            $('line[data-from=' + $(element).attr('id') + ']').hide();
+        }).hide();
+        var $artifact = $(event.relatedTarget);
         $('.ZP')
-            .css('background-image', $(event.relatedTarget).css('background-image'))
+            .css('background-image', $artifact.css('background-image'))
             .css('background-position', 'center')
             .css('background-repeat', 'no-repeat')
-            .css('background-size', 'contain');
+            .css('background-size', 'contain')
+            .addClass('background')
+            .attr('data-background', $artifact.attr('id'));
         event.target.classList.remove('trash-target');
         event.relatedTarget.classList.remove('can-delete');
+        $('.point[data-reference=' + $('.ZP').attr('data-background') + ']').each(function(index, element) {
+            $('line[data-from=' + $(element).attr('id') + ']').show();
+        }).show();
     }
 });
 
@@ -161,9 +188,14 @@ interact('.circleMenu-open .background').dropzone({
  * ----------------------------------------
  */
 interact('.circleMenu-open .background').on('hold', function (event) {
+    $('.point[data-reference=' + $('.ZP').attr('data-background') + ']').each(function(index, element) {
+        $('line[data-from=' + $(element).attr('id') + ']').hide();
+    }).hide();
     $('.ZP')
         .css('background-image', '')
         .css('background-position', '')
         .css('background-repeat', '')
-        .css('background-size', '');
+        .css('background-size', '')
+        .removeClass('background')
+        .removeAttr('data-background');
 });

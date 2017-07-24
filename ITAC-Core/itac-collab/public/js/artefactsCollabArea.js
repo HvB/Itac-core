@@ -1,6 +1,58 @@
 // interact('.dropped').gesturable({ //les artefact dans la ZE ne peuvent pas etre manipuler (zoom, rotation)
 //     enabled: true
 // });
+interact('.ZP > .artifact.message, .ZP > .artifact.image')
+    .dropzone({
+        //accepter just les element ayant la class artefact
+        accept: 'line',
+
+        // les evenement de drop
+        ondropactivate: function (event) {
+            // activer la zone de drop
+            $(event.target).addClass('drop-active');
+        },
+
+        ondragenter: function (event) {
+            // la possibilité de drop
+            $(event.target).addClass('drop-target');
+        },
+
+        ondragleave: function (event) {
+            //supprimer le feedback de drop
+            $(event.target).removeClass('drop-target');
+        },
+
+        ondrop: function (event) {
+            //les evenements aprés le drop
+            var $target = $(event.target),
+                shape = event.relatedTarget,
+                $shape = $(shape);
+            if ($('line[data-from=' + $shape.attr('data-from') + '][data-to=' + $target.attr('id') + ']').length == 0) {
+                shape.setAttributeNS(null, "x2", parseFloat($target.attr('data-x')) + $target.width() / 2);
+                shape.setAttributeNS(null, "y2", parseFloat($target.attr('data-y')) + $target.height() / 2);
+                $shape.attr('data-to', $target.attr('id'));
+                $shape.removeClass('temporary');
+            } else {
+                $('line[data-from=' + $shape.attr('data-from') + '].temporary').remove();
+            }
+        },
+
+        ondropdeactivate: function (event) {
+            //supprimer le drop-active class de la zone de drop
+            var $shape = $(event.relatedTarget);
+            $(event.target).removeClass('drop-active drop-target');
+            if ($shape.hasClass('temporary')) {
+                var id = $shape.attr('data-from');
+                $shape.remove();
+                if ($('line[data-from=' + id + ']').length == 0) {
+                    var $element = $('#' + id);
+                    if ($element.hasClass('point')) {
+                        $element.remove();
+                    }
+                }
+            }
+        }
+    });
 interact('.artifact')
     .draggable({
         inertia: true,
@@ -26,6 +78,17 @@ interact('.artifact')
             $element.css('transform', 'translate(' + x + 'px, ' + y + 'px) scale(' + scale + ') rotate(' + angle + 'deg)');
             $element.attr('data-x', x);
             $element.attr('data-y', y);
+
+            $('line[data-from=' + $element.attr('id') + ']').each(function (index, element) {
+                var $element = $(element);
+                element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
+                element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
+            });
+            $('line[data-to=' + $element.attr('id') + ']').each(function (index, element) {
+                var $element = $(element);
+                element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
+                element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
+            });
         }
     });
 interact('.ZP > .artifact')
@@ -61,9 +124,20 @@ interact('.ZP > .artifact')
             $element.attr('data-y', y);
             $element.attr('data-s', scale);
             $element.attr('data-a', angle);
+            
+            $('line[data-from=' + $element.attr('id') + ']').each(function (index, element) {
+                var $element = $(element);
+                element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
+                element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
+            });
+            $('line[data-to=' + $element.attr('id') + ']').each(function (index, element) {
+                var $element = $(element);
+                element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
+                element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
+            });
         }
     })
-    .on('tap', function(event) {
+    .on('tap', function (event) {
         var $artifact = $(event.currentTarget);
         $artifact.css('z-index', ZINDEX);
         ZINDEX++;
@@ -72,11 +146,11 @@ interact('.ZP > .artifact')
             $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();
         } else {
             var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                $ZE = $('#' + $artifact.attr('data-ze'));
+            $ZE = $('#' + $artifact.attr('data-ze'));
             $artifact.addClass('active');
             shape.setAttributeNS(null, 'data-ze', $artifact.attr('data-ze'));
             shape.setAttributeNS(null, 'data-artifact', $artifact.attr('id'));
-            switch($ZE.attr('data-orientation')) {
+            switch ($ZE.attr('data-orientation')) {
                 case 'top':
                 case 'bottom':
                     shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.width() / 2);
