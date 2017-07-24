@@ -22,10 +22,15 @@
         %>
         <li>
             Type d'espace de travail : <%= zonecollab.ZP[i].typeZP %> Lien URL :
+            <!--<a target='_blank'-->
+               <!--href='/collab/<%= zonecollab.idZC %>/espacetravail/<%= i %>/<%= zonecollab.ZP[i].idZP %>/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>'>-->
+                <!--/collab/<%= zonecollab.idZC %>/espacetravail/<%= zonecollab.ZP[i].idZP %>-->
+                <!--/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>-->
+            <!--</a>-->
             <a target='_blank'
-               href='/collab/<%= zonecollab.idZC %>/espacetravail/<%= i %>/<%= zonecollab.ZP[i].idZP %>/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>'>
-                /collab/<%= zonecollab.idZC %>/espacetravail/<%= zonecollab.ZP[i].idZP %>
-                /<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>
+               href='/collab/session/<%= sessionName %>/<%= zonecollab.ZP[i].idZP %>'>
+                /collabenmarche/<%= zonecollab.idZC %>/espacetravaildeburnos/<%= zonecollab.ZP[i].idZP %>
+                /<%= zonecollab.ZP[i].portWebSocket %>/vivemacron/<%= minmax %>
             </a>
         </li>
         <% } %>
