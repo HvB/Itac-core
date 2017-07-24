@@ -513,7 +513,30 @@ getZEbySocket(idsocket) {
         return this.ZC.getArtifact(id);
     }
 
-
+    /**
+     *
+     *        {
+     *          "idZP": "test2",
+     *          "typeZP": "Ecran",
+     *          "nbZEmin": "1",
+     *          "nbZEmax": "6",
+     *          "urlWebSocket": "",
+     *          "portWebSocket": "8081"
+     *        }
+     *
+     */
+    toJSON(){
+        let res = {
+            "idZP": this.getId(),
+            "typeZP": this.getTypeZP(),
+            "nbZEmin": this.nbZEmin,
+            "nbZEmax": this.getNbZEmax(),
+            "urlWebSocket": this.urlWebSocket,
+            "portWebSocket": this.portWebSocket,
+            "visibilite": this.visibilite
+        }
+        return res;
+    }
     close(callback){
         let server = this.server;
         let idZP = this.idZP;
