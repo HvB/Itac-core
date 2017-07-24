@@ -12,29 +12,7 @@ if (jQuery.ui) {
 console.log('PAGE : connexionApp.ejs -> on s occupe maintenant de la connexion');
 
 console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
-console.log('PAGE ZA : workspace.ejs -> urldemande = ' + urldemande);
-console.log('PAGE ZA : workspace.ejs -> zpdemande = ' + zpdemande);
-console.log('PAGE ZA : workspace.ejs -> rang = ' + rang);
-console.log('PAGE ZA : workspace.ejs -> ZEmax = ' + ZEmax);
-console.log('****************************************************************************');
-console.log('');
-console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + urldemande);
-
-var addZero = function (value) {
-    return value > 9 ? value : '0' + value;
-}
-var getFormattedDate = function (d) {
-    var date = new Date(d);
-    return addZero(date.getUTCDate()) + '/' + addZero(date.getUTCMonth() + 1) + '/' + date.getUTCFullYear()
-        + ' - ' + addZero(date.getUTCHours()) + ':' + addZero(date.getUTCMinutes());
-};
-
-var guid = function () {
-    var s4 = function () {
-        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-}
+console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + URL);
 
 /* -----------------------------------*/
 /*  creation du menu                */
@@ -45,9 +23,7 @@ $('.menu').circleMenu({
     direction: 'full',
     trigger: 'none',
     open: function () {
-        var url = urldemande.split(/\/\/|:/),
-            //qrcode = new QRious({value: JSON.stringify({ip: url[2], port: url[3]})});
-            qrcode = new QRious({value: "itac://"+url[2]+":"+url[3]});
+        var qrcode = new QRious({value: "itac://" + URL});
         $('.menu .qr-code').css('background-image', 'url("' + qrcode.toDataURL() + '")');
     }
 });
@@ -56,7 +32,7 @@ $('.menu').circleMenu({
 /*  connexion socket                  */
 /* -----------------------------------*/
 
-var socket = io.connect(urldemande);
+var socket = io.connect(URL);
 socket.on('connect', function () {
 
     console.log('PAGE ZA : workspace.ejs -> **** connexion socket ZA vers Serveur [OK] : idSocket =' + socket.id);
@@ -66,8 +42,8 @@ socket.on('connect', function () {
     /* --- premiere connexion ZA (Zone d'affichage = App) ---*/
     /* ------------------------------------------------------*/
 
-    socket.emit('EVT_DemandeConnexionZA', urldemande, zpdemande);
-    console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= ' + zpdemande);
+    socket.emit('EVT_DemandeConnexionZA', URL, ZP);
+    console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= ' + ZP);
 
     socket.on('EVT_ReponseOKConnexionZA', function (ZC) {
         console.log('PAGE : workspace.ejs -> ZC =' + JSON.stringify(ZC));
@@ -75,7 +51,7 @@ socket.on('connect', function () {
         console.log('PAGE : workspace.ejs -> ajout des ZP , total =' + ZC.nbZP);
 
         for (var i = 0; i < ZC.nbZP; i++) {
-            if (i != rang) {
+            if (ZC.ZP[i].idZP != ZP) {
                 console.log('PAGE : workspace.ejs -> menu App , push = ' + ZC.ZP[i].idZP + " ZP");
                 $('.menu').append('<li class="send" data-ZP="' + ZC.ZP[i].idZP + '">' + ZC.ZP[i].idZP + '</li>');
             }
@@ -83,9 +59,8 @@ socket.on('connect', function () {
         $('.menu').circleMenu('init');
         $('.overlay').hide();
 
-        console.log('Zone collaborative active : ' + ZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + ZC.ZP[rang].idZP + '\n\n');
-        console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= ' + ZC.ZP[rang].idZP);
-        console.log('PAGE : workspace.ejs -> parametre de ZP = ' + JSON.stringify(ZC.ZP[rang]));
+        console.log('Zone collaborative active : ' + ZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + ZP + '\n\n');
+        console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= ' + ZP);
     });
 
 // callback réponse NOK
