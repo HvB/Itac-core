@@ -124,7 +124,6 @@ interact('.circleMenu-open .trash').dropzone({
             }
         });
         $artifact.remove();
-
     },
 
     ondropdeactivate: function (event) {
@@ -156,14 +155,22 @@ interact('.circleMenu-open .background').dropzone({
     },
 
     ondrop: function (event) {
+        $('.point[data-reference=' + $('.ZP').attr('data-background') + ']').each(function(index, element) {
+            $('line[data-from=' + $(element).attr('id') + ']').hide();
+        }).hide();
+        var $artifact = $(event.relatedTarget);
         $('.ZP')
-            .css('background-image', $(event.relatedTarget).css('background-image'))
+            .css('background-image', $artifact.css('background-image'))
             .css('background-position', 'center')
             .css('background-repeat', 'no-repeat')
             .css('background-size', 'contain')
-            .addClass('background');
+            .addClass('background')
+            .attr('data-background', $artifact.attr('id'));
         event.target.classList.remove('trash-target');
         event.relatedTarget.classList.remove('can-delete');
+        $('.point[data-reference=' + $('.ZP').attr('data-background') + ']').each(function(index, element) {
+            $('line[data-from=' + $(element).attr('id') + ']').show();
+        }).show();
     }
 });
 
@@ -172,10 +179,14 @@ interact('.circleMenu-open .background').dropzone({
  * ----------------------------------------
  */
 interact('.circleMenu-open .background').on('hold', function (event) {
+    $('.point[data-reference=' + $('.ZP').attr('data-background') + ']').each(function(index, element) {
+        $('line[data-from=' + $(element).attr('id') + ']').hide();
+    }).hide();
     $('.ZP')
         .css('background-image', '')
         .css('background-position', '')
         .css('background-repeat', '')
         .css('background-size', '')
-        .removeClass('background');
+        .removeClass('background')
+        .removeAttr('data-background');
 });

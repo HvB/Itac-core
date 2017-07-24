@@ -54,7 +54,10 @@ interact('.ZP')
                 y = event.clientY - $element.height() / 2;
                 id = guid();
                 $element.css('transform', 'translate(' + x + 'px, ' + y + 'px)');
-                $element.attr('id', id).attr('data-x', x).attr('data-y', y);
+                $element.attr('id', id)
+                    .attr('data-x', x)
+                    .attr('data-y', y)
+                    .attr('data-reference', $ZP.attr('data-background'));
             }
             var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             shape.setAttributeNS(null, 'class', 'temporary');
