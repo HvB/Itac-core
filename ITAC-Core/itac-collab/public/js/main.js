@@ -10,7 +10,7 @@ var ZP, ZINDEX = 1,
 
 $.get(location.href + '/config.json', function (data) {
     var url = window.location.hostname + ':' + data.configZP.portWebSocket;
-    ZP = data.configZP.portWebSocket.idZP;
+    ZP = data.configZP.idZP;
     
     /* -----------------------------------*/
     /*  creation du menu                */
