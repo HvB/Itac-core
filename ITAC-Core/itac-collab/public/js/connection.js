@@ -1,56 +1,41 @@
 /********************************************************************************************************/
 /* --------------------------------- Gestion de la connexion ------------------------------------------ */
 /********************************************************************************************************/
+var socket;
+class Connection {
+    constructor(url, event) {
+        if (jQuery.ui) {
+            console.log('PAGE : connexionApp.ejs -> charge JQuery');
+        } else {
+            console.log('PAGE : connexionApp.ejs -> charge JQuery');
+            console.log("PAGE : connexionApp.ejs : pas de chargement jQuery.ui");
+        }
 
-if (jQuery.ui) {
-    console.log('PAGE : connexionApp.ejs -> charge JQuery');
-} else {
-    console.log('PAGE : connexionApp.ejs -> charge JQuery');
-    console.log("PAGE : connexionApp.ejs : pas de chargement jQuery.ui");
-}
+        console.log('PAGE : connexionApp.ejs -> on s occupe maintenant de la connexion');
 
-console.log('PAGE : connexionApp.ejs -> on s occupe maintenant de la connexion');
+        console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
+        console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + url);
 
-console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
-console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + URL);
-
-/* -----------------------------------*/
-/*  creation du menu                */
-/* -----------------------------------*/
-
-$('.menu').circleMenu({
-    circle_radius: 150,
-    direction: 'full',
-    trigger: 'none',
-    open: function () {
-        var qrcode = new QRious({value: "itac://" + URL});
-        $('.menu .qr-code').css('background-image', 'url("' + qrcode.toDataURL() + '")');
+        this._socket = io.connect(url);
+        this._event = event;
+        this._socket.on('connect', (function () {
+            this.initialize();
+            this._socket.emit(this._event.DemandeConnexionZA);
+            console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= ' + ZP);
+        }).bind(this));
+        // socket = this._socket;
     }
-});
 
-/* -----------------------------------*/
-/*  connexion socket                  */
-/* -----------------------------------*/
-
-var socket; // TEMPORAIRE
-var startConnexion = function() { // TEMPORAIRE
-
-    socket = io.connect(URL);
-    socket.on('connect', function () {
-
-        console.log('PAGE ZA : workspace.ejs -> **** connexion socket ZA vers Serveur [OK] : idSocket =' + socket.id);
+    initialize() {
+        console.log('PAGE ZA : workspace.ejs -> **** connexion socket ZA vers Serveur [OK] : idSocket =' + this._socket.id);
         console.log('****************************************************************************');
 
         /* ------------------------------------------------------*/
         /* --- premiere connexion ZA (Zone d'affichage = App) ---*/
         /* ------------------------------------------------------*/
 
-        socket.emit('EVT_DemandeConnexionZA', URL, ZP);
-        console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= ' + ZP);
-
-        socket.on('EVT_ReponseOKConnexionZA', function (ZC) {
+        this._socket.on(this._event.ReponseOKConnexionZA, function (ZC) {
             console.log('PAGE : workspace.ejs -> ZC =' + JSON.stringify(ZC));
-            // console.log('PAGE : workspace.ejs -> menu App initial : ' + menu);
             console.log('PAGE : workspace.ejs -> ajout des ZP , total =' + ZC.nbZP);
 
             for (var i = 0; i < ZC.nbZP; i++) {
@@ -67,7 +52,7 @@ var startConnexion = function() { // TEMPORAIRE
         });
 
 // callback réponse NOK
-        socket.on('EVT_ReponseNOKConnexionZA', function () {
+        this._socket.on('EVT_ReponseNOKConnexionZA', function () {
             console.log('PAGE : workspace.js -> reception evenement [EVT_ReponseNOKConnexionZA]');
         });
 
@@ -78,7 +63,7 @@ var startConnexion = function() { // TEMPORAIRE
         /* ----- connexion d'une ZE ----*/
         /* ----------------------------- */
         /* --- cas où une tablette a été autorisée à se connecter à l'espace de travail --*/
-        socket.on('EVT_NewZEinZP', function (login, idZE, idZP, posAvatar) {
+        this._socket.on('EVT_NewZEinZP', function (login, idZE, idZP, posAvatar) {
             console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZP + '\n pour pseudo=' + login);
             var $element = $('.template .ZE').clone(),
                 nbZE = $('.ZP > .ZE').length;
@@ -111,7 +96,7 @@ var startConnexion = function() { // TEMPORAIRE
         /* ------------------------------------------- */
         /* ----- arrivée d'un artefact dans une ZE ----*/
         /* ------------------------------------------- */
-        socket.on('EVT_ReceptionArtefactIntoZE', function (login, idZE, data) {
+        this._socket.on('EVT_ReceptionArtefactIntoZE', function (login, idZE, data) {
             console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReceptionArtefactIntoZE] pour ZE= ' + idZE);
             var artifact = JSON.parse(data),
                 $element = $('.template .artifact.' + artifact.type).clone();
@@ -143,7 +128,7 @@ var startConnexion = function() { // TEMPORAIRE
         /* ------------------------------------------------- */
         /* ----- arrivée d'un artefact directement en ZP ----*/
         /* ------------------------------------------------- */
-        socket.on('EVT_ReceptionArtefactIntoZP', function (pseudo, idZP, data) {
+        this._socket.on('EVT_ReceptionArtefactIntoZP', function (pseudo, idZP, data) {
             console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReceptionArtefactIntoZP] pour ZP= ' + idZP);
             var artifact = JSON.parse(data),
                 $element = $('.template .artifact.' + artifact.type).clone();
@@ -174,7 +159,7 @@ var startConnexion = function() { // TEMPORAIRE
         /* ------------------------------------------------ */
         /* ----- Suppression d'un artefact d'une ZE ----*/
         /* ------------------------------------------------ */
-        socket.on('EVT_ArtefactDeletedFromZE', function (idAr, idZE, idZEP) {
+        this._socket.on('EVT_ArtefactDeletedFromZE', function (idAr, idZE, idZEP) {
             console.log('PAGE : workspace.js -> reception evenement [EVT_ArtefactDeletedFromZE] pour IdArt = ' + idAr + ' idZE=' + idZE + 'idZEP=' + idZEP);
             $('#' + idZE).find('#' + idAr).remove();
         })
@@ -184,7 +169,7 @@ var startConnexion = function() { // TEMPORAIRE
         /* ----- Deconnexion d'une ZE ----*/
         /* ------------------------------ */
 // c'est en fait EVT_SuppressZEinZP
-        socket.on('EVT_Deconnexion', function (login, idZE) {
+        this._socket.on('EVT_Deconnexion', function (login, idZE) {
             var $element = $('#' + idZE);
             $element.find('.container .artefact').each(function (index, element) {
                 var $element = $(element);
@@ -201,18 +186,17 @@ var startConnexion = function() { // TEMPORAIRE
         /* ------------------------------------------------ */
         /* ----- Acquittement de l'envoi d'un artefact vers une autre ZP ----*/
         /* ------------------------------------------------ */
-        socket.on('EVT_ReponseOKEnvoie_ArtefactdeZPversZP', function (idart) {
+        this._socket.on('EVT_ReponseOKEnvoie_ArtefactdeZPversZP', function (idart) {
             console.log("menu ITAC -> ZP.ondrop : transfert Artefact envoye et bien recu " + idart);
         });
 
         /* ------------------------------ */
         /* ----- Deconnexion d'une ZA ----*/
         /* ------------------------------ */
-        socket.on('disconnect', function () {
+        this._socket.on('disconnect', function () {
             $('.overlay').show();
             $('.overlay').css('z-index', ZINDEX);
             ZINDEX++;
         });
-    });
-
-};
+    }
+}
