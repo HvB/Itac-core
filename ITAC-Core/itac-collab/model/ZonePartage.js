@@ -418,7 +418,7 @@ getZEbySocket(idsocket) {
 
                 // on indique d'ou vient l'artefact
                 this.ZC.getArtifact(IdArtefact).setLastZE(idZE);
-                logger.debug('=> addArtifactFromZEPtoZP : affectation du LastZE [OK] = ' + idZE);
+                logger.debug('=> addArtifactFromZEPtoZE : affectation du LastZE [OK] = ' + idZE);
 
                 // affectation de l'artifact à la zone ZE
                 if (this.ZC.setArtifactIntoZE(IdArtefact, idZE)) {

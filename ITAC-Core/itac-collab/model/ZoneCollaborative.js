@@ -584,15 +584,23 @@ module.exports = class ZoneCollaborative {
         logger.debug('=> setArtifactIntoZE : deplacement artifact(' + id + ') vers ZE =' + IdZE);
         var monArtifact = this.getArtifact(id);
 
-        if (monArtifact.isInto(IdZE, TYPE.container.ZE) ) {
-            logger.debug('=> setArtifactIntoZE : déja en ZE' + monArtifact.id);
+        if (monArtifact === null)
+        {
+            logger.debug('=> setArtifactIntoZE : artefact inconnu');
             ret=false;
         }
-        else {
-            logger.debug('=> setArtifactIntoZE : recuperation artifact' + monArtifact.id);
-            monArtifact.setIntoZone(IdZE, TYPE.container.ZE);
-            logger.info('=> setArtifactIntoZE : artifact =' + monArtifact.id + ' vers ZE =' + IdZE + '[OK]');
+        else
+        {
+            if (monArtifact.isInto(IdZE, TYPE.container.ZE) ) {
+                logger.debug('=> setArtifactIntoZE : déja en ZE' + monArtifact.id);
+            }
+            else {
+                logger.debug('=> setArtifactIntoZE : recuperation artifact' + monArtifact.id);
+                monArtifact.setIntoZone(IdZE, TYPE.container.ZE);
+                logger.info('=> setArtifactIntoZE : artifact =' + monArtifact.id + ' vers ZE =' + IdZE + '[OK]');
+            }
         }
+
         return ret;
 
     };
