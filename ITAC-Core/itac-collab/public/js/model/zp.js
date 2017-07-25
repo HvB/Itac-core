@@ -4,7 +4,7 @@ class ZP {
         this._ZEs = {};
         this._background = null;
         this._artifacts = {};
-        this._otherZPs = {};
+        this._menu = new Menu();
     }
 
     get id() {
@@ -47,6 +47,18 @@ class ZP {
         delete this._artifacts[artifact.id()];
     }
 
+    getOtherZP(id) {
+        return this._menu.getOtherZP(id);
+    }
+
+    addOtherZP(otherZP) {
+        this._menu.addOtherZP(otherZP);
+    }
+
+    removeOtherZP(otherZP) {
+        this._menu.removeOtherZP(otherZP);
+    }
+
     moveArtifactToZP(idZE, idArtifact) {
         if (this._ZEs[idZE]) {
             this._artifacts[idArtifact] = this._ZEs[idZE].getArtifact(idArtifact);
@@ -62,7 +74,7 @@ class ZP {
     }
 
     moveArtifactToOtherZP(idZP, idArtifact) {
-        if (this._otherZPs[idZP]) {
+        if (this._menu.getOtherZP(idZP)) {
             //send idArtifact to idZP
             delete this._artifacts[idArtifact];
         }
