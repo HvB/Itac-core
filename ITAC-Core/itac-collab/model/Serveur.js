@@ -591,12 +591,12 @@ module.exports = class Serveur {
         } else {
             ZPcible = this.ZP.ZC.getZP(idZPcible);
             if (ZPcible != null) {
-                if (ZPcible.server.isZAConnected()) {
+                if (ZPcible.isZAConnected()) {
                     this.ZP.ZC.transfertArtefactZPtoZP(idAr, idZPsource, idZPcible);
                     transfert = true;
                     artifact = this.ZP.ZC.getArtifact(idAr);
                     // marche pas pas la bonne socket
-                    ZPcible.server._io.sockets.to(ZPcible.server.getSocketZA()).emit(EVENT.ReceptionArtefactIntoZP, '', ZPcible.getId(), JSON.stringify(artifact));
+                    ZPcible.server._io.sockets.to(ZPcible.getClientZAsocket()).emit(EVENT.ReceptionArtefactIntoZP, '', ZPcible.getId(), JSON.stringify(artifact));
                 }
             }
             if (!transfert) {
