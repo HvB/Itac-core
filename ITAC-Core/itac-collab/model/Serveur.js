@@ -654,18 +654,20 @@ module.exports = class Serveur {
         // envoi d'un evenement pour mettre à jour le client ZA, s'il est connecté
         if (this.ZP.isZAConnected()) {
 
+
+            this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.SuppressZEinZP, "", idZE);
+            logger.debug('=> deconnexionZE : event suppression de ZE (' + idZE + ") pour la ZA [OK]" );
+
             for (var i = 0 ; i < artefact2ZP.length ; i++) {
-                this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.EnvoieArtefactdeZEversZP, artefact2ZP[i], idZE);
+                this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.ReceptionArtefactIntoZP, idZE,this.ZP.getId(),JSON.stringify(this.ZP.ZC.getArtifact(artefact2ZP[i])));
                 logger.debug('=> deconnexionZE : event ZE2ZP pour artefact (' + artefact2ZP[i] + ") envoye à la ZA " );
             }
 
-            this._io.sockets.to(this.ZP.getClientZAsocket()).emit(EVENT.SuppressZEinZP, "", idZE);
-            logger.debug('=> deconnexionZE : event suppression de ZE(' + idZE + ") pour la ZA [OK]" );
-
         }
         else {
-            logger.debug('=> deconnexionZE : pas de ZA connecté connecté pour recevoir ' + EVENT.SuppressZEinZP+ ' et '+EVENT.EnvoieArtefactdeZEversZP);
+            logger.debug('=> deconnexionZE : pas de ZA connecté connecté pour recevoir ' + EVENT.SuppressZEinZP );
         }
+        logger.info('=> deconnexionZE : fin du traitement de deconnexin pour la ZE = '+idZE);
     };
 
     /**

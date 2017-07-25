@@ -354,7 +354,7 @@ module.exports = class ZoneCollaborative {
             if (item.isInto(idZE, TYPE.container.ZE)) {
 
 
-                this.getArtifact(idAr).setLastZE(idZE);
+                this.getArtifact(item.getId()).setLastZE(idZE);
                 logger.debug('=> transfertAllArtifactsInZP : affectation du LastZE [OK] = ' + idZE);
 
                 logger.info('=> transfertAllArtifactsInZP : changement conteneur artefacts Id=' + item.getId());
