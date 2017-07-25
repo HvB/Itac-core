@@ -76,8 +76,7 @@ interact('.circleMenu-open .send').dropzone({
         var $artifact = $(event.relatedTarget);
         var idAr = $artifact.attr('id');
         var idZPcible = $(event.target).attr('data-ZP');
-        console.log("menu ITAC -> ZP.ondrop : transfert ART = " + idAr + " de ZP=" + ZP + " vers ZP=" + idZPcible);
-        socket.emit('EVT_Envoie_ArtefactdeZPversZP', idAr, ZP, idZPcible);
+        CX.emitArtifactFromZPtoOtherZP(idAr, idZPcible); // TEMPORAIRE
         console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
         $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function(index, element) {
             var $shape = $(element),
@@ -121,8 +120,7 @@ interact('.circleMenu-open .trash').dropzone({
     ondrop: function (event) {
         var $artifact = $(event.relatedTarget),
             id = $artifact.attr('id');
-        console.log("menu ITAC -> suppresion ART = " + id);
-        socket.emit('EVT_ArtefactDeletedFromZP', id);
+        CX.emitRemovedArtifactInZP(id); // TEMPORAIRE
         $('line[data-from=' + id + '], line[data-to=' + id + ']').each(function(index, element) {
             var $shape = $(element),
                 $artifact = $('#' + $shape.attr('data-from'));

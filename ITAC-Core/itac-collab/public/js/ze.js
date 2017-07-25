@@ -28,9 +28,9 @@ interact('.ZE')
             // on recupeère les identifiant
             var idAr = event.relatedTarget.id, idZE = event.target.id;
             console.log('ondragleave d un Artefact (' + idAr + ') de la ZE= ' + idZE + ' vers la ZP= ' + ZP);
-            console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP] idSocket =' + socket.id + ' idAR=' + idAr + ' idZE=' + idZE + ' idZP=' + ZP);
-            socket.emit('EVT_Envoie_ArtefactdeZEversZP', idAr, idZE, ZP);
-            console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP] ');
+            console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP]');
+            CX.emitArtifactFromZEtoZP(idAr, idZE); // TEMPORAIRE
+            console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
 
             $(event.target).removeClass('drop-target');
             $(event.relatedTarget).removeClass('can-drop');
@@ -42,7 +42,7 @@ interact('.ZE')
             console.log('ondrop d un Artefact (' + idAr + ') vers ZE= ' + idZE);
             console.log('ondrop d un Artefact --> className =' + $(event.relatedTarget).attr('class'));
             console.log('ondrop d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
-            socket.emit('EVT_Envoie_ArtefactdeZPversZE', idAr, idZE);
+            CX.emitArtifactFromZPtoZE(idAr, idZE); // TEMPORAIRE
 
             $(event.relatedTarget).find("p").hide();
             $(event.relatedTarget).remove().css('transform', '').appendTo($(event.target).find('.container'));

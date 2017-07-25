@@ -1,4 +1,4 @@
-var ZP, ZINDEX = 1,
+var ZP, CX, ZINDEX = 1,
     ANGLE_TOP = 180,
     ANGLE_LEFT = 90,
     ANGLE_BOTTOM = 0,
@@ -25,5 +25,18 @@ $.get(location.href + '/config.json', function (data) {
             $('.menu .qr-code').css('background-image', 'url("' + qrcode.toDataURL() + '")');
         }
     });
-    new Connection(url, data.event);
+
+    if (jQuery.ui) {
+        console.log('PAGE : connexionApp.ejs -> charge JQuery');
+    } else {
+        console.log('PAGE : connexionApp.ejs -> charge JQuery');
+        console.log("PAGE : connexionApp.ejs : pas de chargement jQuery.ui");
+    }
+
+    console.log('PAGE : connexionApp.ejs -> on s occupe maintenant de la connexion');
+
+    console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
+    console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + url);
+
+    CX = new Connection(url, data.event);
 });
