@@ -1,5 +1,4 @@
-var CX,
-    Z_INDEX = 1,
+var Z_INDEX = 1,
     ANGLE_TOP = 180,
     ANGLE_LEFT = 90,
     ANGLE_BOTTOM = 0,
@@ -22,6 +21,10 @@ $.get(location.href + '/config.json', function (data) {
     console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
     console.log('PAGE : workspace.ejs -> demande connection socket');
 
-    var mZP = new ZP(data.configZP.idZP, window.location.hostname + ':' + data.configZP.portWebSocket);
-    CX = new Connection(mZP, data.event);
+    var mZP = new ZP(data.configZP.idZP, window.location.hostname + ':' + data.configZP.portWebSocket),
+        connection = new Connection(mZP, data.event);
+    new MenuView(mZP, connection);
+    new ZPView(mZP, connection);
+    new ZEView(mZP, connection);
+    new ArtifactView(mZP, connection);
 });
