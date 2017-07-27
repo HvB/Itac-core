@@ -7,6 +7,7 @@ class Artifact {
         this._scale = 1;
         this._angle = 0;
         this._ZE = null;
+        this._isBackground = false;
     }
 
     get id() {
@@ -55,5 +56,13 @@ class Artifact {
 
     set ZE(ZE) {
         this._ZE = ZE;
+    }
+
+    get isBackground() {
+        return this._isBackground;
+    }
+
+    set background(isBackground) {
+        this._isBackground = isBackground;
     }
 }

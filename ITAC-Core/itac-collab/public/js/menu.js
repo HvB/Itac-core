@@ -7,8 +7,8 @@ interact('.menu').draggable({
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
     onstart: function (event) {
-        $('.menu').css('z-index', ZINDEX);
-        ZINDEX++;
+        $('.menu').css('z-index', Z_INDEX);
+        Z_INDEX++;
     },
     onmove: function (event) {
         var $element = $(event.target),
@@ -24,8 +24,8 @@ interact('.menu').draggable({
     restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
     autoScroll: true,
     onstart: function (event) {
-        $('.menu').css('z-index', ZINDEX);
-        ZINDEX++;
+        $('.menu').css('z-index', Z_INDEX);
+        Z_INDEX++;
     },
     onmove: function (event) {
         var $element = $(event.target),
@@ -45,8 +45,8 @@ interact('.menu').draggable({
  */
 interact('.menu li').on('tap', function () {
     $('.menu').circleMenu($('ul').hasClass('circleMenu-open') ? 'close' : 'open');
-    $('.menu').css('z-index', ZINDEX);
-    ZINDEX++;
+    $('.menu').css('z-index', Z_INDEX);
+    Z_INDEX++;
 });
 
 /* ----------------------------------------- 
@@ -72,10 +72,9 @@ interact('.circleMenu-open .send').dropzone({
     },
 
     ondrop: function (event) {
-        // bizarre bug js ? pour relatedTarget il faut le value et pas pour target
         var $artifact = $(event.relatedTarget);
         var idAr = $artifact.attr('id');
-        var idZPcible = $(event.target).attr('data-ZP');
+        var idZPcible = $(event.target).attr('id');
         CX.emitArtifactFromZPtoOtherZP(idAr, idZPcible); // TEMPORAIRE
         console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
         $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function(index, element) {

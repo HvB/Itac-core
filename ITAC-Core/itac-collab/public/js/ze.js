@@ -27,7 +27,7 @@ interact('.ZE')
         ondragleave: function (event) {
             // on recupeère les identifiant
             var idAr = event.relatedTarget.id, idZE = event.target.id;
-            console.log('ondragleave d un Artefact (' + idAr + ') de la ZE= ' + idZE + ' vers la ZP= ' + ZP);
+            console.log('ondragleave d un Artefact (' + idAr + ') de la ZE= ' + idZE);// + ' vers la ZP= ' + mZP.id);
             console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP]');
             CX.emitArtifactFromZEtoZP(idAr, idZE); // TEMPORAIRE
             console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
@@ -68,8 +68,8 @@ interact('.ZE')
             var $element = $(event.target);
             $('.artifact[data-ze=' + $element.attr('id') + ']').removeClass('active');
             $('svg [data-ze=' + $element.attr('id') + ']').remove();
-            $element.css('z-index', ZINDEX);
-            ZINDEX++;
+            $element.css('z-index', Z_INDEX);
+            Z_INDEX++;
         },
         onmove: function (event) {
             var $element = $(event.target),

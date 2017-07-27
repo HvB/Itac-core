@@ -1,30 +1,30 @@
 class ZP {
-    constructor(id) {
+    constructor(id, url) {
         this._id = id;
         this._ZEs = {};
         this._background = null;
         this._artifacts = {};
-        this._menu = new Menu();
+        this._menu = new Menu(url);
     }
 
     get id() {
         return this._id;
     }
 
-    getZE(id) {
-        return this._ZEs[id];
+    getZE(idZE) {
+        return this._ZEs[idZE];
     }
 
     countZE() {
         return this._ZEs.length;
     }
 
-    addZE(ZE) {
-        this._ZEs[ZE.id()] = ZE;
+    addZE(idZE, ZE) {
+        this._ZEs[idZE] = ZE;
     }
 
-    removeZE(ZE) {
-        delete this._ZEs[ZE.id()];
+    removeZE(idZE) {
+        delete this._ZEs[idZE];
     }
 
     get background() {
@@ -35,28 +35,20 @@ class ZP {
         this._background = background;
     }
 
-    getArtifact(id) {
-        return this._artifacts[id];
+    getArtifact(idArtifact) {
+        return this._artifacts[idArtifact];
     }
 
-    addArtifact(artifact) {
-        this._artifacts[artifact.id()] = artifact;
+    addArtifact(idArtifact, artifact) {
+        this._artifacts[idArtifact] = artifact;
     }
 
-    removeArtifact(artifact) {
-        delete this._artifacts[artifact.id()];
+    removeArtifact(idArtifact) {
+        delete this._artifacts[idArtifact];
     }
 
-    getOtherZP(id) {
-        return this._menu.getOtherZP(id);
-    }
-
-    addOtherZP(otherZP) {
-        this._menu.addOtherZP(otherZP);
-    }
-
-    removeOtherZP(otherZP) {
-        this._menu.removeOtherZP(otherZP);
+    get menu() {
+        return this._menu;
     }
 
     moveArtifactToZP(idZE, idArtifact) {

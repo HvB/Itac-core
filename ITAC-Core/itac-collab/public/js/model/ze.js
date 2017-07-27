@@ -1,4 +1,4 @@
-class ZP {
+class ZE {
     constructor(id) {
         this._id = id;
         this._x = 0;
@@ -62,15 +62,15 @@ class ZP {
         return this._orientation;
     }
 
-    getArtifact(id) {
-        return this._artifacts[id];
+    getArtifact(idArtifact) {
+        return this._artifacts[idArtifact];
     }
 
-    addArtifact(artifact) {
-        this._artifacts[artifact.id()] = artifact;
+    addArtifact(idArtifact, artifact) {
+        this._artifacts[idArtifact] = artifact;
     }
 
-    removeArtifact(artifact) {
-        delete this._artifacts[artifact.id()];
+    removeArtifact(idArtifact) {
+        delete this._artifacts[idArtifact];
     }
 }

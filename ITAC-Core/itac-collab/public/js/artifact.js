@@ -66,8 +66,8 @@ interact('.artifact')
             }
             $element.removeClass('active');
             $('svg [data-artifact=' + $element.attr('id') + ']').remove();
-            $element.css('z-index', ZINDEX);
-            ZINDEX++;
+            $element.css('z-index', Z_INDEX);
+            Z_INDEX++;
         },
         onmove: function (event) {
             var $element = $(event.target),
@@ -139,8 +139,8 @@ interact('.ZP > .artifact')
     })
     .on('tap', function (event) {
         var $artifact = $(event.currentTarget);
-        $artifact.css('z-index', ZINDEX);
-        ZINDEX++;
+        $artifact.css('z-index', Z_INDEX);
+        Z_INDEX++;
         if ($artifact.hasClass('active')) {
             $artifact.removeClass('active');
             $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();

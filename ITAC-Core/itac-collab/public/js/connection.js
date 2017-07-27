@@ -4,14 +4,15 @@
 class Connection {
     /**
      * Crée la connexion
-     * @param url lien pour établir la connexion
+     * @param ZP zone de partage courante
      * @param event liste des évènements de la socket
      */
-    constructor(url, events) {
-        this._socket = io.connect(url);
+    constructor(ZP, events) {
+        this._ZP = ZP;
         this._events = events;
+        this._socket = io.connect(this._ZP.menu.url);
         this._socket.on('connect', (function () {
-            this._initialize()
+            this._initialize();
         }).bind(this));
     }
 
@@ -56,7 +57,7 @@ class Connection {
         }).bind(this));
 
         this._socket.on('disconnect', (function () {
-            this._onDisconnection();
+            this._onZADisconnection();
         }).bind(this));
 
         this._emitConnection();
@@ -71,17 +72,30 @@ class Connection {
         console.log('PAGE : workspace.ejs -> ZC =' + JSON.stringify(ZC));
         console.log('PAGE : workspace.ejs -> ajout des ZP , total =' + ZC.nbZP);
 
+        var $element = $('.ZP > .menu');
+        $element.find('.send').remove();
         for (var i = 0; i < ZC.nbZP; i++) {
-            if (ZC.ZP[i].idZP != ZP) {
-                console.log('PAGE : workspace.ejs -> menu App , push = ' + ZC.ZP[i].idZP + " ZP");
-                $('.menu').append('<li class="send" data-ZP="' + ZC.ZP[i].idZP + '">' + ZC.ZP[i].idZP + '</li>');
+            if (ZC.ZP[i].idZP != this._ZP.id) {
+                var otherZP = ZC.ZP[i],
+                    idZP = otherZP.idZP;
+                console.log('PAGE : workspace.ejs -> menu App , push = ' + idZP + " ZP");
+                this._ZP.menu.addOtherZP(idZP, otherZP);
+                $('.template > .menu').find('.send').clone().attr('id', idZP).html(idZP).appendTo($element);
             }
         }
-        $('.menu').circleMenu('init');
+        $element.circleMenu({
+            circle_radius: 150,
+            direction: 'full',
+            trigger: 'none',
+            open: (function () {
+                $element.find('.qr-code').css('background-image', 'url("'
+                    + new QRious({value: "itac://" + this._ZP.menu.url}).toDataURL() + '")');
+            }).bind(this)
+        });
         $('.overlay').hide();
 
-        console.log('Zone collaborative active : ' + ZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + ZP + '\n\n');
-        console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= ' + ZP);
+        console.log('Zone collaborative active : ' + ZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + this._ZP.id + '\n\n');
+        console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= ' + this._ZP.id);
     }
 
     /**
@@ -146,7 +160,7 @@ class Connection {
                 $element.find('p').first().text(artifact.content);
                 break;
             case 'image':
-                $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
+                $element.css('background-image', 'url(data:image/*;base64,' + artifact.content + ')');
         }
         $element.find('.historic .creator').text(artifact.creator);
         $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
@@ -182,7 +196,7 @@ class Connection {
                 $element.find('p').first().text(artifact.content);
                 break;
             case 'image':
-                $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
+                $element.css('background-image', 'url(data:image/*;base64,' + artifact.content + ')');
         }
         $element.find('.historic .creator').text(artifact.creator);
         $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
@@ -236,10 +250,10 @@ class Connection {
      * Ecoute la déconnexion de la ZA
      * @private
      */
-    _onDisconnection() {
+    _onZADisconnection() {
         $('.overlay').show();
-        $('.overlay').css('z-index', ZINDEX);
-        ZINDEX++;
+        $('.overlay').css('z-index', Z_INDEX);
+        Z_INDEX++;
     }
 
     /**
@@ -248,7 +262,7 @@ class Connection {
      */
     _emitConnection() {
         this._socket.emit(this._events.DemandeConnexionZA);
-        console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= ' + ZP);
+        console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= ' + this._ZP.id);
     }
 
     /**
@@ -258,8 +272,8 @@ class Connection {
      * @public
      */
     emitArtifactFromZEtoZP(idArtifact, idZE) {
-        console.log('ondragleave d un Artefact (' + idArtifact + ') de la ZE= ' + idZE + ' vers la ZP= ' + ZP);
-        this._socket.emit(this._events.EnvoieArtefactdeZEversZP, idArtifact, idZE, ZP);
+        console.log('ondragleave d un Artefact (' + idArtifact + ') de la ZE= ' + idZE + ' vers la ZP= ' + this._ZP.id);
+        this._socket.emit(this._events.EnvoieArtefactdeZEversZP, idArtifact, idZE, this._ZP.id);
     }
 
     /**
@@ -269,7 +283,7 @@ class Connection {
      * @public
      */
     emitArtifactFromZPtoZE(idArtifact, idZE) {
-        console.log('ondrop d un Artefact (' + idArtifact + ') de la ZP= ' + ZP + ' vers la ZE= ' + idZE);
+        console.log('ondrop d un Artefact (' + idArtifact + ') de la ZP= ' + this._ZP.id + ' vers la ZE= ' + idZE);
         this._socket.emit(this._events.EnvoieArtefactdeZPversZE, idArtifact, idZE);
     }
 
@@ -279,8 +293,8 @@ class Connection {
      * @param idOtherZP id de l'autre ZP
      */
     emitArtifactFromZPtoOtherZP(idArtifact, idOtherZP) {
-        console.log("menu ITAC -> transfert ART = " + idArtifact + " de ZP=" + ZP + " vers ZP=" + idOtherZP);
-        this._socket.emit(this._events.EnvoieArtefactdeZPversZP, idArtifact, ZP, idOtherZP);
+        console.log("menu ITAC -> transfert ART = " + idArtifact + " de ZP=" + this._ZP.id + " vers ZP=" + idOtherZP);
+        this._socket.emit(this._events.EnvoieArtefactdeZPversZP, idArtifact, this._ZP.id, idOtherZP);
     }
 
     /**

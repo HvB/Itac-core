@@ -1,4 +1,5 @@
-var ZP, CX, ZINDEX = 1,
+var CX,
+    Z_INDEX = 1,
     ANGLE_TOP = 180,
     ANGLE_LEFT = 90,
     ANGLE_BOTTOM = 0,
@@ -9,23 +10,6 @@ var ZP, CX, ZINDEX = 1,
     ORIENTATION_RIGHT = 'left';
 
 $.get(location.href + '/config.json', function (data) {
-    var url = window.location.hostname + ':' + data.configZP.portWebSocket;
-    ZP = data.configZP.idZP;
-    
-    /* -----------------------------------*/
-    /*  creation du menu                */
-    /* -----------------------------------*/
-
-    $('.menu').circleMenu({
-        circle_radius: 150,
-        direction: 'full',
-        trigger: 'none',
-        open: function () {
-            var qrcode = new QRious({value: "itac://" + url});
-            $('.menu .qr-code').css('background-image', 'url("' + qrcode.toDataURL() + '")');
-        }
-    });
-
     if (jQuery.ui) {
         console.log('PAGE : connexionApp.ejs -> charge JQuery');
     } else {
@@ -36,7 +20,8 @@ $.get(location.href + '/config.json', function (data) {
     console.log('PAGE : connexionApp.ejs -> on s occupe maintenant de la connexion');
 
     console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
-    console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + url);
+    console.log('PAGE : workspace.ejs -> demande connection socket');
 
-    CX = new Connection(url, data.event);
+    var mZP = new ZP(data.configZP.idZP, window.location.hostname + ':' + data.configZP.portWebSocket);
+    CX = new Connection(mZP, data.event);
 });
