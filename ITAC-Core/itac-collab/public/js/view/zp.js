@@ -45,7 +45,7 @@ class ZPView extends View {
                     $(event.target).removeClass('drop-active drop-target');
                 }
             })
-            .on('hold', function (event) {
+            .on('hold', (function (event) {
                 var $ZP = $(event.currentTarget),
                     $element = $(event.target);
                 if (($element.hasClass('artifact') && !$ZP.hasClass('background'))
@@ -63,7 +63,7 @@ class ZPView extends View {
                         $element.attr('id', id)
                             .attr('data-x', x)
                             .attr('data-y', y)
-                            .attr('data-reference', $ZP.attr('data-background'));
+                            .attr('data-reference', this._ZP.background);
                     }
                     var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                     shape.setAttributeNS(null, 'class', 'temporary');
@@ -81,7 +81,7 @@ class ZPView extends View {
                         interaction.start({name: 'drag'}, interact('line'), shape);
                     }
                 }
-            });
+            }).bind(this));
 
         interact('line')
             .draggable({

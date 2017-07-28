@@ -53,7 +53,7 @@ class Connection {
         }).bind(this));
 
         this._socket.on(this._events.ReponseOKEnvoie_ArtefactdeZPversZP, (function (idArtifact) {
-            this._onArtifactFromZPtoOtherZP(idArtifact);
+            this._onArtifactFromZPToOtherZP(idArtifact);
         }).bind(this));
 
         this._socket.on('disconnect', (function () {
@@ -242,7 +242,7 @@ class Connection {
      * @param idArtifact id de l'artefact
      * @private
      */
-    _onArtifactFromZPtoOtherZP(idArtifact) {
+    _onArtifactFromZPToOtherZP(idArtifact) {
         console.log("menu ITAC -> ZP.ondrop : transfert Artefact envoye et bien recu " + idArtifact);
     }
 
@@ -292,7 +292,7 @@ class Connection {
      * @param idArtifact id de l'artefact
      * @param idOtherZP id de l'autre ZP
      */
-    emitArtifactFromZPtoOtherZP(idArtifact, idOtherZP) {
+    emitArtifactFromZPToOtherZP(idArtifact, idOtherZP) {
         console.log("menu ITAC -> transfert ART = " + idArtifact + " de ZP=" + this._ZP.id + " vers ZP=" + idOtherZP);
         this._socket.emit(this._events.EnvoieArtefactdeZPversZP, idArtifact, this._ZP.id, idOtherZP);
     }

@@ -16,15 +16,13 @@ class MenuView extends View {
                 $('.menu').css('z-index', Z_INDEX);
                 Z_INDEX++;
             },
-            onmove: function (event) {
+            onmove: (function (event) {
                 var $element = $(event.target),
-                    x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
-                    y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
-                    angle = parseFloat($element.attr('data-a'));
-                $element.css('transform', 'translate(' + x + 'px, ' + y + 'px)' + (angle ? ' rotate(' + angle + 'deg)' : ''));
-                $element.attr('data-x', x);
-                $element.attr('data-y', y);
-            }
+                    menu = this._ZP.menu;
+                menu.x += event.dx;
+                menu.y += event.dy;
+                $element.css('transform', 'translate(' + menu.x + 'px, ' + menu.y + 'px) rotate(' + menu.angle + 'deg)');
+            }).bind(this)
         }).gesturable({
             inertia: true,
             restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
@@ -33,27 +31,27 @@ class MenuView extends View {
                 $('.menu').css('z-index', Z_INDEX);
                 Z_INDEX++;
             },
-            onmove: function (event) {
+            onmove: (function (event) {
                 var $element = $(event.target),
-                    x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
-                    y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
-                    angle = (parseFloat($element.attr('data-a')) || 0) + event.da;
-                $element.css('transform', 'translate(' + x + 'px, ' + y + 'px) rotate(' + angle + 'deg)');
-                $element.attr('data-x', x);
-                $element.attr('data-y', y);
-                $element.attr('data-a', angle);
-            }
+                    menu = this._ZP.menu;
+                menu.x += event.dx;
+                menu.y += event.dy;
+                menu.angle += event.da;
+                $element.css('transform', 'translate(' + menu.x + 'px, ' + menu.y + 'px) rotate(' + menu.angle + 'deg)');
+            }).bind(this)
         });
 
         /* ---------------------------------
          * permet d'ouvrir et fermer le menu
          * ---------------------------------
          */
-        interact('.menu li').on('tap', function () {
-            $('.menu').circleMenu($('ul').hasClass('circleMenu-open') ? 'close' : 'open');
+        interact('.menu li').on('tap', (function () {
+            var opened = this._ZP.menu.opened;
+            this._ZP.menu.opened = !opened;
+            $('.menu').circleMenu(opened ? 'close' : 'open');
             $('.menu').css('z-index', Z_INDEX);
             Z_INDEX++;
-        });
+        }).bind(this));
 
         /* -----------------------------------------
          * permet d'envoyer un artefact vers une ZP
@@ -79,11 +77,11 @@ class MenuView extends View {
 
             ondrop: (function (event) {
                 var $artifact = $(event.relatedTarget);
-                var idAr = $artifact.attr('id');
-                var idZPcible = $(event.target).attr('id');
-                this._connection.emitArtifactFromZPtoOtherZP(idAr, idZPcible);
+                var idArtifact = $artifact.attr('id');
+                var idOtherZP = $(event.target).attr('id');
+                this._connection.emitArtifactFromZPToOtherZP(idArtifact, idOtherZP);
                 console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
-                $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function(index, element) {
+                $('line[data-from=' + idArtifact + '], line[data-to=' + idArtifact + ']').each(function(index, element) {
                     var $shape = $(element),
                         $artifact = $('#' + $shape.attr('data-from'));
                     $shape.remove();
@@ -91,6 +89,7 @@ class MenuView extends View {
                         $artifact.remove();
                     }
                 });
+                this._ZP.removeArtifact(idArtifact);
                 $artifact.remove();
             }).bind(this),
 
@@ -134,6 +133,7 @@ class MenuView extends View {
                         $artifact.remove();
                     }
                 });
+                this._ZP.removeArtifact(idArtifact);
                 $artifact.remove();
             }).bind(this),
 
@@ -165,41 +165,42 @@ class MenuView extends View {
                 event.relatedTarget.classList.remove('can-delete');
             },
 
-            ondrop: function (event) {
-                $('.point[data-reference=' + $('.ZP').attr('data-background') + ']').each(function(index, element) {
+            ondrop: (function (event) {
+                var $artifact = $(event.relatedTarget);
+                this._ZP.background = $artifact.attr('id');
+                $('.point[data-reference=' + this._ZP.background + ']').each(function(index, element) {
                     $('line[data-from=' + $(element).attr('id') + ']').hide();
                 }).hide();
-                var $artifact = $(event.relatedTarget);
                 $('.ZP')
                     .css('background-image', $artifact.css('background-image'))
                     .css('background-position', 'center')
                     .css('background-repeat', 'no-repeat')
                     .css('background-size', 'contain')
                     .addClass('background')
-                    .attr('data-background', $artifact.attr('id'));
+                    .attr('data-background', this._ZP.background);
                 event.target.classList.remove('trash-target');
                 event.relatedTarget.classList.remove('can-delete');
-                $('.point[data-reference=' + $('.ZP').attr('data-background') + ']').each(function(index, element) {
+                $('.point[data-reference=' + this._ZP.background + ']').each(function(index, element) {
                     $('line[data-from=' + $(element).attr('id') + ']').show();
                 }).show();
-            }
+            }).bind(this)
         });
 
         /* -----------------------------------------
          * permet de revenir au fond original
          * ----------------------------------------
          */
-        interact('.circleMenu-open .background').on('hold', function (event) {
-            $('.point[data-reference=' + $('.ZP').attr('data-background') + ']').each(function(index, element) {
+        interact('.circleMenu-open .background').on('hold', (function (event) {
+            $('.point[data-reference=' + this._ZP.background + ']').each(function(index, element) {
                 $('line[data-from=' + $(element).attr('id') + ']').hide();
             }).hide();
+            this._ZP.background = null;
             $('.ZP')
                 .css('background-image', '')
                 .css('background-position', '')
                 .css('background-repeat', '')
                 .css('background-size', '')
-                .removeClass('background')
-                .removeAttr('data-background');
-        });
+                .removeClass('background');
+        }).bind(this));
     }
 }

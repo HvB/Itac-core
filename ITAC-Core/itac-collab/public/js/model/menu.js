@@ -10,7 +10,9 @@ class Menu {
         this._url = url;
         this._x = 0;
         this._y = 0;
+        this._angle = 0;
         this._otherZPs = {};
+        this._opened = false;
     }
 
     get url() {
@@ -33,6 +35,14 @@ class Menu {
         this._y = y;
     }
 
+    get angle() {
+        return this._angle;
+    }
+
+    set angle(angle) {
+        this._angle = angle;
+    }
+
     get otherZPs() {
         return this._otherZPs;
     }
@@ -47,5 +57,13 @@ class Menu {
 
     removeOtherZP(idOtherZP) {
         delete this._otherZPs[idOtherZP];
+    }
+
+    get opened() {
+        return this._opened;
+    }
+
+    set opened(opened) {
+        this._opened = opened;
     }
 }
