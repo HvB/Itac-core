@@ -35,7 +35,7 @@ class ZEView extends View {
                     var idAr = event.relatedTarget.id, idZE = event.target.id;
                     console.log('ondragleave d un Artefact (' + idAr + ') de la ZE= ' + idZE);// + ' vers la ZP= ' + mZP.id);
                     console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP]');
-                    this._connection.emitArtifactFromZEtoZP(idAr, idZE);
+                    this._connection.emitArtifactFromZEToZP(idAr, idZE);
                     console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
 
                     $(event.target).removeClass('drop-target');
@@ -48,7 +48,7 @@ class ZEView extends View {
                     console.log('ondrop d un Artefact (' + idAr + ') vers ZE= ' + idZE);
                     console.log('ondrop d un Artefact --> className =' + $(event.relatedTarget).attr('class'));
                     console.log('ondrop d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
-                    this._connection.emitArtifactFromZPtoZE(idAr, idZE);
+                    this._connection.emitArtifactFromZPToZE(idAr, idZE);
 
                     $(event.relatedTarget).find("p").hide();
                     $(event.relatedTarget).remove().css('transform', '').appendTo($(event.target).find('.container'));
@@ -77,70 +77,62 @@ class ZEView extends View {
                     $element.css('z-index', Z_INDEX);
                     Z_INDEX++;
                 },
-                onmove: function (event) {
+                onmove: (function (event) {
                     var $element = $(event.target),
-                        x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
-                        y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
-                        width = $('.ZP').width(),
-                        height = $('.ZP').height(),
-                        angle = parseFloat($element.attr('data-a')) || 0;
+                        ZE = this._ZP.getZE($element.attr('id')),
+                        $ZP = $('.ZP'),
+                        width = $ZP.width(),
+                        height = $ZP.height();
+                    ZE.x += event.dx;
+                    ZE.y += event.dy;
                     if (event.pageX * height / width <= event.pageY) {
                         if (height - event.pageX * height / width <= event.pageY) {
-                            $element.attr('data-orientation', 'bottom');
-                            angle = 0;
+                            ZE.angle = ANGLE_BOTTOM;
                         } else {
-                            $element.attr('data-orientation', 'left');
-                            angle = 90;
+                            ZE.angle = ANGLE_LEFT;
                         }
                     } else {
                         if (height - event.pageX * height / width <= event.pageY) {
-                            $element.attr('data-orientation', 'right');
-                            angle = 270;
+                            ZE.angle = ANGLE_RIGHT;
                         } else {
-                            $element.attr('data-orientation', 'top');
-                            angle = 180;
+                            ZE.angle = ANGLE_TOP;
                         }
                     }
-                    $element.css('transform', 'translate(' + x + 'px, ' + y + 'px) rotate(' + angle + 'deg)');
-                    $element.attr('data-x', x);
-                    $element.attr('data-y', y);
-                    $element.attr('data-a', angle);
-                },
-                onend: function (event) {
+                    $element.css('transform', 'translate(' + ZE.x + 'px, ' + ZE.y + 'px) rotate(' + ZE.angle + 'deg)');
+                }).bind(this),
+                onend: (function (event) {
                     var $element = $(event.target),
+                        ZE = this._ZP.getZE($element.attr('id')),
                         $ZP = $('.ZP'),
-                        offset = $element.offset(),
-                        x = parseFloat($element.attr('data-x')) || 0,
-                        y = parseFloat($element.attr('data-y')) || 0,
                         width = $ZP.width(),
                         height = $ZP.height(),
-                        angle = parseFloat($element.attr('data-a')) || 0;
-                    switch ($element.attr('data-orientation')) {
-                        case 'bottom':
-                            y -= -height + $element.height();
-                        case 'top':
-                            y -= offset.top;
-                            if (offset.left < 0) {
-                                x -= offset.left;
-                            } else if (offset.left > width - $element.width()) {
-                                x -= offset.left - width + $element.width();
+                        offset = $element.offset(),
+                        top = offset.top,
+                        left = offset.left;
+                    switch (ZE.angle) {
+                        case ANGLE_BOTTOM:
+                            ZE.y -= -height + $element.height();
+                        case ANGLE_TOP:
+                            ZE.y -= top;
+                            if (left < 0) {
+                                ZE.x -= left;
+                            } else if (left > width - $element.width()) {
+                                ZE.x -= left - width + $element.width();
                             }
                             break;
-                        case 'right':
-                            x -= -width + $element.height();
-                        case 'left':
-                            x -= offset.left;
-                            if (offset.top < 0) {
-                                y -= offset.top;
-                            } else if (offset.top > height - $element.width()) {
-                                y -= offset.top - height + $element.width();
+                        case ANGLE_RIGHT:
+                            ZE.x -= -width + $element.height();
+                        case ANGLE_LEFT:
+                            ZE.x -= left;
+                            if (top < 0) {
+                                ZE.y -= top;
+                            } else if (top > height - $element.width()) {
+                                ZE.y -= top - height + $element.width();
                             }
                             break;
                     }
-                    $element.css('transform', 'translate(' + x + 'px, ' + y + 'px) rotate(' + angle + 'deg)');
-                    $element.attr('data-x', x);
-                    $element.attr('data-y', y);
-                }
+                    $element.css('transform', 'translate(' + ZE.x + 'px, ' + ZE.y + 'px) rotate(' + ZE.angle + 'deg)');
+                }).bind(this)
             });
     }
 }

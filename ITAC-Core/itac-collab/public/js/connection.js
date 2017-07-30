@@ -124,23 +124,12 @@ class Connection {
         $element.find('img').attr('id', 'avatar' + posAvatar);
 
         var matrix = $element.css('transform'),
-            angle = 0,
-            orientation = 'bottom';
+            angle = 0;
         if (matrix !== 'none') {
             var values = matrix.split('(')[1].split(')')[0].split(',');
             angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
         }
-        switch (angle) {
-            case 90:
-                orientation = 'left';
-                break;
-            case 180:
-                orientation = 'top';
-                break;
-            case 270:
-                orientation = 'right';
-        }
-        $element.attr('data-orientation', orientation);
+        this._ZP.addZE(idZE, angle);
     }
 
     /**
@@ -271,7 +260,7 @@ class Connection {
      * @param idZE id de la ZE
      * @public
      */
-    emitArtifactFromZEtoZP(idArtifact, idZE) {
+    emitArtifactFromZEToZP(idArtifact, idZE) {
         console.log('ondragleave d un Artefact (' + idArtifact + ') de la ZE= ' + idZE + ' vers la ZP= ' + this._ZP.id);
         this._socket.emit(this._events.EnvoieArtefactdeZEversZP, idArtifact, idZE, this._ZP.id);
     }
@@ -282,7 +271,7 @@ class Connection {
      * @param idZE id de la ZE
      * @public
      */
-    emitArtifactFromZPtoZE(idArtifact, idZE) {
+    emitArtifactFromZPToZE(idArtifact, idZE) {
         console.log('ondrop d un Artefact (' + idArtifact + ') de la ZP= ' + this._ZP.id + ' vers la ZE= ' + idZE);
         this._socket.emit(this._events.EnvoieArtefactdeZPversZE, idArtifact, idZE);
     }

@@ -19,8 +19,8 @@ class ZP {
         return this._ZEs.length;
     }
 
-    addZE(idZE, ZE) {
-        this._ZEs[idZE] = ZE;
+    addZE(idZE, angle) {
+        this._ZEs[idZE] = new ZE(idZE, angle);
     }
 
     removeZE(idZE) {
