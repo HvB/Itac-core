@@ -123,13 +123,13 @@ class MenuView extends View {
 
             ondrop: (function (event) {
                 var $artifact = $(event.relatedTarget),
-                    id = $artifact.attr('id');
-                this._connection.emitRemovedArtifactInZP(id);
-                $('line[data-from=' + id + '], line[data-to=' + id + ']').each(function(index, element) {
+                    idArtifact = $artifact.attr('id');
+                this._connection.emitRemovedArtifactInZP(idArtifact);
+                $('line[data-from=' + idArtifact + '], line[data-to=' + idArtifact + ']').each(function(index, element) {
                     var $shape = $(element),
                         $artifact = $('#' + $shape.attr('data-from'));
                     $shape.remove();
-                    if ($artifact.hasClass('point') && $('line[data-from=' + $artifact.attr('id') + ']').length == 0) {
+                    if ($artifact.hasClass('point') && $('line[data-from=' + idArtifact + ']').length == 0) {
                         $artifact.remove();
                     }
                 });

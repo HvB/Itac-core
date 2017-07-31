@@ -48,28 +48,13 @@ class ZPView extends View {
             .on('hold', (function (event) {
                 var $ZP = $(event.currentTarget),
                     $element = $(event.target);
-                if (($element.hasClass('artifact') && !$ZP.hasClass('background'))
-                    || ((!$element.hasClass('artifact') || $element.hasClass('point')) && $ZP.hasClass('background'))) {
-                    var x = parseFloat($element.attr('data-x')),
-                        y = parseFloat($element.attr('data-y')),
-                        id = $element.attr('id');
-                    if (!$element.hasClass('artifact')) {
-                        $element = $('.template .artifact.point').clone();
-                        $element.appendTo($ZP);
-                        x = event.clientX - $element.width() / 2;
-                        y = event.clientY - $element.height() / 2;
-                        id = guid();
-                        $element.css('transform', 'translate(' + x + 'px, ' + y + 'px)');
-                        $element.attr('id', id)
-                            .attr('data-x', x)
-                            .attr('data-y', y)
-                            .attr('data-reference', this._ZP.background);
-                    }
+                if ($element.hasClass('artifact') && !$ZP.hasClass('background')) {
+                    var artifact = this._ZP.getArtifact($element.attr('id'));
                     var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                     shape.setAttributeNS(null, 'class', 'temporary');
-                    shape.setAttributeNS(null, 'data-from', id);
-                    shape.setAttributeNS(null, "x1", x + $element.width() / 2);
-                    shape.setAttributeNS(null, "y1", y + $element.height() / 2);
+                    shape.setAttributeNS(null, 'data-from', artifact.id);
+                    shape.setAttributeNS(null, "x1", artifact.x + $element.width() / 2);
+                    shape.setAttributeNS(null, "y1", artifact.y + $element.height() / 2);
                     shape.setAttributeNS(null, "x2", event.clientX);
                     shape.setAttributeNS(null, "y2", event.clientY);
                     shape.setAttributeNS(null, "stroke", "black");

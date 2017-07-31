@@ -44,12 +44,12 @@ class ZE {
         this._angle = angle;
     }
 
-    getArtifact(idArtifact) {
-        return this._artifacts[idArtifact];
+    hasArtifact(idArtifact) {
+        return this._artifacts[idArtifact] ? true : false;
     }
 
-    addArtifact(idArtifact, artifact) {
-        this._artifacts[idArtifact] = artifact;
+    addArtifact(idArtifact) {
+        this._artifacts[idArtifact] = idArtifact;
     }
 
     removeArtifact(idArtifact) {

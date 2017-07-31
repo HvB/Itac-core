@@ -3,10 +3,10 @@ var Z_INDEX = 1,
     ANGLE_LEFT = 90,
     ANGLE_BOTTOM = 0,
     ANGLE_RIGHT = 270,
-    ORIENTATION_TOP = 'top',
-    ORIENTATION_LEFT = 'right',
-    ORIENTATION_BOTTOM = 'bottom',
-    ORIENTATION_RIGHT = 'left';
+    ARTIFACT_MESSAGE = 'message',
+    ARTIFACT_IMAGE = 'image',
+    ARTIFACT_POINT = 'point',
+    ARTIFACT_LINK = 'link';
 
 $.get(location.href + '/config.json', function (data) {
     if (jQuery.ui) {

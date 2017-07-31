@@ -37,11 +37,11 @@ class Connection {
         }).bind(this));
 
         this._socket.on(this._events.ReceptionArtefactIntoZE, (function (login, idZE, data) {
-            this._onAddedArtifactInZP(login, idZE, data);
+            this._onAddedArtifactInZE(login, idZE, data);
         }).bind(this));
 
         this._socket.on(this._events.ReceptionArtefactIntoZP, (function (login, idZE, data) {
-            this._onAddedArtifactInZE(login, idZE, data);
+            this._onAddedArtifactInZP(login, idZE, data);
         }).bind(this));
 
         this._socket.on(this._events.ArtefactDeletedFromZE, (function (idAr, idZE, idZEP) {
@@ -133,16 +133,14 @@ class Connection {
     }
 
     /**
-     * Ecoute l'ajoute d'un artefact dans la ZP
-     * @param login pseudo de l'utilisateur de la ZE
-     * @param idZE id de la ZE
+     * Crée un artefact
      * @param data données json de l'artefact
      * @private
      */
-    _onAddedArtifactInZP(login, idZE, data) {
-        console.log('PAGE : workspace.ejs -> reception artefact pour ZE= ' + idZE + ' et pseudo=' + login);
+    _createArtifact(data) {
         var artifact = JSON.parse(data),
             $element = $('.template .artifact.' + artifact.type).clone();
+        this._ZP.addArtifact(artifact.id, artifact);
         switch (artifact.type) {
             case 'message':
                 $element.find('h1').text(artifact.title);
@@ -157,15 +155,26 @@ class Connection {
         var $temp = $element.find('.historic .modification');
         for (var i = 0; i < artifact.history.length; i++) {
             var $clone = $temp().clone();
-            $clone.find('.modifier').text(artifact.history[i].modifier);
+            $clone.find('.modifier').text(artifact.history[i].user);
             $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
             $element.find('.history').append($clone);
         }
         $temp.remove();
         $element.attr('id', artifact.id);
-        $element.attr('data-ZE', artifact.lastZE);
-        $element.addClass('dropped');
-        $element.appendTo($('#' + idZE).find('.container'));
+        return $element;
+    }
+
+    /**
+     * Ecoute l'ajout d'un artefact dans la ZP
+     * @param login pseudo de l'utilisateur de la ZE
+     * @param idZE id de la ZE
+     * @param data données json de l'artefact
+     * @private
+     */
+    _onAddedArtifactInZE(login, idZE, data) {
+        console.log('PAGE : workspace.ejs -> reception artefact pour ZE= ' + idZE + ' et pseudo=' + login);
+        this._ZP.getZE(idZE).addArtifact(JSON.parse(data).id);
+        this._createArtifact(data).addClass('dropped').appendTo($('#' + idZE).find('.container'));
     }
 
     /**
@@ -175,32 +184,9 @@ class Connection {
      * @param data données json de l'artefact
      * @private
      */
-    _onAddedArtifactInZE(login, idZP, data) {
+    _onAddedArtifactInZP(login, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
-        var artifact = JSON.parse(data),
-            $element = $('.template .artifact.' + artifact.type).clone();
-        switch (artifact.type) {
-            case 'message':
-                $element.find('h1').text(artifact.title);
-                $element.find('p').first().text(artifact.content);
-                break;
-            case 'image':
-                $element.css('background-image', 'url(data:image/*;base64,' + artifact.content + ')');
-        }
-        $element.find('.historic .creator').text(artifact.creator);
-        $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
-        $element.find('.historic .owner').text(artifact.owner);
-        var $temp = $element.find('.historic .modification');
-        for (var i = 0; i < artifact.history.length; i++) {
-            var $clone = $temp().clone();
-            $clone.find('.modifier').text(artifact.history[i].modifier);
-            $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
-            $element.find('.history').append($clone);
-        }
-        $temp.remove();
-        $element.attr('id', artifact.id);
-        $element.attr('data-ZE', artifact.lastZE);
-        $element.appendTo('.ZP');
+        this._createArtifact(data).appendTo('.ZP');
     }
 
     /**
@@ -212,6 +198,8 @@ class Connection {
      */
     _onRemovedArtifactInZE(idArtifact, idZE, idZEP) {
         console.log('PAGE : workspace.js -> supression artefact pour IdArt = ' + idArtifact + ' idZE=' + idZE + 'idZEP=' + idZEP);
+        this._ZP.getZE(idZE).removeArtifact(idArtifact);
+        this._ZP.removeArtifact(idArtifact);
         $('#' + idZE).find('#' + idArtifact).remove();
     }
 

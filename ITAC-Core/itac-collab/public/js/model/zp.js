@@ -3,8 +3,8 @@ class ZP {
         this._id = id;
         this._ZEs = {};
         this._background = null;
-        this._artifacts = {};
         this._menu = new Menu(url);
+        this._artifacts = {};
     }
 
     get id() {
@@ -35,40 +35,19 @@ class ZP {
         this._background = background;
     }
 
-    getArtifact(idArtifact) {
-        return this._artifacts[idArtifact];
-    }
-
-    addArtifact(idArtifact, artifact) {
-        this._artifacts[idArtifact] = artifact;
-    }
-
-    removeArtifact(idArtifact) {
-        delete this._artifacts[idArtifact];
-    }
-
     get menu() {
         return this._menu;
     }
 
-    moveArtifactToZP(idZE, idArtifact) {
-        if (this._ZEs[idZE]) {
-            this._artifacts[idArtifact] = this._ZEs[idZE].getArtifact(idArtifact);
-            this._ZEs[idZE].removeArtifact(this._artifacts[idArtifact]);
-        }
+    getArtifact(idArtifact) {
+        return this._artifacts[idArtifact];
     }
 
-    moveArtifactToZE(idZE, idArtifact) {
-        if (this._ZEs[idZE]) {
-            this._ZEs[idZE].addArtifact(this._artifacts[idArtifact]);
-            delete this._artifacts[idArtifact];
-        }
+    addArtifact(idArtifact, data) {
+        this._artifacts[idArtifact] = Artifact.new(idArtifact, data);
     }
 
-    moveArtifactToOtherZP(idZP, idArtifact) {
-        if (this._menu.getOtherZP(idZP)) {
-            //send idArtifact to idZP
-            delete this._artifacts[idArtifact];
-        }
+    removeArtifact(idArtifact) {
+        delete this._artifacts[idArtifact];
     }
 }

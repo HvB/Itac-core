@@ -28,20 +28,21 @@ class ArtifactView extends View {
                     $(event.target).removeClass('drop-target');
                 },
 
-                ondrop: function (event) {
+                ondrop: (function (event) {
                     //les evenements aprés le drop
                     var $target = $(event.target),
+                        artifact = this._ZP.getArtifact($target.attr('id')),
                         shape = event.relatedTarget,
                         $shape = $(shape);
-                    if ($('line[data-from=' + $shape.attr('data-from') + '][data-to=' + $target.attr('id') + ']').length == 0) {
-                        shape.setAttributeNS(null, "x2", parseFloat($target.attr('data-x')) + $target.width() / 2);
-                        shape.setAttributeNS(null, "y2", parseFloat($target.attr('data-y')) + $target.height() / 2);
-                        $shape.attr('data-to', $target.attr('id'));
+                    if ($('line[data-from=' + $shape.attr('data-from') + '][data-to=' + artifact.id + ']').length == 0) {
+                        shape.setAttributeNS(null, "x2", artifact.x + $target.width() / 2);
+                        shape.setAttributeNS(null, "y2", artifact.y + $target.height() / 2);
+                        $shape.attr('data-to', artifact.id);
                         $shape.removeClass('temporary');
                     } else {
                         $('line[data-from=' + $shape.attr('data-from') + '].temporary').remove();
                     }
-                },
+                }).bind(this),
 
                 ondropdeactivate: function (event) {
                     //supprimer le drop-active class de la zone de drop
@@ -64,115 +65,113 @@ class ArtifactView extends View {
                 inertia: true,
                 restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
-                onstart: function (event) {
+                onstart: (function (event) {
                     var $element = $(event.target),
-                        offset = $element.offset();
+                        offset = $element.offset(),
+                        artifact = this._ZP.getArtifact($element.attr('id'));
                     if ($(event.target).hasClass('dropped')) {
-                        $element.attr('data-x', offset.left).attr('data-y', offset.top);
+                        artifact.x = offset.left;
+                        artifact.y = offset.top;
                     }
                     $element.removeClass('active');
-                    $('svg [data-artifact=' + $element.attr('id') + ']').remove();
+                    $('svg [data-artifact=' + artifact.id + ']').remove();
                     $element.css('z-index', Z_INDEX);
                     Z_INDEX++;
-                },
-                onmove: function (event) {
+                }).bind(this),
+                onmove: (function (event) {
                     var $element = $(event.target),
-                        x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
-                        y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
-                        scale = parseFloat($element.attr('data-s')) || 1,
-                        angle = parseFloat($element.attr('data-a')) || 0;
-                    $element.css('transform', 'translate(' + x + 'px, ' + y + 'px) scale(' + scale + ') rotate(' + angle + 'deg)');
-                    $element.attr('data-x', x);
-                    $element.attr('data-y', y);
+                        artifact = this._ZP.getArtifact($element.attr('id'));
+                    artifact.x += event.dx;
+                    artifact.y += event.dy;
+                    $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
+                        + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
 
-                    $('line[data-from=' + $element.attr('id') + ']').each(function (index, element) {
+                    $('line[data-from=' + artifact.id + ']').each(function (index, element) {
                         var $element = $(element);
                         element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
                         element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
                     });
-                    $('line[data-to=' + $element.attr('id') + ']').each(function (index, element) {
+                    $('line[data-to=' + artifact.id + ']').each(function (index, element) {
                         var $element = $(element);
                         element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
                         element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
                     });
-                }
+                }).bind(this)
             });
         interact('.ZP > .artifact')
             .gesturable({
                 inertia: true,
                 restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
-                onstart: function (event) {
+                onstart: (function (event) {
                     var $element = $(event.target),
-                        offset = $element.offset();
+                        offset = $element.offset(),
+                        artifact = this._ZP.getArtifact($element.attr('id'));
                     if ($element.hasClass('dropped')) {
-                        $element.attr('data-x', offset.left).attr('data-y', offset.top);
+                        artifact.x = offset.left;
+                        artifact.y = offset.top;
                     }
-                    if ($element.hasClass('active')) {
-                        $element.removeClass('active');
-                        $('svg [data-artifact=' + $element.attr('id') + ']').remove();
-                    }
-                    var maxZ = Math.max.apply(null,
-                        $.map($('body > *'), function (e, n) {
-                            if ($(e).css('position') != 'static')
-                                return parseInt($(e).css('z-index')) || 1;
-                        }));
-                    $element.css('z-index', maxZ + 1);
-                },
+                    $element.removeClass('active');
+                    $('svg [data-artifact=' + artifact.id + ']').remove();
+                    $element.css('z-index', Z_INDEX);
+                    Z_INDEX++;
+                }).bind(this),
                 onmove: function (event) {
                     var $element = $(event.target),
-                        x = (parseFloat($element.attr('data-x')) || 0) + event.dx,
-                        y = (parseFloat($element.attr('data-y')) || 0) + event.dy,
-                        scale = (parseFloat($element.attr('data-s')) || 1) + event.ds,
-                        angle = (parseFloat($element.attr('data-a')) || 0) + event.da;
-                    $element.css('transform', 'translate(' + x + 'px, ' + y + 'px) scale(' + scale + ') rotate(' + angle + 'deg)');
-                    $element.attr('data-x', x);
-                    $element.attr('data-y', y);
-                    $element.attr('data-s', scale);
-                    $element.attr('data-a', angle);
+                        artifact = this._ZP.getArtifact($element.attr('id'));
+                    artifact.x += event.dx;
+                    artifact.y += event.dy;
+                    artifact.scale += event.ds;
+                    artifact.angle += event.da;
+                    $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
+                        + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
 
-                    $('line[data-from=' + $element.attr('id') + ']').each(function (index, element) {
+                    $('line[data-from=' + artifact.id + ']').each(function (index, element) {
                         var $element = $(element);
                         element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
                         element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
                     });
-                    $('line[data-to=' + $element.attr('id') + ']').each(function (index, element) {
+                    $('line[data-to=' + artifact.id + ']').each(function (index, element) {
                         var $element = $(element);
                         element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
                         element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
                     });
                 }
             })
-            .on('tap', function (event) {
-                var $artifact = $(event.currentTarget);
+            .on('tap', (function (event) {
+                var $artifact = $(event.currentTarget),
+                    artifact = this._ZP.getArtifact($artifact.attr('id'));
                 $artifact.css('z-index', Z_INDEX);
                 Z_INDEX++;
                 if ($artifact.hasClass('active')) {
                     $artifact.removeClass('active');
                     $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();
                 } else {
-                    var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    $ZE = $('#' + $artifact.attr('data-ze'));
-                    $artifact.addClass('active');
-                    shape.setAttributeNS(null, 'data-ze', $artifact.attr('data-ze'));
-                    shape.setAttributeNS(null, 'data-artifact', $artifact.attr('id'));
-                    switch ($ZE.attr('data-orientation')) {
-                        case 'top':
-                        case 'bottom':
-                            shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.width() / 2);
-                            shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.height() / 2);
-                            break;
-                        case 'left':
-                        case 'right':
-                            shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.height() / 2);
-                            shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.width() / 2);
+                    var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line'),
+                        ZE = this._ZP.getZE(artifact.ZE);
+                    if (ZE) {
+                        var $ZE = $('#' + ZE.id);
+                        $artifact.addClass('active');
+                        shape.setAttributeNS(null, 'data-ze', ZE.id);
+                        shape.setAttributeNS(null, 'data-artifact', artifact.id);
+                        switch (ZE.angle) {
+                            case ANGLE_TOP:
+                            case ANGLE_BOTTOM:
+                                shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.width() / 2);
+                                shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.height() / 2);
+                                break;
+                            case ANGLE_LEFT:
+                            case ANGLE_RIGHT:
+                                shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.height() / 2);
+                                shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.width() / 2);
+                        }
+                        shape.setAttributeNS(null, "x2", artifact.x + $artifact.width() / 2);
+                        shape.setAttributeNS(null, "y2", artifact.y + $artifact.height() / 2);
+                        shape.setAttributeNS(null, "stroke", "black");
+                        shape.setAttributeNS(null, "stroke-width", 3);
+                        document.getElementsByTagName('svg')[0].appendChild(shape);
                     }
-                    shape.setAttributeNS(null, "x2", parseFloat($artifact.attr('data-x')) + $artifact.width() / 2);
-                    shape.setAttributeNS(null, "y2", parseFloat($artifact.attr('data-y')) + $artifact.height() / 2);
-                    shape.setAttributeNS(null, "stroke", "black");
-                    shape.setAttributeNS(null, "stroke-width", 3);
-                    document.getElementsByTagName('svg')[0].appendChild(shape);
                 }
-            });
+            }).bind(this));
     }
 }
