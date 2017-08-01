@@ -1,218 +1,285 @@
 /********************************************************************************************************/
 /* --------------------------------- Gestion de la connexion ------------------------------------------ */
 /********************************************************************************************************/
-
-if (jQuery.ui) {
-    console.log('PAGE : connexionApp.ejs -> charge JQuery');
-} else {
-    console.log('PAGE : connexionApp.ejs -> charge JQuery');
-    console.log("PAGE : connexionApp.ejs : pas de chargement jQuery.ui");
-}
-
-console.log('PAGE : connexionApp.ejs -> on s occupe maintenant de la connexion');
-
-console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
-console.log('PAGE : workspace.ejs -> demande connection socket sur : ' + URL);
-
-/* -----------------------------------*/
-/*  creation du menu                */
-/* -----------------------------------*/
-
-$('.menu').circleMenu({
-    circle_radius: 150,
-    direction: 'full',
-    trigger: 'none',
-    open: function () {
-        var qrcode = new QRious({value: "itac://" + URL});
-        $('.menu .qr-code').css('background-image', 'url("' + qrcode.toDataURL() + '")');
+class Connection {
+    /**
+     * Crée la connexion
+     * @param ZP zone de partage courante
+     * @param event liste des évènements de la socket
+     */
+    constructor(ZP, events) {
+        this._ZP = ZP;
+        this._events = events;
+        this._socket = io.connect(this._ZP.menu.url);
+        this._socket.on('connect', (function () {
+            this._initialize();
+        }).bind(this));
     }
-});
 
-/* -----------------------------------*/
-/*  connexion socket                  */
-/* -----------------------------------*/
-
-var socket; // TEMPORAIRE
-var startConnexion = function() { // TEMPORAIRE
-
-    socket = io.connect(URL);
-    socket.on('connect', function () {
-
-        console.log('PAGE ZA : workspace.ejs -> **** connexion socket ZA vers Serveur [OK] : idSocket =' + socket.id);
+    /**
+     * Initialise la connexion avec le serveur
+     * @private
+     */
+    _initialize() {
+        console.log('PAGE ZA : workspace.ejs -> **** connexion socket ZA vers Serveur [OK] : idSocket =' + this._socket.id);
         console.log('****************************************************************************');
 
-        /* ------------------------------------------------------*/
-        /* --- premiere connexion ZA (Zone d'affichage = App) ---*/
-        /* ------------------------------------------------------*/
+        this._socket.on(this._events.ReponseOKConnexionZA, (function (ZC) {
+            this._onZAConnectionOK(ZC);
+        }).bind(this));
 
-        socket.emit('EVT_DemandeConnexionZA', URL, ZP);
-        console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= ' + ZP);
+        this._socket.on(this._events.ReponseNOKConnexionZA, (function () {
+            this._onZAConnectionKO();
+        }).bind(this));
 
-        socket.on('EVT_ReponseOKConnexionZA', function (ZC) {
-            console.log('PAGE : workspace.ejs -> ZC =' + JSON.stringify(ZC));
-            // console.log('PAGE : workspace.ejs -> menu App initial : ' + menu);
-            console.log('PAGE : workspace.ejs -> ajout des ZP , total =' + ZC.nbZP);
+        this._socket.on(this._events.NewZEinZP, (function (login, idZE, idZP, posAvatar) {
+            this._onZEConnection(login, idZE, idZP, posAvatar);
+        }).bind(this));
 
-            for (var i = 0; i < ZC.nbZP; i++) {
-                if (ZC.ZP[i].idZP != ZP) {
-                    console.log('PAGE : workspace.ejs -> menu App , push = ' + ZC.ZP[i].idZP + " ZP");
-                    $('.menu').append('<li class="send" data-ZP="' + ZC.ZP[i].idZP + '">' + ZC.ZP[i].idZP + '</li>');
-                }
+        this._socket.on(this._events.ReceptionArtefactIntoZE, (function (login, idZE, data) {
+            this._onAddedArtifactInZE(login, idZE, data);
+        }).bind(this));
+
+        this._socket.on(this._events.ReceptionArtefactIntoZP, (function (login, idZE, data) {
+            this._onAddedArtifactInZP(login, idZE, data);
+        }).bind(this));
+
+        this._socket.on(this._events.ArtefactDeletedFromZE, (function (idAr, idZE, idZEP) {
+            this._onRemovedArtifactInZE(idAr, idZE, idZEP);
+        }).bind(this));
+
+        this._socket.on(this._events.SuppressZEinZP, (function (login, idZE) {
+            this._onZEDisconnection(login, idZE);
+        }).bind(this));
+
+        this._socket.on(this._events.ReponseOKEnvoie_ArtefactdeZPversZP, (function (idArtifact) {
+            this._onArtifactFromZPToOtherZP(idArtifact);
+        }).bind(this));
+
+        this._socket.on('disconnect', (function () {
+            this._onZADisconnection();
+        }).bind(this));
+
+        this._emitConnection();
+    }
+
+    /**
+     * Ecoute une connexion réussi à la ZA
+     * @param ZC entité globale qui contient toutes les ZP
+     * @private
+     */
+    _onZAConnectionOK(ZC) {
+        console.log('PAGE : workspace.ejs -> ZC =' + JSON.stringify(ZC));
+        console.log('PAGE : workspace.ejs -> ajout des ZP , total =' + ZC.nbZP);
+
+        var $element = $('.ZP > .menu');
+        $element.find('.send').remove();
+        for (var i = 0; i < ZC.nbZP; i++) {
+            if (ZC.ZP[i].idZP != this._ZP.id) {
+                var otherZP = ZC.ZP[i],
+                    idZP = otherZP.idZP;
+                console.log('PAGE : workspace.ejs -> menu App , push = ' + idZP + " ZP");
+                this._ZP.menu.addOtherZP(idZP, otherZP);
+                $('.template > .menu').find('.send').clone().attr('id', idZP).html(idZP).appendTo($element);
             }
-            $('.menu').circleMenu('init');
-            $('.overlay').hide();
-
-            console.log('Zone collaborative active : ' + ZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + ZP + '\n\n');
-            console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= ' + ZP);
+        }
+        $element.circleMenu({
+            circle_radius: 150,
+            direction: 'full',
+            trigger: 'none',
+            open: (function () {
+                $element.find('.qr-code').css('background-image', 'url("'
+                    + new QRious({value: "itac://" + this._ZP.menu.url}).toDataURL() + '")');
+            }).bind(this)
         });
+        $('.overlay').hide();
 
-// callback réponse NOK
-        socket.on('EVT_ReponseNOKConnexionZA', function () {
-            console.log('PAGE : workspace.js -> reception evenement [EVT_ReponseNOKConnexionZA]');
-        });
+        console.log('Zone collaborative active : ' + ZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + this._ZP.id + '\n\n');
+        console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= ' + this._ZP.id);
+    }
 
-// ---------------------------------------- Fin des EVT ZA ---------------------------------------------------------
+    /**
+     * Ecoute une connexion échouée à la ZA
+     * @private
+     */
+    _onZAConnectionKO() {
+        console.log('PAGE : workspace.js -> reception evenement [EVT_ReponseNOKConnexionZA]');
+    }
 
+    /**
+     * Ecoute la connexion d'une ZE
+     * @param login pseudo de l'utilisateur de la ZE
+     * @param idZE id de la ZE
+     * @param idZEP id de la ZEP associée
+     * @param posAvatar avatar de l'utilisateur de la ZE
+     * @private
+     */
+    _onZEConnection(login, idZE, idZEP, posAvatar) {
+        console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZEP + '\n pour pseudo=' + login);
+        var $element = $('.template .ZE').clone(),
+            nbZE = $('.ZP > .ZE').length;
+        $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
+        $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
+        $element.find('.login').text(login);
+        $element.find('img').attr('id', 'avatar' + posAvatar);
 
-        /* ----------------------------- */
-        /* ----- connexion d'une ZE ----*/
-        /* ----------------------------- */
-        /* --- cas où une tablette a été autorisée à se connecter à l'espace de travail --*/
-        socket.on('EVT_NewZEinZP', function (login, idZE, idZP, posAvatar) {
-            console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZP + '\n pour pseudo=' + login);
-            var $element = $('.template .ZE').clone(),
-                nbZE = $('.ZP > .ZE').length;
-            $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
-            $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
-            $element.find('.login').text(login);
-            $element.find('img').attr('id', 'avatar' + posAvatar);
+        var matrix = $element.css('transform'),
+            angle = 0;
+        if (matrix !== 'none') {
+            var values = matrix.split('(')[1].split(')')[0].split(',');
+            angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
+        }
+        this._ZP.addZE(idZE, angle);
+    }
 
-            var matrix = $element.css('transform'),
-                angle = 0,
-                orientation = 'bottom';
-            if (matrix !== 'none') {
-                var values = matrix.split('(')[1].split(')')[0].split(',');
-                angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
-            }
-            switch (angle) {
-                case 90:
-                    orientation = 'left';
-                    break;
-                case 180:
-                    orientation = 'top';
-                    break;
-                case 270:
-                    orientation = 'right';
-            }
-            $element.attr('data-orientation', orientation);
-        });
+    /**
+     * Crée un artefact
+     * @param data données json de l'artefact
+     * @private
+     */
+    _createArtifact(data) {
+        var artifact = JSON.parse(data),
+            $element = $('.template .artifact.' + artifact.type).clone();
+        this._ZP.addArtifact(artifact.id, artifact);
+        switch (artifact.type) {
+            case 'message':
+                $element.find('h1').text(artifact.title);
+                $element.find('p').first().text(artifact.content);
+                break;
+            case 'image':
+                $element.css('background-image', 'url(data:image/*;base64,' + artifact.content + ')');
+        }
+        $element.find('.historic .creator').text(artifact.creator);
+        $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
+        $element.find('.historic .owner').text(artifact.owner);
+        var $temp = $element.find('.historic .modification');
+        for (var i = 0; i < artifact.history.length; i++) {
+            var $clone = $temp().clone();
+            $clone.find('.modifier').text(artifact.history[i].user);
+            $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
+            $element.find('.history').append($clone);
+        }
+        $temp.remove();
+        $element.attr('id', artifact.id);
+        return $element;
+    }
 
+    /**
+     * Ecoute l'ajout d'un artefact dans la ZP
+     * @param login pseudo de l'utilisateur de la ZE
+     * @param idZE id de la ZE
+     * @param data données json de l'artefact
+     * @private
+     */
+    _onAddedArtifactInZE(login, idZE, data) {
+        console.log('PAGE : workspace.ejs -> reception artefact pour ZE= ' + idZE + ' et pseudo=' + login);
+        this._ZP.getZE(idZE).addArtifact(JSON.parse(data).id);
+        this._createArtifact(data).addClass('dropped').appendTo($('#' + idZE).find('.container'));
+    }
 
-        /* ------------------------------------------- */
-        /* ----- arrivée d'un artefact dans une ZE ----*/
-        /* ------------------------------------------- */
-        socket.on('EVT_ReceptionArtefactIntoZE', function (login, idZE, data) {
-            console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReceptionArtefactIntoZE] pour ZE= ' + idZE);
-            var artifact = JSON.parse(data),
-                $element = $('.template .artifact.' + artifact.type).clone();
-            switch (artifact.type) {
-                case 'message':
-                    $element.find('h1').text(artifact.title);
-                    $element.find('p').first().text(artifact.content);
-                    break;
-                case 'image':
-                    $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
-            }
-            $element.find('.historic .creator').text(artifact.creator);
-            $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
-            $element.find('.historic .owner').text(artifact.owner);
-            var $temp = $element.find('.historic .modification');
-            for (var i = 0; i < artifact.history.length; i++) {
-                var $clone = $temp().clone();
-                $clone.find('.modifier').text(artifact.history[i].modifier);
-                $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
-                $element.find('.history').append($clone);
-            }
-            $temp.remove();
-            $element.attr('id', artifact.id);
-            $element.attr('data-ZE', artifact.lastZE);
-            $element.addClass('dropped');
-            $element.appendTo($('#' + idZE).find('.container'));
-        });
+    /**
+     * Ecoute l'ajout d'un artefact dans une ZE
+     * @param login pseudo de l'utilisateur de la ZE
+     * @param idZE id de la ZE
+     * @param data données json de l'artefact
+     * @private
+     */
+    _onAddedArtifactInZP(login, idZP, data) {
+        console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
+        this._createArtifact(data).appendTo('.ZP');
+    }
 
-        /* ------------------------------------------------- */
-        /* ----- arrivée d'un artefact directement en ZP ----*/
-        /* ------------------------------------------------- */
-        socket.on('EVT_ReceptionArtefactIntoZP', function (pseudo, idZP, data) {
-            console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReceptionArtefactIntoZP] pour ZP= ' + idZP);
-            var artifact = JSON.parse(data),
-                $element = $('.template .artifact.' + artifact.type).clone();
-            switch (artifact.type) {
-                case 'message':
-                    $element.find('h1').text(artifact.title);
-                    $element.find('p').first().text(artifact.content);
-                    break;
-                case 'image':
-                    $element.css('background-image', 'url(data:image/png;base64,' + artifact.content + ')');
-            }
-            $element.find('.historic .creator').text(artifact.creator);
-            $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
-            $element.find('.historic .owner').text(artifact.owner);
-            var $temp = $element.find('.historic .modification');
-            for (var i = 0; i < artifact.history.length; i++) {
-                var $clone = $temp().clone();
-                $clone.find('.modifier').text(artifact.history[i].modifier);
-                $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
-                $element.find('.history').append($clone);
-            }
-            $temp.remove();
-            $element.attr('id', artifact.id);
-            $element.attr('data-ZE', artifact.lastZE);
-            $element.appendTo('.ZP');
-        });
+    /**
+     * Ecoute la suppression d'un artefact dans une ZE
+     * @param idArtifact id de l'artefact
+     * @param idZE id de la ZE
+     * @param idZEP id de la ZEP associée
+     * @private
+     */
+    _onRemovedArtifactInZE(idArtifact, idZE, idZEP) {
+        console.log('PAGE : workspace.js -> supression artefact pour IdArt = ' + idArtifact + ' idZE=' + idZE + 'idZEP=' + idZEP);
+        this._ZP.getZE(idZE).removeArtifact(idArtifact);
+        this._ZP.removeArtifact(idArtifact);
+        $('#' + idZE).find('#' + idArtifact).remove();
+    }
 
-        /* ------------------------------------------------ */
-        /* ----- Suppression d'un artefact d'une ZE ----*/
-        /* ------------------------------------------------ */
-        socket.on('EVT_ArtefactDeletedFromZE', function (idAr, idZE, idZEP) {
-            console.log('PAGE : workspace.js -> reception evenement [EVT_ArtefactDeletedFromZE] pour IdArt = ' + idAr + ' idZE=' + idZE + 'idZEP=' + idZEP);
-            $('#' + idZE).find('#' + idAr).remove();
-        })
+    /**
+     * Ecoute la déconnexion d'une ZE
+     * @param login pseudo de l'utilisateur de la ZE
+     * @param idZE id de la ZE
+     * @private
+     */
+    _onZEDisconnection(login, idZE) {
+        console.log('PAGE : workspace.ejs -> Suprresion d une ZE =' + idZE + ' \n pour pseudo=' + login);
+        $('#' + idZE).remove();
+    }
 
+    /**
+     * Ecoute l'envoi d'un artefact vers une autre ZP
+     * @param idArtifact id de l'artefact
+     * @private
+     */
+    _onArtifactFromZPToOtherZP(idArtifact) {
+        console.log("menu ITAC -> ZP.ondrop : transfert Artefact envoye et bien recu " + idArtifact);
+    }
 
-        /* ------------------------------ */
-        /* ----- Deconnexion d'une ZE ----*/
-        /* ------------------------------ */
-// c'est en fait EVT_SuppressZEinZP
-        socket.on('EVT_Deconnexion', function (login, idZE) {
-            var $element = $('#' + idZE);
-            $element.find('.container .artefact').each(function (index, element) {
-                var $element = $(element);
-                $element.removeClass('dropped-image dropped-msg left right top');
-                $element.find('p').show();
-                $element.remove().appendTo('.ZP');
-                var x = ($('.ZP').width() - $element.width()) / 2,
-                    y = ($('.ZP').height() - $element.height()) / 2;
-                $element.attr('data-x', x).attr('data-y', y).css('transform', 'translate(' + x + 'px, ' + y + 'px)');
-            });
-            $element.remove();
-        });
+    /**
+     * Ecoute la déconnexion de la ZA
+     * @private
+     */
+    _onZADisconnection() {
+        $('.overlay').show();
+        $('.overlay').css('z-index', Z_INDEX);
+        Z_INDEX++;
+    }
 
-        /* ------------------------------------------------ */
-        /* ----- Acquittement de l'envoi d'un artefact vers une autre ZP ----*/
-        /* ------------------------------------------------ */
-        socket.on('EVT_ReponseOKEnvoie_ArtefactdeZPversZP', function (idart) {
-            console.log("menu ITAC -> ZP.ondrop : transfert Artefact envoye et bien recu " + idart);
-        });
+    /**
+     * Emet la connexion à la ZA
+     * @private
+     */
+    _emitConnection() {
+        this._socket.emit(this._events.DemandeConnexionZA);
+        console.log('PAGE : workspace.ejs -> emission evenement EVT_DemandeConnexionZA pour ZP= ' + this._ZP.id);
+    }
 
-        /* ------------------------------ */
-        /* ----- Deconnexion d'une ZA ----*/
-        /* ------------------------------ */
-        socket.on('disconnect', function () {
-            $('.overlay').show();
-            $('.overlay').css('z-index', ZINDEX);
-            ZINDEX++;
-        });
-    });
+    /**
+     * Emet l'envoi d'un artefact d'une ZE vers la ZP
+     * @param idArtifact id de l'artefact
+     * @param idZE id de la ZE
+     * @public
+     */
+    emitArtifactFromZEToZP(idArtifact, idZE) {
+        console.log('ondragleave d un Artefact (' + idArtifact + ') de la ZE= ' + idZE + ' vers la ZP= ' + this._ZP.id);
+        this._socket.emit(this._events.EnvoieArtefactdeZEversZP, idArtifact, idZE, this._ZP.id);
+    }
 
-};
+    /**
+     * Emet l'envoi d'un artefact de la ZP vers une ZE
+     * @param idArtifact id de l'artefact
+     * @param idZE id de la ZE
+     * @public
+     */
+    emitArtifactFromZPToZE(idArtifact, idZE) {
+        console.log('ondrop d un Artefact (' + idArtifact + ') de la ZP= ' + this._ZP.id + ' vers la ZE= ' + idZE);
+        this._socket.emit(this._events.EnvoieArtefactdeZPversZE, idArtifact, idZE);
+    }
+
+    /**
+     * Emet l'envoi d'un artefact vers une autre ZP
+     * @param idArtifact id de l'artefact
+     * @param idOtherZP id de l'autre ZP
+     */
+    emitArtifactFromZPToOtherZP(idArtifact, idOtherZP) {
+        console.log("menu ITAC -> transfert ART = " + idArtifact + " de ZP=" + this._ZP.id + " vers ZP=" + idOtherZP);
+        this._socket.emit(this._events.EnvoieArtefactdeZPversZP, idArtifact, this._ZP.id, idOtherZP);
+    }
+
+    /**
+     * Emet la suppression d'un artefact dans la ZP
+     * @param idArtifact id de l'artefact
+     */
+    emitRemovedArtifactInZP(idArtifact) {
+        console.log("menu ITAC -> suppresion ART = " + idArtifact);
+        this._socket.emit(this._events.ArtefactDeletedFromZP, idArtifact);
+    }
+}

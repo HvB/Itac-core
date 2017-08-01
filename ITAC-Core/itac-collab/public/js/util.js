@@ -9,7 +9,7 @@
  */
 var addZero = function (value) {
     return value > 9 ? value : '0' + value;
-}
+};
 
 /**
  * Retourne une date formatée à ce format dd/MM/yyyy - hh:mm
@@ -29,6 +29,15 @@ var getFormattedDate = function (isoDate) {
 var guid = function () {
     var s4 = function () {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    }
+    };
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-}
+};
+
+/**
+ * Met l'élément courant au premier plan
+ * @param $element élément à mettre au premier plan
+ */
+var putInFront = function ($element) {
+    $element.css('z-index', Z_INDEX);
+    Z_INDEX++;
+};
