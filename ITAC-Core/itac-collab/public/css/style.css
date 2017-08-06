@@ -81,7 +81,6 @@ ul.menu li.send {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
     background: linear-gradient(to left top, #283048, #859398);
     box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
     border-radius: 10px;
@@ -126,6 +125,16 @@ ul.menu li.send {
     height: calc(100% - 20px);
     overflow-x: hidden;
     overflow-y: auto;
+}
+.ZE .tool {
+    display: none;
+    position: absolute;
+    margin-top: -120px;
+    width: 80%;
+    height: 80px;
+    background: linear-gradient(to left top, #283048, #859398);
+    box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
+    border-radius: 10px;
 }
 
 /*
