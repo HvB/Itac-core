@@ -16,7 +16,11 @@ class Tool {
         return this._point;
     }
 
-    set point(point) {
+    reset() {
+        this._point = null;
+    }
+
+    reload() {
         this._point = new Point();
     }
 }

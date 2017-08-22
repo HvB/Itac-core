@@ -10,28 +10,21 @@ class ZEView extends View {
     _initialize() {
         interact('.ZE')
             .dropzone({
-                // --> accepter juste les element de la class artefact
                 accept: '.artifact.message, .artifact.image',
-                // --> il faut 10% de l'element soit dans la zone pour que le drop est possible
                 overlap: 0.1,
-                // -- >les evenement de drop
 
                 ondropactivate: function (event) {
-                    //activer la zone de drop
                     $(event.target).addClass('drop-active');
                 },
 
-                // --> lorsque l artefact entre la zone
                 ondragenter: function (event) {
                     $(event.target).addClass('drop-target');
                     $(event.relatedTarget).addClass('can-drop');
                     $(event.relatedTarget).removeClass('dropped left right top');
-                    $(event.relatedTarget).find("p").show();
                     $(event.relatedTarget).remove().appendTo('.ZP');
                 },
 
                 ondragleave: (function (event) {
-                    // on recupeère les identifiant
                     var idAr = event.relatedTarget.id, idZE = event.target.id;
                     console.log('ondragleave d un Artefact (' + idAr + ') de la ZE= ' + idZE);// + ' vers la ZP= ' + mZP.id);
                     console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP]');
@@ -43,17 +36,16 @@ class ZEView extends View {
                 }).bind(this),
 
                 ondrop: (function (event) {
-                    //les evenements aprés le drop
                     var idAr = event.relatedTarget.id, idZE = event.target.id;
                     console.log('ondrop d un Artefact (' + idAr + ') vers ZE= ' + idZE);
                     console.log('ondrop d un Artefact --> className =' + $(event.relatedTarget).attr('class'));
                     console.log('ondrop d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
                     this._connection.emitArtifactFromZPToZE(idAr, idZE);
 
-                    $(event.relatedTarget).find("p").hide();
-                    $(event.relatedTarget).remove().css('transform', '').appendTo($(event.target).find('.container'));
-                    $(event.relatedTarget).removeClass('can-drop');
-                    $(event.relatedTarget).addClass('dropped');
+                    var $artifact = $(event.relatedTarget);
+                    $artifact.remove().css('transform', '').appendTo($(event.target).find('.container'));
+                    $artifact.removeClass('can-drop');
+                    $artifact.addClass('dropped');
                     $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function (index, element) {
                         var $shape = $(element),
                             $artifact = $('#' + $shape.attr('data-from'));
@@ -65,7 +57,6 @@ class ZEView extends View {
                 }).bind(this),
 
                 ondropdeactivate: function (event) {
-                    //supprimer le drop-active class de la zone de drop
                     $(event.target).removeClass('drop-active drop-target');
                 }
             })

@@ -26,5 +26,6 @@ $.get(location.href + '/config.json', function (data) {
     new MenuView(mZP, connection);
     new ZPView(mZP, connection);
     new ZEView(mZP, connection);
+    new ToolView(mZP, connection);
     new ArtifactView(mZP, connection);
 });

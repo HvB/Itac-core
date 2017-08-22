@@ -11,7 +11,7 @@ class ZPView extends View {
         interact('.ZP')
             .dropzone({
                 //accepter just les element ayant la class artefact
-                accept: '.artifact',
+                accept: '.artifact.massage, .artifact.image',
                 // il faut 50% de l'element soit dans la zone pour que le drop est possible
                 overlap: 0.5,
 

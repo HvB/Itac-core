@@ -18,8 +18,8 @@ class Image extends Artifact {
         return this._points[idPoint];
     }
 
-    addPoint(idPoint, data) {
-        this._points[idPoint] = new Point(idPoint, data);
+    addPoint(point) {
+        this._points[point.id] = point;
     }
 
     removePoint(idPoint) {

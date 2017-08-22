@@ -66,36 +66,56 @@ class ArtifactView extends View {
                 restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
                 onstart: (function (event) {
-                    var $element = $(event.target),
-                        offset = $element.offset(),
+                    var $element = $(event.target), artifact;
+                    if ($element.hasClass('point') && this._ZP.background) {
+                        if ($element.hasClass('dropped')) {
+                            var idZE = $element.parents('.ZE').attr('id'),
+                                tool = this._ZP.getZE(idZE).tool;
+                            tool.point.ZE = idZE;
+                            this._ZP.getArtifact(this._ZP.background).addPoint(tool.point);
+                            tool.reset();
+                        }
+                        artifact = this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id'));
+                    } else {
                         artifact = this._ZP.getArtifact($element.attr('id'));
-                    if ($(event.target).hasClass('dropped')) {
-                        artifact.x = offset.left;
-                        artifact.y = offset.top;
                     }
-                    $element.removeClass('active');
-                    $('svg [data-artifact=' + artifact.id + ']').remove();
-                    $element.css('z-index', Z_INDEX);
-                    Z_INDEX++;
+                    if (artifact) {
+                        if ($element.hasClass('dropped')) {
+                            var offset = $element.offset();
+                            artifact.x = offset.left;
+                            artifact.y = offset.top;
+                        }
+                        $element.removeClass('active');
+                        // $('svg [data-artifact=' + artifact.id + ']').remove();
+                        $element.css('z-index', Z_INDEX);
+                        Z_INDEX++;
+                    }
                 }).bind(this),
                 onmove: (function (event) {
                     var $element = $(event.target),
+                        artifact;
+                    if ($element.hasClass('point') && this._ZP.background) {
+                        artifact = this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id'));
+                    } else {
                         artifact = this._ZP.getArtifact($element.attr('id'));
-                    artifact.x += event.dx;
-                    artifact.y += event.dy;
-                    $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
-                        + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
+                    }
+                    if (artifact) {
+                        artifact.x += event.dx;
+                        artifact.y += event.dy;
+                        $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
+                            + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
 
-                    $('line[data-from=' + artifact.id + ']').each(function (index, element) {
-                        var $element = $(element);
-                        element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
-                        element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
-                    });
-                    $('line[data-to=' + artifact.id + ']').each(function (index, element) {
-                        var $element = $(element);
-                        element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
-                        element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
-                    });
+                        // $('line[data-from=' + artifact.id + ']').each(function (index, element) {
+                        //     var $element = $(element);
+                        //     element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
+                        //     element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
+                        // });
+                        // $('line[data-to=' + artifact.id + ']').each(function (index, element) {
+                        //     var $element = $(element);
+                        //     element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
+                        //     element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
+                        // });
+                    }
                 }).bind(this)
             });
         interact('.ZP > .artifact')

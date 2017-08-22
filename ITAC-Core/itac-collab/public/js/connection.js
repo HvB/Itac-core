@@ -117,11 +117,13 @@ class Connection {
     _onZEConnection(login, idZE, idZEP, posAvatar) {
         console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZEP + '\n pour pseudo=' + login);
         var $element = $('.template .ZE').clone(),
+            $point = $('.template .artifact.point').clone(),
             nbZE = $('.ZP > .ZE').length;
         $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
         $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
         $element.find('.login').text(login);
         $element.find('img').attr('id', 'avatar' + posAvatar);
+        $element.find('.tool').append($point.addClass('dropped')).hide();
 
         var matrix = $element.css('transform'),
             angle = 0;
@@ -130,7 +132,7 @@ class Connection {
             angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
         }
         this._ZP.addZE(idZE, angle);
-        $element.find('.tool').append($('.artifact.point').attr('id', this._ZP.getZE(idZE).tool.point.id)).hide();
+        $point.attr('id', this._ZP.getZE(idZE).tool.point.id);
     }
 
     /**
