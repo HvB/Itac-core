@@ -137,9 +137,9 @@ class ZEView extends View {
         interact('.ZP > .ZE .avatar')
             .on('tap', (function (event) {
                 var $ZE = $(event.target).parents('.ZE'),
-                    ZE = this._ZP.getZE($ZE.attr('id'));
-                ZE.toolOpened ? $ZE.find('.tool').hide() : $ZE.find('.tool').show();
-                ZE.toolOpened = !ZE.toolOpened;
+                    tool = this._ZP.getZE($ZE.attr('id')).tool;
+                tool.opened ? $ZE.find('.tool').hide() : $ZE.find('.tool').show();
+                tool.toggle();
             }).bind(this));
     }
 }

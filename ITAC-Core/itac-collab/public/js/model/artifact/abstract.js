@@ -13,7 +13,7 @@ class Artifact {
     }
 
     constructor(id, type, data) {
-        this._id = id;
+        this._id = id ? id : guid();
         this._type = type;
         this._x = data && data.position && data.position.x ? data.position.x : 0;
         this._y = data && data.position && data.position.y ? data.position.y : 0;

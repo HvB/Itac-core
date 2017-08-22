@@ -6,7 +6,7 @@ class ZE {
         this._scale = 1;
         this._angle = angle;
         this._artifacts = {};
-        this._toolOpened = false;
+        this._tool = new Tool();
     }
 
     get id() {
@@ -57,11 +57,7 @@ class ZE {
         delete this._artifacts[idArtifact];
     }
 
-    get toolOpened() {
-        return this._toolOpened;
-    }
-
-    set toolOpened(toolOpened) {
-        this._toolOpened = toolOpened;
+    get tool() {
+        return this._tool;
     }
 }

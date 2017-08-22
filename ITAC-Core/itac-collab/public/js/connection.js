@@ -130,6 +130,7 @@ class Connection {
             angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
         }
         this._ZP.addZE(idZE, angle);
+        $element.find('.tool').append($('.artifact.point').attr('id', this._ZP.getZE(idZE).tool.point.id)).hide();
     }
 
     /**
