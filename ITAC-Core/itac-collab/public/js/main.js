@@ -28,4 +28,5 @@ $.get(location.href + '/config.json', function (data) {
     new ZEView(mZP, connection);
     new ToolView(mZP, connection);
     new ArtifactView(mZP, connection);
+    new LineView(mZP, connection);
 });

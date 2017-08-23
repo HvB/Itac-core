@@ -40,18 +40,4 @@ class ZPView extends View {
             }
         }];
     }
-
-    _draggable() {
-        return [{
-            target: 'line',
-            option: {
-                manualStart: true,
-                onmove: function (event) {
-                    var shape = event.target;
-                    shape.setAttributeNS(null, "x2", event.clientX);
-                    shape.setAttributeNS(null, "y2", event.clientY);
-                }
-            }
-        }];
-    }
 }
