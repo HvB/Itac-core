@@ -177,10 +177,9 @@ class MenuView extends View {
         }];
     }
 
-    _on() {
+    _tap() {
         return [{
             target: '.menu li',
-            event: 'tap',
             action: (function () {
                 var opened = this._ZP.menu.opened;
                 this._ZP.menu.opened = !opened;
@@ -188,9 +187,12 @@ class MenuView extends View {
                 $('.menu').css('z-index', Z_INDEX);
                 Z_INDEX++;
             }).bind(this)
-        }, {
+        }];
+    }
+
+    _hold() {
+        return [{
             target: '.circleMenu-open .background',
-            event: 'hold',
             action: (function (event) {
                 $('.point[data-reference=' + this._ZP.background + ']').each(function (index, element) {
                     $('line[data-from=' + $(element).attr('id') + ']').hide();

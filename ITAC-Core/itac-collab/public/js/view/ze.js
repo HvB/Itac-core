@@ -135,10 +135,9 @@ class ZEView extends View {
         }];
     }
 
-    _on() {
+    _tap() {
         return [{
             target: '.ZE',
-            event: 'tap',
             action: (function (event) {
                 var $ZE = $(event.target).parents('.ZE'),
                     tool = this._ZP.getZE($ZE.attr('id')).tool;

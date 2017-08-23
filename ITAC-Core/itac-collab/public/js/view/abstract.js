@@ -12,8 +12,11 @@ class View {
         for (var i = 0; i < this._gesturable().length; i++) {
             interact(this._gesturable()[i].target).gesturable(this._gesturable()[i].option);
         }
-        for (var i = 0; i < this._on().length; i++) {
-            interact(this._on()[i].target).on(this._on()[i].event, this._on()[i].action);
+        for (var i = 0; i < this._tap().length; i++) {
+            interact(this._tap()[i].target).on('tap', this._tap()[i].action);
+        }
+        for (var i = 0; i < this._hold().length; i++) {
+            interact(this._hold()[i].target).on('hold', this._hold()[i].action);
         }
     }
 
@@ -29,7 +32,11 @@ class View {
         return [];
     }
 
-    _on() {
+    _tap() {
+        return [];
+    }
+
+    _hold() {
         return [];
     }
 }

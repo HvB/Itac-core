@@ -168,10 +168,9 @@ class ArtifactView extends View {
         }];
     }
 
-    _on() {
+    _tap() {
         return [{
             target: '.ZP > .artifact',
-            event: 'tap',
             action: (function (event) {
                 var $artifact = $(event.currentTarget),
                     artifact = this._ZP.getArtifact($artifact.attr('id'));
@@ -209,9 +208,12 @@ class ArtifactView extends View {
                     }
                 }
             }).bind(this)
-        }, {
+        }];
+    }
+
+    _hold() {
+        return [{
             target: '.ZP > .artifact',
-            event: 'hold',
             action: (function (event) {
                 console.log(event)
                 var $element = $(event.target);
