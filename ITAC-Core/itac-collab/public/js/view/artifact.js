@@ -6,13 +6,12 @@ class ArtifactView extends View {
         super(ZP, connection);
     }
 
-    _initialize() {
-        interact('.ZP > .artifact.message, .ZP > .artifact.image')
-            .dropzone({
-                //accepter just les element ayant la class artefact
+    _dropzone() {
+        return [{
+            target: '.ZP > .artifact.message, .ZP > .artifact.image',
+            option: {
                 accept: 'line',
 
-                // les evenement de drop
                 ondropactivate: function (event) {
                     // activer la zone de drop
                     $(event.target).addClass('drop-active');
@@ -29,7 +28,6 @@ class ArtifactView extends View {
                 },
 
                 ondrop: (function (event) {
-                    //les evenements aprés le drop
                     var $target = $(event.target),
                         artifact = this._ZP.getArtifact($target.attr('id')),
                         shape = event.relatedTarget,
@@ -45,7 +43,6 @@ class ArtifactView extends View {
                 }).bind(this),
 
                 ondropdeactivate: function (event) {
-                    //supprimer le drop-active class de la zone de drop
                     var $shape = $(event.relatedTarget);
                     $(event.target).removeClass('drop-active drop-target');
                     if ($shape.hasClass('temporary')) {
@@ -59,9 +56,14 @@ class ArtifactView extends View {
                         }
                     }
                 }
-            });
-        interact('.artifact')
-            .draggable({
+            }
+        }];
+    }
+
+    _draggable() {
+        return [{
+            target: '.artifact',
+            option: {
                 inertia: true,
                 restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
@@ -117,9 +119,14 @@ class ArtifactView extends View {
                         // });
                     }
                 }).bind(this)
-            });
-        interact('.ZP > .artifact')
-            .gesturable({
+            }
+        }];
+    }
+
+    _gesturable() {
+        return [{
+            target: '.ZP > .artifact',
+            option: {
                 inertia: true,
                 restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
@@ -157,41 +164,76 @@ class ArtifactView extends View {
                         element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
                     });
                 }
-            })
-            .on('tap', (function (event) {
+            }
+        }];
+    }
+
+    _on() {
+        return [{
+            target: '.ZP > .artifact',
+            event: 'tap',
+            action: (function (event) {
                 var $artifact = $(event.currentTarget),
                     artifact = this._ZP.getArtifact($artifact.attr('id'));
-                $artifact.css('z-index', Z_INDEX);
-                Z_INDEX++;
-                if ($artifact.hasClass('active')) {
-                    $artifact.removeClass('active');
-                    $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();
-                } else {
-                    var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line'),
-                        ZE = this._ZP.getZE(artifact.ZE);
-                    if (ZE) {
-                        var $ZE = $('#' + ZE.id);
-                        $artifact.addClass('active');
-                        shape.setAttributeNS(null, 'data-ze', ZE.id);
-                        shape.setAttributeNS(null, 'data-artifact', artifact.id);
-                        switch (ZE.angle) {
-                            case ANGLE_TOP:
-                            case ANGLE_BOTTOM:
-                                shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.width() / 2);
-                                shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.height() / 2);
-                                break;
-                            case ANGLE_LEFT:
-                            case ANGLE_RIGHT:
-                                shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.height() / 2);
-                                shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.width() / 2);
+                if (artifact) {
+                    $artifact.css('z-index', Z_INDEX);
+                    Z_INDEX++;
+                    if ($artifact.hasClass('active')) {
+                        $artifact.removeClass('active');
+                        $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();
+                    } else {
+                        var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line'),
+                            ZE = this._ZP.getZE(artifact.ZE);
+                        if (ZE) {
+                            var $ZE = $('#' + ZE.id);
+                            $artifact.addClass('active');
+                            shape.setAttributeNS(null, 'data-ze', ZE.id);
+                            shape.setAttributeNS(null, 'data-artifact', artifact.id);
+                            switch (ZE.angle) {
+                                case ANGLE_TOP:
+                                case ANGLE_BOTTOM:
+                                    shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.width() / 2);
+                                    shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.height() / 2);
+                                    break;
+                                case ANGLE_LEFT:
+                                case ANGLE_RIGHT:
+                                    shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.height() / 2);
+                                    shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.width() / 2);
+                            }
+                            shape.setAttributeNS(null, "x2", artifact.x + $artifact.width() / 2);
+                            shape.setAttributeNS(null, "y2", artifact.y + $artifact.height() / 2);
+                            shape.setAttributeNS(null, "stroke", "black");
+                            shape.setAttributeNS(null, "stroke-width", 3);
+                            document.getElementsByTagName('svg')[0].appendChild(shape);
                         }
-                        shape.setAttributeNS(null, "x2", artifact.x + $artifact.width() / 2);
-                        shape.setAttributeNS(null, "y2", artifact.y + $artifact.height() / 2);
-                        shape.setAttributeNS(null, "stroke", "black");
-                        shape.setAttributeNS(null, "stroke-width", 3);
-                        document.getElementsByTagName('svg')[0].appendChild(shape);
                     }
                 }
-            }).bind(this));
+            }).bind(this)
+        }, {
+            target: '.ZP > .artifact',
+            event: 'hold',
+            action: (function (event) {
+                console.log(event)
+                var $element = $(event.target);
+                if ($element.hasClass('artifact') && !this._ZP.background) {
+                    var artifact = this._ZP.getArtifact($element.attr('id'));
+                    var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    shape.setAttributeNS(null, 'class', 'temporary');
+                    shape.setAttributeNS(null, 'data-from', artifact.id);
+                    shape.setAttributeNS(null, "x1", artifact.x + $element.width() / 2);
+                    shape.setAttributeNS(null, "y1", artifact.y + $element.height() / 2);
+                    shape.setAttributeNS(null, "x2", event.clientX);
+                    shape.setAttributeNS(null, "y2", event.clientY);
+                    shape.setAttributeNS(null, "stroke", "black");
+                    shape.setAttributeNS(null, "stroke-width", 3);
+                    document.getElementsByTagName('svg')[0].appendChild(shape);
+
+                    var interaction = event.interaction;
+                    if (!interaction.interacting()) {
+                        interaction.start({name: 'drag'}, interact('line'), shape);
+                    }
+                }
+            }).bind(this)
+        }];
     }
 }

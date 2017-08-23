@@ -7,9 +7,10 @@ class ToolView extends View {
         super(ZP, connection);
     }
 
-    _initialize() {
-        interact('.tool')
-            .dropzone({
+    _dropzone() {
+        return [{
+            target: 'tool',
+            option: {
                 accept: '.artifact.point',
                 overlap: 0.1,
 
@@ -33,6 +34,7 @@ class ToolView extends View {
                         }
                     }
                 }).bind(this)
-            });
+            }
+        }];
     }
 }

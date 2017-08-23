@@ -7,9 +7,10 @@ class ZEView extends View {
         super(ZP, connection);
     }
 
-    _initialize() {
-        interact('.ZE')
-            .dropzone({
+    _dropzone() {
+        return [{
+            target: '.ZE',
+            option: {
                 accept: '.artifact.message, .artifact.image',
                 overlap: 0.1,
 
@@ -59,8 +60,14 @@ class ZEView extends View {
                 ondropdeactivate: function (event) {
                     $(event.target).removeClass('drop-active drop-target');
                 }
-            })
-            .draggable({
+            }
+        }];
+    }
+
+    _draggable() {
+        return [{
+            target: '.ZE',
+            option: {
                 onstart: function (event) {
                     var $element = $(event.target);
                     $('.artifact[data-ze=' + $element.attr('id') + ']').removeClass('active');
@@ -124,13 +131,20 @@ class ZEView extends View {
                     }
                     $element.css('transform', 'translate(' + ZE.x + 'px, ' + ZE.y + 'px) rotate(' + ZE.angle + 'deg)');
                 }).bind(this)
-            });
-        interact('.ZP > .ZE .avatar')
-            .on('tap', (function (event) {
+            }
+        }];
+    }
+
+    _on() {
+        return [{
+            target: '.ZE',
+            event: 'tap',
+            action: (function (event) {
                 var $ZE = $(event.target).parents('.ZE'),
                     tool = this._ZP.getZE($ZE.attr('id')).tool;
                 tool.opened ? $ZE.find('.tool').hide() : $ZE.find('.tool').show();
                 tool.toggle();
-            }).bind(this));
+            }).bind(this)
+        }];
     }
 }
