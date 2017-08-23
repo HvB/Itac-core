@@ -6,7 +6,6 @@ class View {
             interact(this._dropzone()[i].target).dropzone(this._dropzone()[i].option);
         }
         for (var i = 0; i < this._draggable().length; i++) {
-            console.log(this._draggable()[i])
             interact(this._draggable()[i].target).draggable(this._draggable()[i].option);
         }
         for (var i = 0; i < this._gesturable().length; i++) {

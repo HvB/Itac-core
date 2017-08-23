@@ -5,6 +5,7 @@
 class ZEView extends View {
     constructor(ZP, connection) {
         super(ZP, connection);
+        new ToolView(ZP, connection);
     }
 
     _dropzone() {

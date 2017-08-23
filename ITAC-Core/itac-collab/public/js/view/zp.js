@@ -5,6 +5,10 @@
 class ZPView extends View {
     constructor(ZP, connection) {
         super(ZP, connection);
+        new MenuView(ZP, connection);
+        new ZEView(ZP, connection);
+        new ArtifactView(ZP, connection);
+        new LineView(ZP, connection);
     }
 
     _dropzone() {
