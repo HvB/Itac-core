@@ -285,4 +285,33 @@ class Connection {
         console.log("menu ITAC -> suppresion ART = " + idArtifact);
         this._socket.emit(this._events.ArtefactDeletedFromZP, idArtifact);
     }
+
+    /**
+     * Emet la mise à jour complète d'un artefact
+     * @param idArtifact id de l'artefact
+     * @param artifact nouvel artefact
+     */
+    emitArtifactFullUpdate(idArtifact, artifact) {
+        console.log("PAGE : workspace.ejs -> mise à jour complète ART = " + idArtifact);
+        this._socket.emit(this._events.ArtifactFullUpdate, idArtifact, artifact);
+    }
+
+    /**
+     * Emet la mise à jour partielle d'un artefact
+     * @param idArtifact id de l'artefact
+     * @param patch patch json pour la mise à jour de l'artefact
+     */
+    emitArtifactPartialUpdate(idArtifact, patch) {
+        console.log("PAGE : workspace.ejs -> mise à jour partielle ART = " + idArtifact);
+        this._socket.emit(this._events.ArtifactPartialUpdate, idArtifact, patch);
+    }
+
+    /**
+     * Emet la mise à jour partielle d'une liste d'artefacts
+     * @param list liste de couple id / patch pour la mise à jour de l'artefact
+     */
+    emitArtifactsPartialUpdate(list) {
+        console.log("PAGE : workspace.ejs -> mise à jour partielle d'une liste ART");
+        this._socket.emit(this._events.ArtifactsPartialUpdates, list);
+    }
 }
