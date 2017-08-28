@@ -132,12 +132,14 @@ class ArtifactView extends View {
                             }]);
                         }
                     } else {
-                        console.log( this._ZP.getArtifact(id).toJSON())
-                        this._connection.emitArtifactPartialUpdate(id, [{
-                            op: 'add',
-                            path: '/position',
-                            value: this._ZP.getArtifact(id).toJSON()['position']
-                        }]);
+                        var artifact = this._ZP.getArtifact(id);
+                        if (artifact) {
+                            this._connection.emitArtifactPartialUpdate(id, [{
+                                op: 'add',
+                                path: '/position',
+                                value: artifact.toJSON()['position']
+                            }]);
+                        }
                     }
                 }).bind(this)
             }
