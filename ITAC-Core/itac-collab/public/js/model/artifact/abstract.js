@@ -1,6 +1,6 @@
 class Artifact {
     static new(id, data) {
-        switch(data.type) {
+        switch (data.type) {
             case ARTIFACT_MESSAGE:
                 return new Message(id, data);
             case ARTIFACT_IMAGE:
@@ -83,5 +83,17 @@ class Artifact {
 
     get history() {
         return this._history;
+    }
+
+    toJSON() {
+        var object = {};
+        object['id'] = this._id;
+        object['type'] = this._type;
+        object['position'] = {x: this._x, y: this._y, scale: this._scale, angle: this._angle};
+        object['lastZE'] = this._ZE;
+        object['creator'] = this._creator;
+        object['dateCreation'] = this._dateCreation;
+        object['history'] = this._history;
+        return object;
     }
 }

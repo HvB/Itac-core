@@ -33,4 +33,11 @@ class Image extends Artifact {
     set background(isBackground) {
         this._isBackground = isBackground;
     }
+    
+    toJSON() {
+        var object = super.toJSON();
+        object['content'] = this._content;
+        object['points'] = this._points;
+        return object;
+    }
 }

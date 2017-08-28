@@ -17,4 +17,12 @@ class Link extends Artifact {
     get linksFrom() {
         return this._linksFrom;
     }
+
+    toJSON() {
+        var object = super.toJSON();
+        object['title'] = this._title;
+        object['linksTo'] = this._linksTo;
+        object['linksFrom'] = this._linksFrom;
+        return object;
+    }
 }
