@@ -120,6 +120,9 @@ class MenuView extends View {
                 ondrop: (function (event) {
                     var $artifact = $(event.relatedTarget),
                         artifact = this._ZP.getArtifact($artifact.attr('id'));
+                    if (this._ZP.background) {
+                        $('#' + this._ZP.background).show();
+                    }
                     this._ZP.background = artifact.id;
                     if (Object.keys(artifact.points).length === 0) {
                         this._connection.emitArtifactPartialUpdate(artifact.id, [{
@@ -127,6 +130,7 @@ class MenuView extends View {
                         }]);
                     }
                     $('.ZP > .point').remove();
+                    $('#' + artifact.id).hide();
                     // $('.point[data-reference=' + artifact.id + ']').each(function (index, element) {
                     //     $('line[data-from=' + $(element).attr('id') + ']').remove();
                     // }).remove();
@@ -217,6 +221,7 @@ class MenuView extends View {
             target: '.circleMenu-open .background',
             action: (function (event) {
                 $('.ZP > .point').remove();
+                $('#' + this._ZP.background).show();
                 // $('.point[data-reference=' + this._ZP.background + ']').each(function (index, element) {
                 //     $('line[data-from=' + $(element).attr('id') + ']').hide();
                 // }).hide();
