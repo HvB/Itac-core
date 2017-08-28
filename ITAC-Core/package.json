@@ -9,7 +9,7 @@
   "devDependencies": {
     "mocha": "*",
     "chai-as-promised": "*",
-    "chai": ">= 2.1.2 < 4 "
+    "chai": ">= 4"
   },
   "dependencies": {
     "body-parser": "~1.15.1",
