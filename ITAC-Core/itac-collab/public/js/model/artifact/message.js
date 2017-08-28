@@ -12,4 +12,11 @@ class Message extends Artifact {
     get content() {
         return this._content;
     }
+
+    toJSON() {
+        var object = super.toJSON();
+        object['title'] = this._title;
+        object['content'] = this._content;
+        return object;
+    }
 }

@@ -6,13 +6,12 @@ class ArtifactView extends View {
         super(ZP, connection);
     }
 
-    _initialize() {
-        interact('.ZP > .artifact.message, .ZP > .artifact.image')
-            .dropzone({
-                //accepter just les element ayant la class artefact
+    _dropzone() {
+        return [{
+            target: '.ZP > .artifact.message, .ZP > .artifact.image',
+            option: {
                 accept: 'line',
 
-                // les evenement de drop
                 ondropactivate: function (event) {
                     // activer la zone de drop
                     $(event.target).addClass('drop-active');
@@ -29,7 +28,6 @@ class ArtifactView extends View {
                 },
 
                 ondrop: (function (event) {
-                    //les evenements aprés le drop
                     var $target = $(event.target),
                         artifact = this._ZP.getArtifact($target.attr('id')),
                         shape = event.relatedTarget,
@@ -45,7 +43,6 @@ class ArtifactView extends View {
                 }).bind(this),
 
                 ondropdeactivate: function (event) {
-                    //supprimer le drop-active class de la zone de drop
                     var $shape = $(event.relatedTarget);
                     $(event.target).removeClass('drop-active drop-target');
                     if ($shape.hasClass('temporary')) {
@@ -59,47 +56,100 @@ class ArtifactView extends View {
                         }
                     }
                 }
-            });
-        interact('.artifact')
-            .draggable({
+            }
+        }];
+    }
+
+    _draggable() {
+        return [{
+            target: '.artifact',
+            option: {
                 inertia: true,
                 restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
                 onstart: (function (event) {
-                    var $element = $(event.target),
-                        offset = $element.offset(),
+                    var $element = $(event.target), artifact;
+                    if ($element.hasClass('point') && this._ZP.background) {
+                        if ($element.hasClass('dropped')) {
+                            var idZE = $element.parents('.ZE').attr('id'),
+                                tool = this._ZP.getZE(idZE).tool;
+                            tool.point.ZE = idZE;
+                            this._ZP.getArtifact(this._ZP.background).addPoint(tool.point);
+                            tool.reset();
+                        }
+                        artifact = this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id'));
+                    } else {
                         artifact = this._ZP.getArtifact($element.attr('id'));
-                    if ($(event.target).hasClass('dropped')) {
-                        artifact.x = offset.left;
-                        artifact.y = offset.top;
                     }
-                    $element.removeClass('active');
-                    $('svg [data-artifact=' + artifact.id + ']').remove();
-                    $element.css('z-index', Z_INDEX);
-                    Z_INDEX++;
+                    if (artifact) {
+                        if ($element.hasClass('dropped')) {
+                            var offset = $element.offset();
+                            artifact.x = offset.left;
+                            artifact.y = offset.top;
+                        }
+                        $element.removeClass('active');
+                        // $('svg [data-artifact=' + artifact.id + ']').remove();
+                        $element.css('z-index', Z_INDEX);
+                        Z_INDEX++;
+                    }
                 }).bind(this),
                 onmove: (function (event) {
                     var $element = $(event.target),
+                        artifact;
+                    if ($element.hasClass('point') && this._ZP.background) {
+                        artifact = this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id'));
+                    } else {
                         artifact = this._ZP.getArtifact($element.attr('id'));
-                    artifact.x += event.dx;
-                    artifact.y += event.dy;
-                    $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
-                        + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
+                    }
+                    if (artifact) {
+                        artifact.x += event.dx;
+                        artifact.y += event.dy;
+                        $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
+                            + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
 
-                    $('line[data-from=' + artifact.id + ']').each(function (index, element) {
-                        var $element = $(element);
-                        element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
-                        element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
-                    });
-                    $('line[data-to=' + artifact.id + ']').each(function (index, element) {
-                        var $element = $(element);
-                        element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
-                        element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
-                    });
+                        // $('line[data-from=' + artifact.id + ']').each(function (index, element) {
+                        //     var $element = $(element);
+                        //     element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
+                        //     element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
+                        // });
+                        // $('line[data-to=' + artifact.id + ']').each(function (index, element) {
+                        //     var $element = $(element);
+                        //     element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
+                        //     element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
+                        // });
+                    }
+                }).bind(this),
+                onend: (function (event) {
+                    var $element = $(event.target),
+                        id = $element.attr('id');
+                    if ($element.hasClass('point') && this._ZP.background) {
+                        var point = this._ZP.getArtifact(this._ZP.background).getPoint(id);
+                        if (point) {
+                            this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
+                                op: 'add',
+                                path: '/points/' + id,
+                                value: point.toJSON()
+                            }]);
+                        }
+                    } else {
+                        var artifact = this._ZP.getArtifact(id);
+                        if (artifact) {
+                            this._connection.emitArtifactPartialUpdate(id, [{
+                                op: 'add',
+                                path: '/position',
+                                value: artifact.toJSON()['position']
+                            }]);
+                        }
+                    }
                 }).bind(this)
-            });
-        interact('.ZP > .artifact')
-            .gesturable({
+            }
+        }];
+    }
+
+    _gesturable() {
+        return [{
+            target: '.ZP > .artifact',
+            option: {
                 inertia: true,
                 restrict: {restriction: "parent", endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
@@ -137,41 +187,78 @@ class ArtifactView extends View {
                         element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
                     });
                 }
-            })
-            .on('tap', (function (event) {
+            }
+        }];
+    }
+
+    _tap() {
+        return [{
+            target: '.ZP > .artifact',
+            action: (function (event) {
                 var $artifact = $(event.currentTarget),
                     artifact = this._ZP.getArtifact($artifact.attr('id'));
-                $artifact.css('z-index', Z_INDEX);
-                Z_INDEX++;
-                if ($artifact.hasClass('active')) {
-                    $artifact.removeClass('active');
-                    $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();
-                } else {
-                    var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line'),
-                        ZE = this._ZP.getZE(artifact.ZE);
-                    if (ZE) {
-                        var $ZE = $('#' + ZE.id);
-                        $artifact.addClass('active');
-                        shape.setAttributeNS(null, 'data-ze', ZE.id);
-                        shape.setAttributeNS(null, 'data-artifact', artifact.id);
-                        switch (ZE.angle) {
-                            case ANGLE_TOP:
-                            case ANGLE_BOTTOM:
-                                shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.width() / 2);
-                                shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.height() / 2);
-                                break;
-                            case ANGLE_LEFT:
-                            case ANGLE_RIGHT:
-                                shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.height() / 2);
-                                shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.width() / 2);
+                if (artifact) {
+                    $artifact.css('z-index', Z_INDEX);
+                    Z_INDEX++;
+                    if ($artifact.hasClass('active')) {
+                        $artifact.removeClass('active');
+                        $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();
+                    } else {
+                        var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line'),
+                            ZE = this._ZP.getZE(artifact.ZE);
+                        if (ZE) {
+                            var $ZE = $('#' + ZE.id);
+                            $artifact.addClass('active');
+                            shape.setAttributeNS(null, 'data-ze', ZE.id);
+                            shape.setAttributeNS(null, 'data-artifact', artifact.id);
+                            switch (ZE.angle) {
+                                case ANGLE_TOP:
+                                case ANGLE_BOTTOM:
+                                    shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.width() / 2);
+                                    shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.height() / 2);
+                                    break;
+                                case ANGLE_LEFT:
+                                case ANGLE_RIGHT:
+                                    shape.setAttributeNS(null, "x1", $ZE.offset().left + $ZE.height() / 2);
+                                    shape.setAttributeNS(null, "y1", $ZE.offset().top + $ZE.width() / 2);
+                            }
+                            shape.setAttributeNS(null, "x2", artifact.x + $artifact.width() / 2);
+                            shape.setAttributeNS(null, "y2", artifact.y + $artifact.height() / 2);
+                            shape.setAttributeNS(null, "stroke", "black");
+                            shape.setAttributeNS(null, "stroke-width", 3);
+                            document.getElementsByTagName('svg')[0].appendChild(shape);
                         }
-                        shape.setAttributeNS(null, "x2", artifact.x + $artifact.width() / 2);
-                        shape.setAttributeNS(null, "y2", artifact.y + $artifact.height() / 2);
-                        shape.setAttributeNS(null, "stroke", "black");
-                        shape.setAttributeNS(null, "stroke-width", 3);
-                        document.getElementsByTagName('svg')[0].appendChild(shape);
                     }
                 }
-            }).bind(this));
+            }).bind(this)
+        }];
+    }
+
+    _hold() {
+        return [{
+            target: '.ZP > .artifact',
+            action: (function (event) {
+                console.log(event)
+                var $element = $(event.target);
+                if ($element.hasClass('artifact') && !this._ZP.background) {
+                    var artifact = this._ZP.getArtifact($element.attr('id'));
+                    var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    shape.setAttributeNS(null, 'class', 'temporary');
+                    shape.setAttributeNS(null, 'data-from', artifact.id);
+                    shape.setAttributeNS(null, "x1", artifact.x + $element.width() / 2);
+                    shape.setAttributeNS(null, "y1", artifact.y + $element.height() / 2);
+                    shape.setAttributeNS(null, "x2", event.clientX);
+                    shape.setAttributeNS(null, "y2", event.clientY);
+                    shape.setAttributeNS(null, "stroke", "black");
+                    shape.setAttributeNS(null, "stroke-width", 3);
+                    document.getElementsByTagName('svg')[0].appendChild(shape);
+
+                    var interaction = event.interaction;
+                    if (!interaction.interacting()) {
+                        interaction.start({name: 'drag'}, interact('line'), shape);
+                    }
+                }
+            }).bind(this)
+        }];
     }
 }

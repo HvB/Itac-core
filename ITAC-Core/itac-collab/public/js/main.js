@@ -21,10 +21,6 @@ $.get(location.href + '/config.json', function (data) {
     console.log('******************* PARAMETRE PASSE PAR LA REQUETE  ********************************');
     console.log('PAGE : workspace.ejs -> demande connection socket');
 
-    var mZP = new ZP(data.configZP.idZP, window.location.hostname + ':' + data.configZP.portWebSocket),
-        connection = new Connection(mZP, data.event);
-    new MenuView(mZP, connection);
-    new ZPView(mZP, connection);
-    new ZEView(mZP, connection);
-    new ArtifactView(mZP, connection);
+    var mZP = new ZP(data.configZP.idZP, window.location.hostname + ':' + data.configZP.portWebSocket);
+    new ZPView(mZP, new Connection(mZP, data.event));
 });

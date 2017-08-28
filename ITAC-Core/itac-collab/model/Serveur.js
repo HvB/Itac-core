@@ -815,6 +815,9 @@ module.exports = class Serveur {
                 if (!res) {
                     try {
                         artifact.patch(patch);
+                        console.log('---------------------------=====================--------------------')
+                        console.log(artifact)
+                        console.log('---------------------------=====================--------------------')
                     } catch (err) {
                         logger.error({err: err, artifactId: id, patch: patch},
                             "=> patchArtifact : probleme lors de l'application du patch sur l'artifact : %s", id);

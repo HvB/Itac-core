@@ -117,11 +117,13 @@ class Connection {
     _onZEConnection(login, idZE, idZEP, posAvatar) {
         console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZEP + '\n pour pseudo=' + login);
         var $element = $('.template .ZE').clone(),
+            $point = $('.template .artifact.point').clone(),
             nbZE = $('.ZP > .ZE').length;
         $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
         $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
         $element.find('.login').text(login);
         $element.find('img').attr('id', 'avatar' + posAvatar);
+        $element.find('.tool').append($point.addClass('dropped')).hide();
 
         var matrix = $element.css('transform'),
             angle = 0;
@@ -130,6 +132,7 @@ class Connection {
             angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
         }
         this._ZP.addZE(idZE, angle);
+        $point.attr('id', this._ZP.getZE(idZE).tool.point.id);
     }
 
     /**
@@ -186,7 +189,8 @@ class Connection {
      */
     _onAddedArtifactInZP(login, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
-        this._createArtifact(data).appendTo('.ZP');
+        var position = JSON.parse(data).position;
+        this._createArtifact(data).css('transform', 'translate(' + position.x + 'px, ' + position.y + 'px)').appendTo('.ZP');
     }
 
     /**
@@ -268,6 +272,7 @@ class Connection {
      * Emet l'envoi d'un artefact vers une autre ZP
      * @param idArtifact id de l'artefact
      * @param idOtherZP id de l'autre ZP
+     * @public
      */
     emitArtifactFromZPToOtherZP(idArtifact, idOtherZP) {
         console.log("menu ITAC -> transfert ART = " + idArtifact + " de ZP=" + this._ZP.id + " vers ZP=" + idOtherZP);
@@ -277,9 +282,42 @@ class Connection {
     /**
      * Emet la suppression d'un artefact dans la ZP
      * @param idArtifact id de l'artefact
+     * @public
      */
     emitRemovedArtifactInZP(idArtifact) {
         console.log("menu ITAC -> suppresion ART = " + idArtifact);
         this._socket.emit(this._events.ArtefactDeletedFromZP, idArtifact);
+    }
+
+    /**
+     * Emet la mise à jour complète d'un artefact
+     * @param idArtifact id de l'artefact
+     * @param artifact nouvel artefact
+     * @public
+     */
+    emitArtifactFullUpdate(idArtifact, artifact) {
+        console.log("PAGE : workspace.ejs -> mise à jour complète ART = " + idArtifact);
+        this._socket.emit(this._events.ArtifactFullUpdate, idArtifact, artifact);
+    }
+
+    /**
+     * Emet la mise à jour partielle d'un artefact
+     * @param idArtifact id de l'artefact
+     * @param patch patch json pour la mise à jour de l'artefact
+     * @public
+     */
+    emitArtifactPartialUpdate(idArtifact, patch) {
+        console.log("PAGE : workspace.ejs -> mise à jour partielle ART = " + idArtifact);
+        this._socket.emit(this._events.ArtifactPartialUpdate, idArtifact, patch);
+    }
+
+    /**
+     * Emet la mise à jour partielle d'une liste d'artefacts
+     * @param list liste de couple id / patch pour la mise à jour de l'artefact
+     * @public
+     */
+    emitArtifactsPartialUpdate(list) {
+        console.log("PAGE : workspace.ejs -> mise à jour partielle d'une liste ART");
+        this._socket.emit(this._events.ArtifactsPartialUpdates, list);
     }
 }

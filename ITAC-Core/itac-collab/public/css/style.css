@@ -127,11 +127,13 @@ ul.menu li.send {
     overflow-y: auto;
 }
 .ZE .tool {
-    display: none;
+    display: flex;
     position: absolute;
     margin-top: -120px;
-    width: 80%;
+    padding: 0 20px;
+    width: 50%;
     height: 80px;
+    align-items: center;
     background: linear-gradient(to left top, #283048, #859398);
     box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
     border-radius: 10px;
@@ -191,7 +193,7 @@ ul.menu li.send {
     border-radius: 20px;
     background-color: #ff0000;
 }
-.artifact.dropped {
+.container .artifact.dropped {
     position: relative;
     float: left;
     margin: 3px;
