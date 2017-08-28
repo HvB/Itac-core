@@ -157,7 +157,7 @@ class Connection {
         $element.find('.historic .owner').text(artifact.owner);
         var $temp = $element.find('.historic .modification');
         for (var i = 0; i < artifact.history.length; i++) {
-            var $clone = $temp().clone();
+            var $clone = $temp.clone();
             $clone.find('.modifier').text(artifact.history[i].user);
             $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
             $element.find('.history').append($clone);
