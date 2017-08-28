@@ -140,7 +140,8 @@ class ZEView extends View {
         return [{
             target: '.ZE',
             action: (function (event) {
-                var $ZE = $(event.target).parents('.ZE'),
+                var $ZE = $(event.target),
+                    $ZE = $ZE.hasClass('ZE') ? $ZE : $ZE.parents('.ZE'),
                     tool = this._ZP.getZE($ZE.attr('id')).tool;
                 tool.opened ? $ZE.find('.tool').hide() : $ZE.find('.tool').show();
                 tool.toggle();
