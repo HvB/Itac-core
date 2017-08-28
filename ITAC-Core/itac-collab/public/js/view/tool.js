@@ -9,7 +9,7 @@ class ToolView extends View {
 
     _dropzone() {
         return [{
-            target: 'tool',
+            target: '.tool',
             option: {
                 accept: '.artifact.point',
                 overlap: 0.1,
