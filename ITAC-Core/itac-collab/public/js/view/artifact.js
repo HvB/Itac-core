@@ -118,6 +118,27 @@ class ArtifactView extends View {
                         //     element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
                         // });
                     }
+                }).bind(this),
+                onend: (function (event) {
+                    var $element = $(event.target),
+                        id = $element.attr('id');
+                    if ($element.hasClass('point') && this._ZP.background) {
+                        var point = this._ZP.getArtifact(this._ZP.background).getPoint(id);
+                        if (point) {
+                            this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
+                                op: 'add',
+                                path: '/points/' + id,
+                                value: point.toJSON()
+                            }]);
+                        }
+                    } else {
+                        console.log( this._ZP.getArtifact(id).toJSON())
+                        this._connection.emitArtifactPartialUpdate(id, [{
+                            op: 'add',
+                            path: '/position',
+                            value: this._ZP.getArtifact(id).toJSON()['position']
+                        }]);
+                    }
                 }).bind(this)
             }
         }];

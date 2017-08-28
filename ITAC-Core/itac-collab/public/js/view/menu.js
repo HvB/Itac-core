@@ -72,16 +72,24 @@ class MenuView extends View {
                 ondrop: (function (event) {
                     var $artifact = $(event.relatedTarget),
                         idArtifact = $artifact.attr('id');
-                    this._connection.emitRemovedArtifactInZP(idArtifact);
-                    $('line[data-from=' + idArtifact + '], line[data-to=' + idArtifact + ']').each(function (index, element) {
-                        var $shape = $(element),
-                            $artifact = $('#' + $shape.attr('data-from'));
-                        $shape.remove();
-                        if ($artifact.hasClass('point') && $('line[data-from=' + idArtifact + ']').length == 0) {
-                            $artifact.remove();
-                        }
-                    });
-                    this._ZP.removeArtifact(idArtifact);
+                    if ($artifact.hasClass('point') && this._ZP.background) {
+                        this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
+                            op: 'remove',
+                            path: '/points/' + idArtifact
+                        }]);
+                        this._ZP.getArtifact(this._ZP.background).removePoint(idArtifact);
+                    } else {
+                        this._connection.emitRemovedArtifactInZP(idArtifact);
+                        // $('line[data-from=' + idArtifact + '], line[data-to=' + idArtifact + ']').each(function (index, element) {
+                        //     var $shape = $(element),
+                        //         $artifact = $('#' + $shape.attr('data-from'));
+                        //     $shape.remove();
+                        //     if ($artifact.hasClass('point') && $('line[data-from=' + idArtifact + ']').length == 0) {
+                        //         $artifact.remove();
+                        //     }
+                        // });
+                        this._ZP.removeArtifact(idArtifact);
+                    }
                     $artifact.remove();
                 }).bind(this),
 
@@ -110,23 +118,37 @@ class MenuView extends View {
                 },
 
                 ondrop: (function (event) {
-                    var $artifact = $(event.relatedTarget);
-                    this._ZP.background = $artifact.attr('id');
-                    $('.point[data-reference=' + this._ZP.background + ']').each(function (index, element) {
-                        $('line[data-from=' + $(element).attr('id') + ']').hide();
-                    }).hide();
+                    var $artifact = $(event.relatedTarget),
+                        artifact = this._ZP.getArtifact($artifact.attr('id'));
+                    this._ZP.background = artifact.id;
+                    if (Object.keys(artifact.points).length === 0) {
+                        this._connection.emitArtifactPartialUpdate(artifact.id, [{
+                            op: 'add', path: '/points', value: {}
+                        }]);
+                    }
+                    $('.ZP > .point').remove();
+                    // $('.point[data-reference=' + artifact.id + ']').each(function (index, element) {
+                    //     $('line[data-from=' + $(element).attr('id') + ']').remove();
+                    // }).remove();
                     $('.ZP')
                         .css('background-image', $artifact.css('background-image'))
                         .css('background-position', 'center')
                         .css('background-repeat', 'no-repeat')
                         .css('background-size', 'contain')
                         .addClass('background')
-                        .attr('data-background', this._ZP.background);
+                        .attr('data-background', artifact.id);
                     event.target.classList.remove('trash-target');
                     event.relatedTarget.classList.remove('can-delete');
-                    $('.point[data-reference=' + this._ZP.background + ']').each(function (index, element) {
-                        $('line[data-from=' + $(element).attr('id') + ']').show();
-                    }).show();
+                    for (var id in artifact.points) {
+                        var $point = $('.template .artifact.point').clone(),
+                            point = artifact.getPoint(id);
+                        $('.ZP').append($point);
+                        $point.attr('id', id);
+                        $point.css('transform', 'translate(' + point.x + 'px, ' + point.y + 'px)');
+                    }
+                    // $('.point[data-reference=' + artifact.id + ']').each(function (index, element) {
+                    //     $('line[data-from=' + $(element).attr('id') + ']').show();
+                    // }).show();
                 }).bind(this)
             }
         }];
@@ -194,9 +216,10 @@ class MenuView extends View {
         return [{
             target: '.circleMenu-open .background',
             action: (function (event) {
-                $('.point[data-reference=' + this._ZP.background + ']').each(function (index, element) {
-                    $('line[data-from=' + $(element).attr('id') + ']').hide();
-                }).hide();
+                $('.ZP > .point').remove();
+                // $('.point[data-reference=' + this._ZP.background + ']').each(function (index, element) {
+                //     $('line[data-from=' + $(element).attr('id') + ']').hide();
+                // }).hide();
                 this._ZP.background = null;
                 $('.ZP')
                     .css('background-image', '')

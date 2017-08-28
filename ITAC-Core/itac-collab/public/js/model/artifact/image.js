@@ -2,7 +2,12 @@ class Image extends Artifact {
     constructor(id, data) {
         super(id, ARTIFACT_IMAGE, data);
         this._content = data && data.content ? data.content : '';
-        this._points = data && data.points ? data.points : [];
+        this._points = {};
+        if (data && data.points) {
+            for (var id in data.points) {
+                this._points[id] = new Point(id, data.points[id]);
+            }
+        }
         this._isBackground = false;
     }
 
@@ -37,7 +42,10 @@ class Image extends Artifact {
     toJSON() {
         var object = super.toJSON();
         object['content'] = this._content;
-        object['points'] = this._points;
+        object['points'] = {};
+        for (var id in this._points) {
+            object['points'][id] = this._points[id].toJSON();
+        }
         return object;
     }
 }
