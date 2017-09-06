@@ -180,9 +180,9 @@ class Connection {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZE= ' + idZE + ' et pseudo=' + login);
         this._ZP.getZE(idZE).addArtifact(JSON.parse(data).id);
         this._createArtifact(data).addClass('dropped').appendTo($('#' + idZE).find('.container'));
-    }
+     }
 
-    /**
+     /**
      * Ecoute l'ajout d'un artefact dans une ZE
      * @param login pseudo de l'utilisateur de la ZE
      * @param idZE id de la ZE
@@ -191,7 +191,7 @@ class Connection {
      */
     _onAddedArtifactInZP(login, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
-        var position = JSON.parse(data).position;
+        var position = JSON.parse(data).position ? JSON.parse(data).position : {x: 200, y:200, scale: 1, angle: 0};
         this._createArtifact(data).css('transform', 'translate(' + position.x + 'px, ' + position.y + 'px)').appendTo('.ZP');
     }
 
