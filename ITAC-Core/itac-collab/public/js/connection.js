@@ -10,7 +10,7 @@ class Connection {
     constructor(ZP, events) {
         this._ZP = ZP;
         this._events = events;
-        this._socket = io(this._ZP.menu.url,{forceNew: true, autoConnect: false, reconnection: false, transports: ['websocket']});
+        this._socket = io(this._ZP.menu.url,{forceNew: true, transports: ['websocket']});
         //this._socket = io.connect(this._ZP.menu.url);
         this._socket.on('connect', (function () {
             this._initialize();
