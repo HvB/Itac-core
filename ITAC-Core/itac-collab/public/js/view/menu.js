@@ -121,6 +121,9 @@ class MenuView extends View {
                     var $artifact = $(event.relatedTarget),
                         artifact = this._ZP.getArtifact($artifact.attr('id'));
                     if (this._ZP.background) {
+                        this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
+                            op: 'add', path: '/isBackground', value: false
+                        }]);
                         $('#' + this._ZP.background).show();
                     }
                     this._ZP.background = artifact.id;
@@ -130,6 +133,9 @@ class MenuView extends View {
                         }]);
                     }
                     $('.ZP > .point').remove();
+                    this._connection.emitArtifactPartialUpdate(artifact.id, [{
+                        op: 'add', path: '/isBackground', value: true
+                    }]);
                     $('#' + artifact.id).hide();
                     // $('.point[data-reference=' + artifact.id + ']').each(function (index, element) {
                     //     $('line[data-from=' + $(element).attr('id') + ']').remove();
@@ -139,8 +145,7 @@ class MenuView extends View {
                         .css('background-position', 'center')
                         .css('background-repeat', 'no-repeat')
                         .css('background-size', 'contain')
-                        .addClass('background')
-                        .attr('data-background', artifact.id);
+                        .addClass('background');
                     event.target.classList.remove('trash-target');
                     event.relatedTarget.classList.remove('can-delete');
                     for (var id in artifact.points) {
@@ -221,6 +226,9 @@ class MenuView extends View {
             target: '.circleMenu-open .background',
             action: (function (event) {
                 $('.ZP > .point').remove();
+                this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
+                    op: 'add', path: '/isBackground', value: false
+                }]);
                 $('#' + this._ZP.background).show();
                 // $('.point[data-reference=' + this._ZP.background + ']').each(function (index, element) {
                 //     $('line[data-from=' + $(element).attr('id') + ']').hide();

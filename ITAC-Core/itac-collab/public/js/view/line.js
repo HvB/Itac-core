@@ -14,8 +14,8 @@ class LineView extends View {
                 manualStart: true,
                 onmove: function (event) {
                     var shape = event.target;
-                    shape.setAttributeNS(null, "x2", event.clientX);
-                    shape.setAttributeNS(null, "y2", event.clientY);
+                    shape.setAttributeNS(null, 'x2', event.clientX);
+                    shape.setAttributeNS(null, 'y2', event.clientY);
                 }
             }
         }];

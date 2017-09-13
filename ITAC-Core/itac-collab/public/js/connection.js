@@ -151,6 +151,19 @@ class Connection {
                 break;
             case 'image':
                 $element.css('background-image', 'url(data:image/*;base64,' + artifact.content + ')');
+                if (artifact.isBackground) {
+                    this._ZP.background = artifact.id;
+                    $element.hide();
+                    // $('.point[data-reference=' + artifact.id + ']').each(function (index, element) {
+                    //     $('line[data-from=' + $(element).attr('id') + ']').remove();
+                    // }).remove();
+                    $('.ZP')
+                        .css('background-image', $element.css('background-image'))
+                        .css('background-position', 'center')
+                        .css('background-repeat', 'no-repeat')
+                        .css('background-size', 'contain')
+                        .addClass('background');
+                }
         }
         $element.find('.historic .creator').text(artifact.creator);
         $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));

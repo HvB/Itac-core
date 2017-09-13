@@ -8,7 +8,7 @@ class Image extends Artifact {
                 this._points[id] = new Point(id, data.points[id]);
             }
         }
-        this._isBackground = false;
+        this._isBackground = data.isBackground ?  data.isBackground : false;
     }
 
     get content() {
@@ -46,6 +46,7 @@ class Image extends Artifact {
         for (var id in this._points) {
             object['points'][id] = this._points[id].toJSON();
         }
+        object['isBackground'] = this._isBackground;
         return object;
     }
 }

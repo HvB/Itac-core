@@ -1,11 +1,19 @@
 class Point extends Artifact {
     constructor(id, data) {
         super(id, ARTIFACT_POINT, data);
-        this._linksTo = data && data.linksTo ? data.linksTo : [];
+        this._linksTo = data && data.linksTo ? data.linksTo : {};
     }
 
-    get linksTo() {
-        return this._linksTo;
+    hasLinkTo(linkTo) {
+        return this._linksTo[linkTo] ? true : false;
+    }
+
+    addLinkTo(linkTo) {
+        this._linksTo[linkTo] = linkTo;
+    }
+
+    removeLinkTo(linkTo) {
+        delete this._linksTo[linkTo];
     }
     
     toJSON() {
