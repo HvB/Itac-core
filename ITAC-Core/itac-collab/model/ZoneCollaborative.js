@@ -477,7 +477,7 @@ module.exports = class ZoneCollaborative {
      */
     saveArtifactSync(id) {
         let monArtifact = this.getArtifact(id);
-        if (monArtifact) monArtifact.save(this.pathArtifacts);
+        if (monArtifact) monArtifact.saveSync(this.pathArtifacts);
         // remplace par une methode sur l'artefact
         // //sauvegarde du fichier JSON
         // var chaine = JSON.stringify(monArtifact);
@@ -546,7 +546,7 @@ module.exports = class ZoneCollaborative {
      */
     saveArtifactsSync(){
         let path = this.pathArtifacts;
-        this.getAllArtifacts().forEach((artifact, id, map) => artifact.save(path));
+        this.getAllArtifacts().forEach((artifact, id, map) => artifact.saveSync(path));
     }
 
      /**
