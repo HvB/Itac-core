@@ -151,7 +151,7 @@ class Connection {
                 $element.find('p').first().text(artifact.content);
                 break;
             case 'image':
-                $element.css('background-image', 'url(data:image/*;base64,' + artifact.content.replace(/\s/g,'' ) + ')');
+                $element.css('background-image', 'url(data:image/*;base64,' + artifact.content.replace(/\s/g, '') + ')');
                 if (artifact.isBackground) {
                     this._ZP.background = artifact.id;
                     $element.hide();
@@ -174,7 +174,7 @@ class Connection {
             var $clone = $temp.clone();
             $clone.find('.modifier').text(artifact.history[i].user);
             $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
-            $element.find('.history').append($clone);
+            $element.find('.historic').append($clone);
         }
         $temp.remove();
         $element.attr('id', artifact.id);
@@ -192,9 +192,9 @@ class Connection {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZE= ' + idZE + ' et pseudo=' + login);
         this._ZP.getZE(idZE).addArtifact(JSON.parse(data).id);
         this._createArtifact(data).addClass('dropped').appendTo($('#' + idZE).find('.container'));
-     }
+    }
 
-     /**
+    /**
      * Ecoute l'ajout d'un artefact dans une ZE
      * @param login pseudo de l'utilisateur de la ZE
      * @param idZE id de la ZE
@@ -203,7 +203,7 @@ class Connection {
      */
     _onAddedArtifactInZP(login, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
-        var position = JSON.parse(data).position ? JSON.parse(data).position : {x: 200, y:200, scale: 1, angle: 0};
+        var position = JSON.parse(data).position ? JSON.parse(data).position : {x: 200, y: 200, scale: 1, angle: 0};
         this._createArtifact(data).css('transform', 'translate(' + position.x + 'px, ' + position.y + 'px)').appendTo('.ZP');
     }
 
