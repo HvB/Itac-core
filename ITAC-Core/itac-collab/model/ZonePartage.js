@@ -424,7 +424,8 @@ getZEbySocket(idsocket) {
                 if (this.ZC.setArtifactIntoZE(IdArtefact, idZE)) {
                     logger.debug('=> addArtifactFromZEPtoZE : envoi en ZE et sauvegarde');
                     // sauvegarde de l'artefact
-                    this.ZC.saveArtifact(IdArtefact);
+                    // ST en fait ce n'est pas une bonne idee
+                    //this.ZC.saveArtifact(IdArtefact);
                 }
                 else {
                     logger.debug('=> addArtifactFromZEPtoZE : pas denvoi en ZE car non trouvé');
@@ -478,7 +479,8 @@ getZEbySocket(idsocket) {
             this.ZC.setArtifactIntoZP(IdArtefact, this.getId());
 
             // sauvegarde de l'artefact
-            this.ZC.saveArtifact(IdArtefact);
+            // ST en fait ce n'est pas une bonne idee
+            //this.ZC.saveArtifact(IdArtefact);
         }
         // renvoie l'id de l'artifcat créé
         logger.debug('=> addArtifactFromZEPtoZP : renvoi IdArtefact utilise =' + IdArtefact);
