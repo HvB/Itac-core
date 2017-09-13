@@ -200,7 +200,7 @@
     }
 }
 
-@media (min-width: 1401px) and (max-width: 1920px) {
+@media (min-width: 1401px) {
     .n1, .n2 {
         width: 600px;
         height: 150px;

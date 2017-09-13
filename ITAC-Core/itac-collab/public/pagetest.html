@@ -15,7 +15,12 @@
     socket0.on('EVT_ReponseOKConnexionZEP', function (idZE, idZEP) {
         socket0.emit('EVT_NewArtefactInZE', 'pseudo0', idZEP, idZE, JSON.stringify({
             "creator": "philippe", "owner": "philippe", "type": "message", "idContainer": "ZE1",
-            "typeContainer": "ZE", "dateCreation": "2017-06-29T15:08:12.765Z", "history": [], "title": "Message", "content": "test de contenu"
+            "typeContainer": "ZE", "dateCreation": "2017-06-29T15:08:12.765Z",
+            "history": [{"user":"gg","dateModification":"2017-09-04T15:09:06.748Z",
+                            "deviceUid":"85f2d329-ccf6-4a48-923b-49c1eb77ab4c"},
+                        {"user":"pp","dateModification":"2017-09-04T15:10:53.878Z",
+                            "deviceUid":"c41306fd-4cc4-49ef-9474-1e4527570e23"}],
+            "title": "Message", "content": "test de contenu"
         }));
         socket0.emit('EVT_NewArtefactInZE', 'pseudo0', idZEP, idZE, JSON.stringify({
             "creator": "philippe", "owner": "philippe", "type": "image", "idContainer": "ZE1",
