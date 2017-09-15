@@ -10,14 +10,10 @@ licenseFormat.dependsOn licenseFormatSrc
 
 license {
     header = rootProject.file('Header_GPLv3.txt')
-//    include('**/utility/*.js')
     include('**/*.js')
     include('**/*.html')
     include('**/*.ejs')
     include('**/*.css')
-//    include('**/*.js')
-//    include('**/*.ejs')
-//    include('**/*.css')
     exclude('**/license-gpl-3.0.html')
     exclude('node_modules')
     exclude('**/lib')
