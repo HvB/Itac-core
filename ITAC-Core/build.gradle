@@ -18,6 +18,7 @@ license {
 //    include('**/*.js')
 //    include('**/*.ejs')
 //    include('**/*.css')
+    exclude('**/license-gpl-3.0.html')
     exclude('node_modules')
     exclude('**/lib')
     exclude('session')
