@@ -143,12 +143,15 @@ class ArtifactView extends View {
                     this._moveArtifact(event, $element, this._ZP.getArtifact($element.attr('id')));
                 }).bind(this),
                 onend: (function (event) {
-                    var id = $(event.target).attr('id');
-                    this._connection.emitArtifactPartialUpdate(id, [{
-                        op: 'add',
-                        path: '/position',
-                        value: this._ZP.getArtifact(id).toJSON()['position']
-                    }]);
+                    var id = $(event.target).attr('id'),
+                        artifact = this._ZP.getArtifact(id);
+                    if (artifact) {
+                        this._connection.emitArtifactPartialUpdate(id, [{
+                            op: 'add',
+                            path: '/position',
+                            value: artifact.toJSON()['position']
+                        }]);
+                    }
                 }).bind(this)
             }
         }, {
@@ -201,12 +204,15 @@ class ArtifactView extends View {
                 }).bind(this),
                 onend: (function (event) {
                     if (this._ZP.background) {
-                        var id = $(event.target).attr('id');
-                        this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
-                            op: 'add',
-                            path: '/points/' + id,
-                            value: this._ZP.getArtifact(this._ZP.background).getPoint(id).toJSON()
-                        }]);
+                        var id = $(event.target).attr('id'),
+                            point = this._ZP.getArtifact(this._ZP.background).getPoint(id);
+                        if (point) {
+                            this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
+                                op: 'add',
+                                path: '/points/' + id,
+                                value: point.toJSON()
+                            }]);
+                        }
                     }
                 }).bind(this)
             }
@@ -232,12 +238,15 @@ class ArtifactView extends View {
                     this._moveArtifact(event, $element, artifact);
                 }).bind(this),
                 onend: (function (event) {
-                    var id = $(event.target).attr('id');
-                    this._connection.emitArtifactPartialUpdate(id, [{
-                        op: 'add',
-                        path: '/position',
-                        value: this._ZP.getArtifact(id).toJSON()['position']
-                    }]);
+                    var id = $(event.target).attr('id'),
+                        artifact = this._ZP.getArtifact(id);
+                    if (artifact) {
+                        this._connection.emitArtifactPartialUpdate(id, [{
+                            op: 'add',
+                            path: '/position',
+                            value: artifact.toJSON()['position']
+                        }]);
+                    }
                 }).bind(this)
             }
         }];
