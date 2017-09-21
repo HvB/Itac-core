@@ -29,7 +29,8 @@ ul.menu {
     position: fixed;
     width: 120px !important;
     height: 120px;
-    right: 0;
+    left: calc(50% - 60px);
+    top: calc(50% - 60px);
 }
 ul.menu li {
     padding-top: 15px;
