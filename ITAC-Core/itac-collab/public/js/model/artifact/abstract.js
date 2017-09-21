@@ -5,8 +5,6 @@ class Artifact {
                 return new Message(id, data);
             case ARTIFACT_IMAGE:
                 return new Image(id, data);
-            case ARTIFACT_POINT:
-                return new Point(id, data);
             case ARTIFACT_LINK:
                 return new Link(id, data);
         }

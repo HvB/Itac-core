@@ -129,7 +129,30 @@ class ArtifactView extends View {
 
     _draggable() {
         return [{
-            target: '.artifact.message, .artifact.image',
+            target: '.ZP > .artifact.message, .ZP > .artifact.image',
+            option: {
+                inertia: true,
+                restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
+                autoScroll: true,
+                onstart: (function (event) {
+                    var $element = $(event.target);
+                    this._startArtifact($element, this._ZP.getArtifact($element.attr('id')));
+                }).bind(this),
+                onmove: (function (event) {
+                    var $element = $(event.target);
+                    this._moveArtifact(event, $element, this._ZP.getArtifact($element.attr('id')));
+                }).bind(this),
+                onend: (function (event) {
+                    var id = $(event.target).attr('id');
+                    this._connection.emitArtifactPartialUpdate(id, [{
+                        op: 'add',
+                        path: '/position',
+                        value: this._ZP.getArtifact(id).toJSON()['position']
+                    }]);
+                }).bind(this)
+            }
+        }, {
+            target: '.ZE .artifact.message, .ZE .artifact.image',
             option: {
                 inertia: true,
                 restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
@@ -164,7 +187,9 @@ class ArtifactView extends View {
                             var idZE = $element.parents('.ZE').attr('id'),
                                 tool = this._ZP.getZE(idZE).tool;
                             tool.point.ZE = idZE;
-                            this._ZP.getArtifact(this._ZP.background).addPoint(tool.point);
+                            console.log(tool.point)
+                            console.log(tool.point.toJSON())
+                            this._ZP.getArtifact(this._ZP.background).addPoint(tool.point.id, tool.point.toJSON());
                             tool.reset();
                         }
                         this._startArtifact($element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
@@ -206,7 +231,15 @@ class ArtifactView extends View {
                         artifact = this._ZP.getArtifact($element.attr('id'));
                     artifact.scale += event.ds;
                     artifact.angle += event.da;
-                    this._moveArtifact($element, event, artifact);
+                    this._moveArtifact(event, $element, artifact);
+                }).bind(this),
+                onend: (function (event) {
+                    var id = $(event.target).attr('id');
+                    this._connection.emitArtifactPartialUpdate(id, [{
+                        op: 'add',
+                        path: '/position',
+                        value: this._ZP.getArtifact(id).toJSON()['position']
+                    }]);
                 }).bind(this)
             }
         }];

@@ -141,29 +141,34 @@ class Connection {
      * @param data données json de l'artefact
      * @private
      */
-    _createArtifact(data) {
-        var artifact = JSON.parse(data),
+    _createArtifact(json) {
+        this._ZP.addArtifact(json.id, json);
+        var artifact = this._ZP.getArtifact(json.id),
             $element = $('.template .artifact.' + artifact.type).clone();
-        this._ZP.addArtifact(artifact.id, artifact);
         switch (artifact.type) {
-            case 'message':
+            case ARTIFACT_MESSAGE:
                 $element.find('h1').text(artifact.title);
                 $element.find('p').first().text(artifact.content);
                 break;
-            case 'image':
+            case ARTIFACT_IMAGE:
                 $element.css('background-image', 'url(data:image/*;base64,' + artifact.content.replace(/\s/g, '') + ')');
                 if (artifact.isBackground) {
                     this._ZP.background = artifact.id;
                     $element.hide();
-                    // $('.point[data-reference=' + artifact.id + ']').each(function (index, element) {
-                    //     $('line[data-from=' + $(element).attr('id') + ']').remove();
-                    // }).remove();
                     $('.ZP')
                         .css('background-image', $element.css('background-image'))
                         .css('background-position', 'center')
                         .css('background-repeat', 'no-repeat')
                         .css('background-size', 'contain')
                         .addClass('background');
+                    console.log(artifact)
+                    for (var id in artifact.points) {
+                        var $point = $('.template .artifact.point').clone(),
+                            point = artifact.getPoint(id);
+                        $('.ZP').append($point);
+                        $point.attr('id', id);
+                        $point.css('transform', 'translate(' + point.x + 'px, ' + point.y + 'px)');
+                    }
                 }
         }
         $element.find('.historic .creator').text(artifact.creator);
@@ -190,8 +195,9 @@ class Connection {
      */
     _onAddedArtifactInZE(login, idZE, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZE= ' + idZE + ' et pseudo=' + login);
-        this._ZP.getZE(idZE).addArtifact(JSON.parse(data).id);
-        this._createArtifact(data).addClass('dropped').appendTo($('#' + idZE).find('.container'));
+        var json = JSON.parse(data);
+        this._ZP.getZE(idZE).addArtifact(json.id);
+        this._createArtifact(json).addClass('dropped').appendTo($('#' + idZE).find('.container'));
     }
 
     /**
@@ -203,8 +209,10 @@ class Connection {
      */
     _onAddedArtifactInZP(login, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
-        var position = JSON.parse(data).position ? JSON.parse(data).position : {x: 200, y: 200, scale: 1, angle: 0};
-        this._createArtifact(data).css('transform', 'translate(' + position.x + 'px, ' + position.y + 'px)').appendTo('.ZP');
+        var json = JSON.parse(data),
+            position = json.position ? json.position : {x: 200, y: 200, scale: 1, angle: 0};
+        this._createArtifact(json).css('transform', 'translate(' + position.x + 'px, ' + position.y + 'px) scale('
+            + position.scale + ') rotate(' + position.angle + 'deg)').appendTo('.ZP');
     }
 
     /**

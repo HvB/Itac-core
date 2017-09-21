@@ -4,8 +4,8 @@ class Image extends Artifact {
         this._content = data && data.content ? data.content : '';
         this._points = {};
         if (data && data.points) {
-            for (var id in data.points) {
-                this._points[id] = new Point(id, data.points[id]);
+            for (var point in data.points) {
+                this._points[point.id] = new Point(id, data.points[id]);
             }
         }
         this._isBackground = data.isBackground ?  data.isBackground : false;
@@ -23,8 +23,8 @@ class Image extends Artifact {
         return this._points[idPoint];
     }
 
-    addPoint(point) {
-        this._points[point.id] = point;
+    addPoint(idPoint, data) {
+        this._points[idPoint] = new Point(idPoint, data);
     }
 
     removePoint(idPoint) {
