@@ -27,10 +27,15 @@
                 <!--/collab/<%= zonecollab.idZC %>/espacetravail/<%= zonecollab.ZP[i].idZP %>-->
                 <!--/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>-->
             <!--</a>-->
+<!--
             <a target='_blank'
                href='/collab/session/<%= sessionName %>/<%= zonecollab.ZP[i].idZP %>'>
                 /collabenmarche/<%= zonecollab.idZC %>/espacetravaildeburnos/<%= zonecollab.ZP[i].idZP %>
                 /<%= zonecollab.ZP[i].portWebSocket %>/vivemacron/<%= minmax %>
+            </a>
+-->
+            <a target='_blank'
+               href='/collab/session/<%= sessionName %>/<%= zonecollab.ZP[i].idZP %>'>/<%= zonecollab.idZC %>/<%= zonecollab.ZP[i].idZP %>/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>
             </a>
         </li>
         <% } %>
