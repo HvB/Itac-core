@@ -23,12 +23,12 @@ class ZPView extends View {
                 },
 
                 ondragenter: function (event) {
-                    $(event.target).addClass('drop-target');
+                    // $(event.target).addClass('drop-target');
                     $(event.relatedTarget).addClass('can-drop');
                 },
 
                 ondragleave: function (event) {
-                    $(event.target).removeClass('drop-target');
+                    // $(event.target).removeClass('drop-target');
                     $(event.relatedTarget).removeClass('can-drop');
                     $(event.relatedTarget).addClass('artifact');
                 },
