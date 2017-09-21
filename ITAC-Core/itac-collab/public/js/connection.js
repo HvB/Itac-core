@@ -161,7 +161,6 @@ class Connection {
                         .css('background-repeat', 'no-repeat')
                         .css('background-size', 'contain')
                         .addClass('background');
-                    console.log(artifact)
                     for (var id in artifact.points) {
                         var $point = $('.template .artifact.point').clone(),
                             point = artifact.getPoint(id);

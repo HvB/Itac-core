@@ -187,8 +187,6 @@ class ArtifactView extends View {
                             var idZE = $element.parents('.ZE').attr('id'),
                                 tool = this._ZP.getZE(idZE).tool;
                             tool.point.ZE = idZE;
-                            console.log(tool.point)
-                            console.log(tool.point.toJSON())
                             this._ZP.getArtifact(this._ZP.background).addPoint(tool.point.id, tool.point.toJSON());
                             tool.reset();
                         }

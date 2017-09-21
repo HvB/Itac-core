@@ -5,7 +5,7 @@ class Image extends Artifact {
         this._points = {};
         if (data && data.points) {
             for (var point in data.points) {
-                this._points[point.id] = new Point(id, data.points[id]);
+                this._points[point] = new Point(point, data.points[point]);
             }
         }
         this._isBackground = data.isBackground ?  data.isBackground : false;
