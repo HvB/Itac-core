@@ -14,9 +14,9 @@ class ArtifactView extends View {
                 ondropactivate: (function (event) {
                     // var artifactId = $(event.relatedTarget).attr('data-from');
                     // if ($('#' + artifactId).is('.message', '.image')) {
-                        // var artifact = this._ZP.getArtifact(artifactId);
-                        // console.log(event.relatedTarget);
-                        // $(event.target).not('#' + $(event.relatedTarget).attr('data-from')).addClass('drop-active');
+                    // var artifact = this._ZP.getArtifact(artifactId);
+                    // console.log(event.relatedTarget);
+                    // $(event.target).not('#' + $(event.relatedTarget).attr('data-from')).addClass('drop-active');
                     // }
                 }).bind(this),
                 ondragenter: function (event) {
@@ -212,6 +212,14 @@ class ArtifactView extends View {
                                 path: '/points/' + id,
                                 value: point.toJSON()
                             }]);
+                            var $point = $('.template .artifact.point').clone(),
+                                idZE = point.ZE,
+                                tool = this._ZP.getZE(idZE).tool;
+                            if (!tool.point) {
+                                tool.reload();
+                                $('.ZE#' + idZE + ' .tool').append($point.addClass('dropped'));
+                                $point.attr('id', tool.point.id);
+                            }
                         }
                     }
                 }).bind(this)
