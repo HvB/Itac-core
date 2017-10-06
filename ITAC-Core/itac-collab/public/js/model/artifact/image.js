@@ -2,6 +2,13 @@ class Image extends Artifact {
     constructor(id, data) {
         super(id, ARTIFACT_IMAGE, data);
         this._content = data && data.content ? data.content : '';
+        // on verifie si c'est une data-url valide avec du png ou du jpeg
+        if (data.content.search(/^data:image\/(png|jpeg|\*);base64,/)===-1){
+            // on n'a pas le bon prologue, on met un type mime image generique
+            // et on supprime egalement les eventuels retours a la ligne danns les donnees base64
+            // ToDo : enlever la suppression des passages à la ligne quans les clients auront ete modifies et testes
+            this._content = 'data:image/*;base64,' + this._content.replace(/\s/g,'' );
+        }
         this._points = {};
         if (data && data.points) {
             for (var point in data.points) {

@@ -261,14 +261,28 @@ class Artifact {
      * @author Stephane Talbot
      */
     saveContent(path, callback){
+        let basename = path + '/' + this.getId();
         let p = new Promise ((resolve, reject)=>{
             //sauvegarde du fichier contenu
             if (this.getType() === TYPE.artifact.image) {
                 // ToDo : en fait ce ne sont pas tjs des png
-                let filename = path + '/' + this.id + '.png';
+                let extension = '.jpg'
+                let typePngRegExp = /^data:image\/png;base64,/;
+                let typeJpegRegExp = /^data:image\/jpeg;base64,/;
+                if (this.content.search(typePngRegExp) === 0){
+                    // C'est une image png
+                    extension = '.png';
+                } else if (this.content.search(typeJpegRegExp) === 0){
+                    // C'est une image jpeg
+                    extension = '.jpg';
+                } else {
+                    // par defaut on utilise du jpeg ?
+                    extension = '.jpg';
+                }
+                let filename = basename + extension;
                 logger.debug('=> saveContent : sauvegarde image : ' + filename);
-                let base64Data = this.content.replace(/^data:image\/png;base64,/, "");
-                base64Data += base64Data.replace('+', ' ');
+                let base64Data = this.content.replace(/^data:image\/(png|jpeg|\*);base64,/, "");
+                //base64Data += base64Data.replace('+', ' ');
                 let binaryData = Buffer.from(base64Data, 'base64').toString('binary');
                 fs.writeFile(filename, binaryData, "binary", function (err) {
                     if (err) {
@@ -281,7 +295,8 @@ class Artifact {
                     }
                 });
             } else if (this.getType() === TYPE.artifact.message) {
-                let filename = path + '/' + this.id + '.txt';
+                let filename = basename + '.txt';
+                //let filename = path + '/' + this.id + '.txt';
                 logger.debug('=> saveContent : sauvegarde message : ' + filename);
                 fs.writeFile(filename, this.content, "UTF-8", function (err) {
                     if (err) {
@@ -356,10 +371,23 @@ class Artifact {
         //sauvegarde du fichier contenu
         if (this.getType() === TYPE.artifact.image) {
             // ToDo : en fait ce ne sont pas tjs des png
-            let filename = basename + '.png';
+            let extension = '.jpg'
+            let typePngRegExp = /^data:image\/png;base64,/;
+            let typeJpegRegExp = /^data:image\/jpeg;base64,/;
+            if (this.content.search(typePngRegExp) === 0){
+                // C'est une image png
+                extension = '.png';
+            } else if (this.content.search(typeJpegRegExp) === 0){
+                // C'est une image jpeg
+                extension = '.jpg';
+            } else {
+                // par defaut on utilise du jpeg ?
+                extension = '.jpg';
+            }
+            let filename = basename + extension;
             logger.info('=> saveContentSync : creation artifact : creation image ' + filename);
-            let base64Data = this.content.replace(/^data:image\/png;base64,/, "");
-            base64Data += base64Data.replace('+', ' ');
+            let base64Data = this.content.replace(/^data:image\/(png|jpeg|\*);base64,/, "");
+            //base64Data += base64Data.replace('+', ' ');
             let binaryData = Buffer.from(base64Data, 'base64').toString('binary');
             fs.writeFileSync(filename, binaryData, "binary");
         } else if (this.getType() === TYPE.artifact.message) {
@@ -451,6 +479,13 @@ class Artifact {
         logger.debug('=> fromJSON : creation Artefact from JSON : CHAINE =' + artifact_json_string);
 
         let temp = JSON.parse(artifact_json_string);
+        logger.debug('=> fromJSON : creation Artefact from JSON : OBJ =' + temp);
+        if (temp.type && temp.type == 'image' && temp.content.search(/^data:image\/(png|jpeg|\*);base64,/)===-1){
+            // on n'a pas le bon prologue, on met donc un type mime image generique
+            // et on supprime egalement les eventuels retours a la ligne danns les donnees base64
+            // ToDo : enlever la suppression des passages à la ligne quans les clients auront ete modifies et testes
+            temp.content = 'data:image/*;base64,' + tmp.content.replace(/\s/g,'' );
+        }
         logger.debug('=> fromJSON : creation Artefact from JSON : OBJ =' + temp);
 
         if (id === undefined)

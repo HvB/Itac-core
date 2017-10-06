@@ -151,7 +151,7 @@ class Connection {
                 $element.find('p').first().text(artifact.content);
                 break;
             case ARTIFACT_IMAGE:
-                $element.css('background-image', 'url(data:image/*;base64,' + artifact.content.replace(/\s/g, '') + ')');
+                $element.css('background-image', 'url(' + artifact.content + ')');
                 if (artifact.isBackground) {
                     this._ZP.background = artifact.id;
                     $element.hide();
