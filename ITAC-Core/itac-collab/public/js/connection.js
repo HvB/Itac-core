@@ -208,10 +208,10 @@ class Connection {
      */
     _onAddedArtifactInZP(login, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
-        var json = JSON.parse(data),
-            position = json.position ? json.position : {x: 200, y: 200, scale: 1, angle: 0};
-        this._createArtifact(json).css('transform', 'translate(' + position.x + 'px, ' + position.y + 'px) scale('
-            + position.scale + ') rotate(' + position.angle + 'deg)').appendTo('.ZP');
+        var json = JSON.parse(data);
+        json.position = getRandomPositionInZP(json.position);
+        this._createArtifact(json).css('transform', 'translate(' + json.position.x + 'px, ' + json.position.y
+            + 'px) scale(' + json.position.scale + ') rotate(' + json.position.angle + 'deg)').appendTo('.ZP');
     }
 
     /**

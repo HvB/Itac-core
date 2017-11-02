@@ -41,3 +41,27 @@ var putInFront = function ($element) {
     $element.css('z-index', Z_INDEX);
     Z_INDEX++;
 };
+
+/**
+ * Retourne une position aléatoire pour placer un élément à l'intérieur de la zone de partage
+ * @param position position courante de l'élément
+ * @returns {{number, number, number, number}} une position aléatoire à l'intérieur de la zone de partage
+ */
+var getRandomPositionInZP = function (position) {
+    var width = $(window).width(),
+        height = $(window).height();
+    if (position && position.x >= 0 && position.x < width && position.y >= 0 && position.y < height) {
+        return position;
+    } else {
+        var $artifact = $('.template .artifact.message').clone();
+        $artifact.appendTo('.ZP');
+        var w = $artifact.width(), h = $artifact.height();
+        $artifact.remove();
+        return {
+            x: Math.random() * (width - w - 2 * MARGIN) + MARGIN,
+            y: Math.random() * (height - h - 2 * MARGIN) + MARGIN,
+            scale: 1,
+            angle: 0
+        };
+    }
+};

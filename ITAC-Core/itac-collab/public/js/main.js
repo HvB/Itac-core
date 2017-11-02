@@ -1,4 +1,5 @@
 var Z_INDEX = 1,
+    MARGIN = 200,
     ANGLE_TOP = 180,
     ANGLE_LEFT = 90,
     ANGLE_BOTTOM = 0,
