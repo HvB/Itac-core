@@ -484,7 +484,7 @@ class Artifact {
             // on n'a pas le bon prologue, on met donc un type mime image generique
             // et on supprime egalement les eventuels retours a la ligne danns les donnees base64
             // ToDo : enlever la suppression des passages à la ligne quans les clients auront ete modifies et testes
-            temp.content = 'data:image/*;base64,' + tmp.content.replace(/\s/g,'' );
+            temp.content = 'data:image/*;base64,' + temp.content.replace(/\s/g,'' );
         }
         logger.debug('=> fromJSON : creation Artefact from JSON : OBJ =' + temp);
 
