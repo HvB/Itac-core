@@ -213,19 +213,34 @@ module.exports = class ZonePartage {
      * @param {number} posAvatar numero avatar  envoyé par la ZEP
      * @param {string} login login envoyé par la ZEP
      * @param {string} password mot de passe envoyé par la ZEP
+     * @param {string} deviceUid mot de passe envoyé par la ZEP
+     * @param {string} deviceUid : uuid de la tablette (s'il est vide le serveur genere un uuid lui-meme)
      *
      * @return {string} idZE identifiant de la ZE
      *
      * @autor philippe pernelle
      */
 
-    createZE(idZEP,idSocket, visible, pseudo, posAvatar, login, password) {
+    createZE(idZEP,idSocket, visible, pseudo, posAvatar, login, deviceUid ) {
 
         var ret = null;
 
         logger.debug('=> createZE : recherche du IdZE disponible pour client ='+idZEP+', nb de ZE dans la liste = ' + this.listeZE.size);
-        var maZE=this.getZEbyZEP(idZEP);
+        logger.debug('=> createZE : recherche du IdZE disponible pour client ='+deviceUid+', nb de ZE dans la liste = ' + this.listeZE.size);
+        // si la tablette a un deviceUid on l'utilise pour chercher la tablette, sinon on utilise l'idZEP
+        var maZE= deviceUid ? this.getZE(deviceUid) : this.getZEbyZEP(idZEP);
 
+        if (maZE) {
+            // on deja une ZE qui correspond ==> c'est un reconnection
+            // on supprime l'ancienne connection et sa socket avant de faire la reconnection
+            logger.debug('=> createZE : ZE existante déjà connecté sur adresse IP --> on deconnecte puis on reconnecte');
+            // deconnection de la ZE
+            this.server.deconnexionZE(maZE);
+            // on force la deconnection de la socket associe a la ZE
+            this.server.disconnectSocket(maZE.getIdSocket());
+            logger.debug('=> createZE : ZE existante déjà connecté sur adresse IP --> fin deconnection');
+            maZE = null;
+        }
         if (maZE == null)
         {
             logger.debug('=> createZE : resultat recherche du IdZE disponible [NOK] --> la ZE n existe pas');
@@ -233,10 +248,11 @@ module.exports = class ZonePartage {
 
                 //calcul de l'ID de la ZE crée
                 //var idze = 'ZE'+this.getIdZEcurrent();
-                var idze=uuidv4();
+                // on genere un uuid si la tablette n'en n'a pas, sinon on reutilise celui de la tablette
+                var idze= deviceUid ? deviceUid : uuidv4();
                 logger.debug('=> createZE : pas de ZE existante --> generation idZE  = ' + idze);
 
-                this.listeZE.set(idze, new ZoneEchange(this, idze,idZEP, idSocket, visible, pseudo, posAvatar, login, password));
+                this.listeZE.set(idze, new ZoneEchange(this, idze, idZEP, idSocket, visible, pseudo, posAvatar, login));
 
                 logger.debug('=> createZE :  ZE créée = ' + idze + ' pour la ZEP = ' + idZEP + ' associé a la ZP (' + this.idZP + ') ');
                 ret = idze;

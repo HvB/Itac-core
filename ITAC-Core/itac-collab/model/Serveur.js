@@ -111,10 +111,10 @@ module.exports = class Serveur {
          *     Cet evenement est envoye par une ZEP (tablette)
          *     un acquitement est envoyé en retour à la ZEP ainsi qu'a la ZA pour declancher son affichage
          */
-        socket.on(EVENT.DemandeConnexionZEP, (function (pseudo, posAvatar,login,password) {
+        socket.on(EVENT.DemandeConnexionZEP, (function (pseudo, posAvatar, login, password, deviceUid) {
             logger.info('*** EVENT : ' + EVENT.DemandeConnexionZEP + ' from IP('+clientIp+')*** --> Demande de connexion de la ZEP avec IP= ' + clientIp + ' et pseudo= ' + pseudo);
             // Comme la verification de l'authetification est asynchrone, cette methode l'est aussi !!!!
-            this.demandeConnexionZE(socket, clientIp,  pseudo, posAvatar,login,password);
+            this.demandeConnexionZE(socket, clientIp, pseudo, posAvatar, login, password, deviceUid);
             // plus pertinent ici car le methode precedente est asynchrone
         }).bind(this));
 
@@ -299,21 +299,24 @@ module.exports = class Serveur {
      * @param {string} clientIp : adresse IP de la tablette
      * @param {string} pseudo
      * @param {string} posAvatar : numero avatar
+     * @param {string} login : login pour l'authentification
+     * @param {string} password : mot de passe pour l'authentification
+     * @param {string} deviceUid : uuid de la tablette (s'il est vide le serveur genere un uuid lui-meme)
      *
      * @author philippe pernelle
      * @author Stephane Talbot
      */
-    demandeConnexionZE(socket, clientIp, pseudo, posAvatar, login , password ) {
+    demandeConnexionZE(socket, clientIp, pseudo, posAvatar, login, password, deviceUid ) {
         // creation de l'identifiant ZEP on choisit l'adresse IP
-        var idZEP = clientIp;
+        var idZEP = deviceUid ? deviceUid : clientIp;
 
-        logger.info('=> demandeConnexionZE : test authentification  pour la ZEP = ' + idZEP + ' | login = ' + login+ ' | pseudo = '+pseudo);
+        logger.info('=> demandeConnexionZE : test authentification  pour la ZEP = ' + idZEP + ' | ip = ' + clientIp + ' | deviceUid = ' + deviceUid + ' | login = ' + login + ' | pseudo = ' + pseudo);
         // recuperation de la promesse d'authentification
         let authPromise = this.getAuthentification(login,password);
         authPromise.then(
             // est appele quand la promesse est tenue (authentification OK)
             (userId)=>{
-                logger.info('=> demandeConnexionZE : authentification [OK] pour le login = '+login+ ' | pseudo = '+pseudo );
+                logger.info('=> demandeConnexionZE : authentification [OK] pour le login = '+ login + ' | pseudo = ' + pseudo );
                 if (!this.ZP.isZAConnected()) {
                     // connexion refusé pour les ZE tant qu'il n'y a pas au moins une ZA connecté
                     socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur1);
@@ -321,7 +324,7 @@ module.exports = class Serveur {
                     socket.disconnect();
                     logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
                 } else {
-                    var idZE = this.ZP.createZE(idZEP,socket.id, true, pseudo, posAvatar, login);
+                    var idZE = this.ZP.createZE(idZEP, socket.id, true, pseudo, posAvatar, login, deviceUid);
 
                     if (idZE != null) {
                         logger.info('=> demandeConnexionZE : creation  de ZE  pour pseudo=' + pseudo +' [OK] --> idZE calcule =' + idZE );
@@ -351,7 +354,7 @@ module.exports = class Serveur {
             // est appele quand la promesse n'est tenue (authentification KO)
             (raison)=>{
                 socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur3);
-                logger.info('=> demandeConnexionZE : mauvaise authentification, envoi AR-[NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP + ' avec '+ERROR.ConnexionZEP_Erreur3);
+                logger.info('=> demandeConnexionZE : mauvaise authentification, rainson (' + raison + '), envoi AR-[NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP + ' avec '+ERROR.ConnexionZEP_Erreur3);
 
                 socket.disconnect();
                 logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
@@ -863,6 +866,20 @@ module.exports = class Serveur {
             logger.error({err:err, newArtifact:myNewArtifact}, "=> updateArtifact : probleme lors de la lecture des modifications");
         }
         return res;
+    }
+
+    /**
+     * Deconnection d'une socket dont on connait l'id.
+     *
+     * @param socketid - id de la socket a deconnecter
+     */
+    disconnectSocket(socketId){
+        //this._io.sockets.to(socketid).disconnect(true);
+        let socket = this._io.sockets.sockets[socketId];
+        if (socket) {
+            logger.debug('=> fermeture de la socket', socketId);
+            socket.disconnect(true)
+        }
     }
 
     /**
