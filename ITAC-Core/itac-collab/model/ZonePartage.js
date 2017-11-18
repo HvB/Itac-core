@@ -543,7 +543,7 @@ getZEbySocket(idsocket) {
         let server = this.server;
         let idZP = this.idZP;
         logger.info('=> fermeture ZP %s', idZP);
-        this.server.close((err)=>{
+        server.close((err)=>{
             if (err){
                 logger.error(err, '=> erreur lors fermeture ZP %s', idZP);
             } else {

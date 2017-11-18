@@ -780,7 +780,6 @@ module.exports = class ZoneCollaborative {
      * @author Stephane Talbot
      */
     close(callback){
-        let server = this.server;
         let idZC = this.idZC;
         logger.debug('=> close : fermeture de la ZC ' + idZC);
         let zps = this.getAllZP();

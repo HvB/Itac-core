@@ -318,7 +318,7 @@ module.exports = class Serveur {
                     // connexion refusé pour les ZE tant qu'il n'y a pas au moins une ZA connecté
                     socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur1);
                     logger.info('=> demandeConnexionZE : pas de ZA connecté, envoi dun [NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP);
-                    socket.disconnect();
+                    socket.disconnect(true);
                     logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
                 } else {
                     var idZE = this.ZP.createZE(idZEP,socket.id, true, pseudo, posAvatar, login);
@@ -342,7 +342,7 @@ module.exports = class Serveur {
                         socket.emit(EVENT.ReponseNOKConnexionZEP, codeerr);
                         logger.info('=> demandeConnexionZE : envoi AR-[NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP + ' avec '+codeerr);
 
-                        socket.disconnect();
+                        socket.disconnect(true);
                         logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
                     }
                 }
@@ -353,7 +353,7 @@ module.exports = class Serveur {
                 socket.emit(EVENT.ReponseNOKConnexionZEP, ERROR.ConnexionZEP_Erreur3);
                 logger.info('=> demandeConnexionZE : mauvaise authentification, envoi AR-[NOK] à ZEP (' + idZEP + ')  Evenement envoyé = ' + EVENT.ReponseNOKConnexionZEP + ' avec '+ERROR.ConnexionZEP_Erreur3);
 
-                socket.disconnect();
+                socket.disconnect(true);
                 logger.info('=> demandeConnexionZE : on force deconnexion socket ZE (' + idZEP + ') ');
 
                 logger.debug('*** fin EVENT :' + EVENT.DemandeConnexionZEP + ' *** ');
@@ -423,7 +423,7 @@ module.exports = class Serveur {
             // emission accusé de reception
             socket.emit(EVENT.ReponseNOKConnexionZA, myZC);
             logger.info('=> demandeConnexionZA : envoi accusé de reception à ZA (' + this.ZP.getClientZAsocket() + ')  Evenement envoyé= ' + EVENT.ReponseNOKConnexionZA);
-            socket.disconnect();
+            socket.disconnect(true);
             logger.info('=> demandeConnexionZA : on force deconnexion socket ZA (' + this.ZP.getClientZAsocket() + ') ');
         }
     };
