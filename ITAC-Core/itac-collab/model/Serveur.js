@@ -301,7 +301,7 @@ module.exports = class Serveur {
      * @param {string} posAvatar : numero avatar
      *
      * @author philippe pernelle
-     * @authos Stephane Talbot
+     * @author Stephane Talbot
      */
     demandeConnexionZE(socket, clientIp, pseudo, posAvatar, login , password ) {
         // creation de l'identifiant ZEP on choisit l'adresse IP
