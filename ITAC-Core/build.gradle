@@ -14,6 +14,8 @@ license {
     include('**/*.html')
     include('**/*.ejs')
     include('**/*.css')
+    include('**/*.gradle')
+    include('**/*.properties')
     //include('bin/www')
     exclude('**/license-gpl-3.0.html')
     exclude('node_modules')
