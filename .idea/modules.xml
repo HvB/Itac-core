@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ITAC-Core/ITAC-Core.iml" filepath="$PROJECT_DIR$/.idea/modules/ITAC-Core/ITAC-Core.iml" group="ITAC-Core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/itac-core.iml" filepath="$PROJECT_DIR$/.idea/itac-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/itac-core-gpl.iml" filepath="$PROJECT_DIR$/.idea/modules/itac-core-gpl.iml" />
     </modules>
   </component>
 </project>
