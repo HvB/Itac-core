@@ -241,7 +241,7 @@ class ArtifactView extends View {
                 onmove: (function (event) {
                     var $element = $(event.target),
                         artifact = this._ZP.getArtifact($element.attr('id'));
-                    artifact.scale += event.ds;
+                    artifact.scale *= (1+event.ds);
                     artifact.angle += event.da;
                     this._moveArtifact(event, $element, artifact);
                 }).bind(this),
