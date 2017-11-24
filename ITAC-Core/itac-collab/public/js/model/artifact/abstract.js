@@ -9,10 +9,15 @@ class Artifact {
                 return new Link(id, data);
             case ARTIFACT_POINT:
                 return new Point(id, data, parent);
+            default:
+                // cas on cela ne rentre pas dans les categories précédentes
+                return new Artifact(id, data, parent);
         }
     }
 
     constructor(id, type, data) {
+        // originel json data
+        this._data = data ? data : {};
         this._id = id ? id : guid();
         this._type = type;
         this._x = data && data.position && data.position.x ? data.position.x : 0;
@@ -108,7 +113,7 @@ class Artifact {
     }
 
     toJSON() {
-        var object = {};
+        let object = this._data;
         object['id'] = this._id;
         object['type'] = this._type;
         object['position'] = this.position;
