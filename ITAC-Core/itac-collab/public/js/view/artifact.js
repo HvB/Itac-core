@@ -4,6 +4,7 @@
 class ArtifactView extends View {
     constructor(ZP, connection) {
         super(ZP, connection);
+        this._pointObserver = new PointObserver(ZP, connection);
     }
 
     _dropzone() {
@@ -27,23 +28,36 @@ class ArtifactView extends View {
                     // $(event.target).removeClass('drop-target');
                 },
                 ondrop: (function (event) {
-                    // var $target = $(event.target),
-                    //     shape = event.relatedTarget,
-                    //     $shape = $(shape),
-                    //     artifactFrom = this._ZP.getArtifact($shape.attr('data-from')),
-                    //     artifactTo = this._ZP.getArtifact($target.attr('id'));
-                    // if (!artifactFrom) {
-                    //     artifactFrom = this._ZP.getArtifact(this._ZP.background).getPoint($shape.attr('data-from'));
-                    //     if (artifactFrom.hasLinkTo(artifactTo.id)) {
-                    //         $('line[data-from=' + artifactFrom.id + '].temporary').remove();
-                    //     } else {
-                    //         shape.setAttributeNS(null, 'x2', artifactTo.x + $target.width() / 2);
-                    //         shape.setAttributeNS(null, 'y2', artifactTo.y + $target.height() / 2);
-                    //         $shape.attr('data-to', artifactTo.id);
-                    //         $shape.removeClass('temporary');
-                    //         artifactFrom.addLinkTo(artifactTo.id);
-                    //     }
-                    // }
+                    var $target = $(event.target),
+                        shape = event.relatedTarget,
+                        $shape = $(shape),
+                        artifactFrom = this._ZP.getArtifact($shape.attr('data-from')),
+                        artifactTo = this._ZP.getArtifact($target.attr('id'));
+                    console.log("source "+$shape.attr('data-from')+" drop "+$(event.target).attr('id'));
+                    if (!artifactFrom) {
+                        artifactFrom = this._ZP.getArtifact(this._ZP.background).getPoint($shape.attr('data-from'));
+                    }
+                    if (artifactFrom.hasLinkTo(artifactTo.id)) {
+                        $('line[data-from=' + artifactFrom.id + '].temporary').remove();
+                    } else {
+                        shape.setAttributeNS(null, 'x2', artifactTo.x + $target.width() / 2);
+                        shape.setAttributeNS(null, 'y2', artifactTo.y + $target.height() / 2);
+                        shape.setAttributeNS(null, 'data-to', artifactTo.id);
+                        $shape.attr('data-to', artifactTo.id);
+                        $shape.removeClass('temporary');
+                        artifactFrom.addLinkTo(artifactTo.id);
+                        // let imageId = this._ZP.background;
+                        if (artifactFrom.parent) {
+                            let imageId = artifactFrom.parent.id;
+                            if (artifactFrom && artifactTo && imageId) {
+                                this._connection.emitArtifactPartialUpdate(imageId, [{
+                                    op: 'add',
+                                    path: '/points/' + artifactFrom.id + '/linksTo/' + artifactTo.id,
+                                    value: artifactTo.id
+                                }]);
+                            }
+                        }
+                    }
                 }).bind(this),
                 ondropdeactivate: function (event) {
                     // var artifactId = $(event.relatedTarget).attr('data-to');
@@ -59,37 +73,37 @@ class ArtifactView extends View {
             option: {
                 accept: 'line',
                 ondropactivate: (function (event) {
-                    var artifactId = $(event.relatedTarget).attr('data-from');
-                    if ($('#' + artifactId).is('.point')) {
-                        console.log(event.relatedTarget);
-                        $(event.target).not('#' + $(event.relatedTarget).attr('data-from')).addClass('drop-active');
-                        var point = this._ZP.getArtifact(this._ZP.background).getPoint(event.target.id);
-                        console.log(point)
-                    }
+                    // var artifactId = $(event.relatedTarget).attr('data-from');
+                    // if ($('#' + artifactId).is('.point')) {
+                    //     console.log(event.relatedTarget);
+                    //     $(event.target).not('#' + $(event.relatedTarget).attr('data-from')).addClass('drop-active');
+                    //     // var point = this._ZP.getArtifact(this._ZP.background).getPoint(event.target.id);
+                    //     // console.log(point)
+                    // }
                 }).bind(this),
                 ondragenter: function (event) {
-                    $(event.target).not('#' + $(event.relatedTarget).attr('data-from')).addClass('drop-target');
+                    // $(event.target).not('#' + $(event.relatedTarget).attr('data-from')).addClass('drop-target');
                 },
                 ondragleave: function (event) {
-                    $(event.target).removeClass('drop-target');
+                    // $(event.target).removeClass('drop-target');
                 },
                 ondrop: (function (event) {
-                    var $target = $(event.target),
-                        shape = event.relatedTarget,
-                        $shape = $(shape),
-                        artifactFrom = this._ZP.getArtifact($shape.attr('data-from')),
-                        artifactTo = this._ZP.getArtifact(this._ZP.background).getPoint($target.attr('id'));
-                    if (artifactFrom) {
-                        if (artifactTo.hasLinkTo(artifactFrom.id)) {
-                            $('line[data-from=' + artifactFrom.id + '].temporary').remove();
-                        } else {
-                            shape.setAttributeNS(null, 'x2', artifactTo.x + $target.width() / 2);
-                            shape.setAttributeNS(null, 'y2', artifactTo.y + $target.height() / 2);
-                            $shape.attr('data-to', artifactTo.id);
-                            $shape.removeClass('temporary');
-                            artifactTo.addLinkTo(artifactFrom.id);
-                        }
-                    }
+                    // var $target = $(event.target),
+                    //     shape = event.relatedTarget,
+                    //     $shape = $(shape),
+                    //     artifactFrom = this._ZP.getArtifact($shape.attr('data-from')),
+                    //     artifactTo = this._ZP.getArtifact(this._ZP.background).getPoint($target.attr('id'));
+                    // if (artifactFrom) {
+                    //     if (artifactTo.hasLinkTo(artifactFrom.id)) {
+                    //         $('line[data-from=' + artifactFrom.id + '].temporary').remove();
+                    //     } else {
+                    //         shape.setAttributeNS(null, 'x2', artifactTo.x + $target.width() / 2);
+                    //         shape.setAttributeNS(null, 'y2', artifactTo.y + $target.height() / 2);
+                    //         $shape.attr('data-to', artifactTo.id);
+                    //         $shape.removeClass('temporary');
+                    //         artifactTo.addLinkTo(artifactFrom.id);
+                    //     }
+                    // }
                 }).bind(this),
                 // ondropdeactivate: function (event) {
                 //     console.log('point')
@@ -101,8 +115,9 @@ class ArtifactView extends View {
     _startArtifact($element, artifact) {
         if ($element.hasClass('dropped')) {
             var offset = $element.offset();
-            artifact.x = offset.left;
-            artifact.y = offset.top;
+            let x = offset.left - $element.width()/2;
+            let y = offset.top - $element.height()/2;
+            artifact.setXY(x,y);
         }
         $element.removeClass('active');
         $('svg [data-artifact=' + artifact.id + ']').remove();
@@ -110,22 +125,24 @@ class ArtifactView extends View {
         Z_INDEX++;
     }
 
-    _moveArtifact(event, $element, artifact) {
-        artifact.x += event.dx;
-        artifact.y += event.dy;
-        $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
-            + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
-        $('line[data-from=' + artifact.id + ']').each(function (index, element) {
-            var $element = $(element);
-            element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
-            element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
-        });
-        $('line[data-to=' + artifact.id + ']').each(function (index, element) {
-            var $element = $(element);
-            element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
-            element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
-        });
-    }
+    // ToDo: remove obsolete code
+    // _moveArtifact(event, $element, artifact) {
+    //     artifact.x += event.dx;
+    //     artifact.y += event.dy;
+    //     artifact.notifyObservers("move");
+    //     $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
+    //         + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
+    //     $('line[data-from=' + artifact.id + ']').each(function (index, element) {
+    //         var $element = $(element);
+    //         element.setAttributeNS(null, 'x1', parseFloat($element.attr('x1')) + event.dx);
+    //         element.setAttributeNS(null, 'y1', parseFloat($element.attr('y1')) + event.dy);
+    //     });
+    //     $('line[data-to=' + artifact.id + ']').each(function (index, element) {
+    //         var $element = $(element);
+    //         element.setAttributeNS(null, 'x2', parseFloat($element.attr('x2')) + event.dx);
+    //         element.setAttributeNS(null, 'y2', parseFloat($element.attr('y2')) + event.dy);
+    //     });
+    // }
 
     _draggable() {
         return [{
@@ -140,7 +157,10 @@ class ArtifactView extends View {
                 }).bind(this),
                 onmove: (function (event) {
                     var $element = $(event.target);
-                    this._moveArtifact(event, $element, this._ZP.getArtifact($element.attr('id')));
+                    let artifact = this._ZP.getArtifact($element.attr('id'));
+                    artifact.move(event.dx, event.dy);
+                    // ToDo: remove obsolete code
+                    //this._moveArtifact(event, $element, this._ZP.getArtifact($element.attr('id')));
                 }).bind(this),
                 onend: (function (event) {
                     var id = $(event.target).attr('id'),
@@ -149,7 +169,7 @@ class ArtifactView extends View {
                         this._connection.emitArtifactPartialUpdate(id, [{
                             op: 'add',
                             path: '/position',
-                            value: artifact.toJSON()['position']
+                            value: artifact.position
                         }]);
                     }
                 }).bind(this)
@@ -166,7 +186,10 @@ class ArtifactView extends View {
                 }).bind(this),
                 onmove: (function (event) {
                     var $element = $(event.target);
-                    this._moveArtifact(event, $element, this._ZP.getArtifact($element.attr('id')));
+                    let artifact = this._ZP.getArtifact($element.attr('id'));
+                    artifact.move(event.dx, event.dy);
+                    // ToDo: remove obsolete code
+                    // this._moveArtifact(event, $element, this._ZP.getArtifact($element.attr('id')));
                 }).bind(this),
                 onend: (function (event) {
                     var id = $(event.target).attr('id');
@@ -187,25 +210,35 @@ class ArtifactView extends View {
                     if (this._ZP.background) {
                         var $element = $(event.target);
                         if ($element.hasClass('dropped')) {
-                            var idZE = $element.parents('.ZE').attr('id'),
-                                tool = this._ZP.getZE(idZE).tool;
+                            let idZE = $element.parents('.ZE').attr('id');
+                            let tool = this._ZP.getZE(idZE).tool;
                             tool.point.ZE = idZE;
                             this._ZP.getArtifact(this._ZP.background).addPoint(tool.point.id, tool.point.toJSON());
+                            let point = this._ZP.getArtifact(this._ZP.background).getPoint(tool.point.id);
+                            point.visible = true;
                             tool.reset();
+                            let observer = this._pointObserver;
+                            setTimeout(()=>{point.addObserver(observer);});
                         }
                         this._startArtifact($element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
+
                     }
                 }).bind(this),
                 onmove: (function (event) {
                     if (this._ZP.background) {
                         var $element = $(event.target);
-                        this._moveArtifact(event, $element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
+                        let point = this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id'));
+                        // let point = this._ZP.getArtifact($element.attr('id'));
+                        if (point) point.move(event.dx, event.dy);
+                        // ToDo: remove obsolete code
+                        // this._moveArtifact(event, $element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
                     }
                 }).bind(this),
                 onend: (function (event) {
                     if (this._ZP.background) {
-                        var id = $(event.target).attr('id'),
-                            point = this._ZP.getArtifact(this._ZP.background).getPoint(id);
+                        let id = $(event.target).attr('id');
+                        let point = this._ZP.getArtifact(this._ZP.background).getPoint(id);
+                        // let point = this._ZP.getArtifact(id);
                         if (point) {
                             this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
                                 op: 'add',
@@ -213,9 +246,9 @@ class ArtifactView extends View {
                                 value: point.toJSON()
                             }]);
                             var $point = $('.template .artifact.point').clone(),
-                                idZE = point.ZE,
-                                tool = this._ZP.getZE(idZE).tool;
-                            if (!tool.point) {
+                                idZE = point.ZE, tool;
+                            if (this._ZP.getZE(idZE)) tool = this._ZP.getZE(idZE).tool;
+                            if (tool && !tool.point) {
                                 tool.reload();
                                 $('.ZE#' + idZE + ' .tool').append($point.addClass('dropped'));
                                 $point.attr('id', tool.point.id);
@@ -241,9 +274,7 @@ class ArtifactView extends View {
                 onmove: (function (event) {
                     var $element = $(event.target),
                         artifact = this._ZP.getArtifact($element.attr('id'));
-                    artifact.scale *= (1+event.ds);
-                    artifact.angle += event.da;
-                    this._moveArtifact(event, $element, artifact);
+                    artifact.move(event.dx, event.dy, event.ds, event.da);
                 }).bind(this),
                 onend: (function (event) {
                     var id = $(event.target).attr('id'),
@@ -264,8 +295,8 @@ class ArtifactView extends View {
         return [{
             target: '.ZP > .artifact.message, .ZP > .artifact.image',
             action: (function (event) {
-                var $artifact = $(event.currentTarget),
-                    artifact = this._ZP.getArtifact($artifact.attr('id'));
+                let $artifact = $(event.currentTarget);
+                let artifact = this._ZP.getArtifact($artifact.attr('id'));
                 if (artifact) {
                     $artifact.css('z-index', Z_INDEX);
                     Z_INDEX++;
@@ -273,11 +304,11 @@ class ArtifactView extends View {
                         $artifact.removeClass('active');
                         $('svg [data-artifact=' + $artifact.attr('id') + ']').remove();
                     } else {
+                        $artifact.addClass('active');
                         var shape = document.createElementNS('http://www.w3.org/2000/svg', 'line'),
                             ZE = this._ZP.getZE(artifact.ZE);
                         if (ZE) {
                             var $ZE = $('#' + ZE.id);
-                            $artifact.addClass('active');
                             shape.setAttributeNS(null, 'data-ze', ZE.id);
                             shape.setAttributeNS(null, 'data-artifact', artifact.id);
                             switch (ZE.angle) {
@@ -303,22 +334,22 @@ class ArtifactView extends View {
         }];
     }
 
-    _createLine(event, $element, artifact) {
-        var interaction = event.interaction,
-            line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttributeNS(null, 'class', 'temporary');
-        line.setAttributeNS(null, 'data-from', artifact.id);
-        line.setAttributeNS(null, 'x1', artifact.x + $element.width() / 2);
-        line.setAttributeNS(null, 'y1', artifact.y + $element.height() / 2);
-        line.setAttributeNS(null, 'x2', event.clientX);
-        line.setAttributeNS(null, 'y2', event.clientY);
-        line.setAttributeNS(null, 'stroke', 'black');
-        line.setAttributeNS(null, 'stroke-width', 3);
-        $('svg').append(line);
-        if (!interaction.interacting()) {
-            interaction.start({name: 'drag'}, interact('line'), line);
-        }
-    }
+    // _createLine(event, $element, artifact) {
+    //     var interaction = event.interaction,
+    //         line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    //     line.setAttributeNS(null, 'class', 'temporary');
+    //     line.setAttributeNS(null, 'data-from', artifact.id);
+    //     line.setAttributeNS(null, 'x1', artifact.x + $element.width() / 2);
+    //     line.setAttributeNS(null, 'y1', artifact.y + $element.height() / 2);
+    //     line.setAttributeNS(null, 'x2', event.clientX);
+    //     line.setAttributeNS(null, 'y2', event.clientY);
+    //     line.setAttributeNS(null, 'stroke', 'black');
+    //     line.setAttributeNS(null, 'stroke-width', 3);
+    //     $('svg').append(line);
+    //     if (!interaction.interacting()) {
+    //         interaction.start({name: 'drag'}, interact('line'), line);
+    //     }
+    // }
 
     _hold() {
         return [{
@@ -331,7 +362,19 @@ class ArtifactView extends View {
             target: '.ZP > .artifact.point',
             action: (function (event) {
                 var $element = $(event.target);
-                this._createLine(event, $element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
+                let id1 = $element.attr('id');
+                let x1 = $element.offset().left + $element.width()/2;
+                let y1 = $element.offset().top + $element.height()/2;
+                let id2 = null;
+                let x2 = event.clientX;
+                let y2 = event.clientY;
+                //ToDO:remove obsolete code
+                // this._createLine(event, $element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
+                let interaction = event.interaction;
+                let line = View.createLine(true, id1, x1, y1, id2, x2, y2);
+                if (!interaction.interacting()) {
+                    interaction.start({name: 'drag'}, interact('line'), line);
+                }
             }).bind(this)
         }];
     }

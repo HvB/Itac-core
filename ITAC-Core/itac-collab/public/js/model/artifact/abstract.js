@@ -1,5 +1,5 @@
 class Artifact {
-    static new(id, data) {
+    static new(id, data , parent) {
         switch (data.type) {
             case ARTIFACT_MESSAGE:
                 return new Message(id, data);
@@ -7,6 +7,8 @@ class Artifact {
                 return new Image(id, data);
             case ARTIFACT_LINK:
                 return new Link(id, data);
+            case ARTIFACT_POINT:
+                return new Point(id, data, parent);
         }
     }
 
@@ -21,6 +23,9 @@ class Artifact {
         this._creator = data && data.creator ? data.creator : null;
         this._dateCreation = data && data.dateCreation ? data.dateCreation : new Date().toISOString();
         this._history = data && data.history ? data.history : [];
+        this._observers = new Set();
+        this._changed = false;
+        this._status = "new";
     }
 
     get id() {
@@ -37,6 +42,7 @@ class Artifact {
 
     set x(x) {
         this._x = x;
+        this.setChanged();
     }
 
     get y() {
@@ -45,6 +51,7 @@ class Artifact {
 
     set y(y) {
         this._y = y;
+        this.setChanged();
     }
 
     get scale() {
@@ -53,6 +60,7 @@ class Artifact {
 
     set scale(scale) {
         this._scale = scale;
+        this.setChanged();
     }
 
     get angle() {
@@ -61,6 +69,7 @@ class Artifact {
 
     set angle(angle) {
         this._angle = angle;
+        this.setChanged();
     }
 
     get ZE() {
@@ -69,6 +78,7 @@ class Artifact {
 
     set ZE(ZE) {
         this._ZE = ZE;
+        this.setChanged();
     }
 
     get creator() {
@@ -83,15 +93,91 @@ class Artifact {
         return this._history;
     }
 
+    move (dx, dy, ds=0, da=0){
+        this.x += dx;
+        this.y += dy;
+        this.angle += da;
+        this.scale *= (1+ds);
+        this.notifyObservers("position");
+    }
+
+    setXY (x, y){
+        this.x = x;
+        this.y = y;
+        this.notifyObservers("position");
+    }
+
     toJSON() {
         var object = {};
         object['id'] = this._id;
         object['type'] = this._type;
-        object['position'] = {x: this._x, y: this._y, scale: this._scale, angle: this._angle};
+        object['position'] = this.position;
         object['lastZE'] = this._ZE;
         object['creator'] = this._creator;
         object['dateCreation'] = this._dateCreation;
         object['history'] = this._history;
         return object;
+    }
+
+    get position (){
+        return {x: this._x, y: this._y, scale: this._scale, angle: this._angle};
+    }
+    set position (position){
+        this.x = position.x;
+        this.y = position.y;
+        this.angle = position.angle;
+        this.scale = position.scale;
+    }
+    setChanged(){
+        this._changed = true;
+    }
+    clearChanged(){
+        this._changed = false;
+    }
+    addObserver(observer){
+        if (observer) {
+            this._observers.add(observer);
+            this._notifyObserver(observer, this._status);
+        }
+    }
+    removeObserver(observer){
+        if (observer) this._observers.delete(observer);
+    }
+    notifyObservers(something){
+        if (this._changed){
+            this.clearChanged();
+            this._observers.forEach((o) => {this._notifyObserver(o, something);});
+        }
+    }
+    _notifyObserver(observer, something){
+        let source = this;
+        if (observer && observer.update instanceof Function){
+            setTimeout(observer.update.bind(observer), 0, source, something);
+        }
+    }
+
+    delete(){
+        this._status = "deleted";
+        this.setChanged();
+        this.notifyObservers(this._status);
+        this._observers = {};
+    }
+
+    migrate(){
+        this._status = "migrated";
+        this.setChanged();
+        this.notifyObservers(this._status);
+        this._observers = {};
+    }
+
+    newInZE(){
+        this._status = "newInZE"
+    }
+
+    newInZP(){
+        this._status = "newInZP"
+    }
+
+    update(source, something){
     }
 }

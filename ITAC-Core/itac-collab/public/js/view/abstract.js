@@ -38,4 +38,29 @@ class View {
     _hold() {
         return [];
     }
+
+    static createLine(temporary, id1, x1, y1, id2, x2, y2, type="annotation") {
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        if (id1) line.setAttributeNS(null, 'data-from', id1);
+        line.setAttributeNS(null, 'x1', x1);
+        line.setAttributeNS(null, 'y1', y1);
+        if (id2) line.setAttributeNS(null, 'data-to', id2);
+        line.setAttributeNS(null, 'x2', x2);
+        line.setAttributeNS(null, 'y2', y2);
+        line.setAttributeNS(null, 'stroke', 'black');
+        line.setAttributeNS(null, 'stroke-width', 3);
+        if (type) {
+            line.setAttributeNS(null, 'class', (type ? type : ''));
+        }
+        if (temporary) {
+            line.setAttributeNS(null, 'class', 'temporary ' + (type ? type : ''));
+        } else if (id1 && $('#'+id1) && $('#'+id1).parent().hasClass("ZP")
+            && id2 && $('#'+id2) && $('#'+id2).parent().hasClass("ZP")) {
+            line.setAttributeNS(null, 'style', 'visibility:visible;');
+        } else {
+            line.setAttributeNS(null, 'style', 'visibility:hidden;');
+        }
+        $('svg').append(line);
+        return line;
+    }
 }

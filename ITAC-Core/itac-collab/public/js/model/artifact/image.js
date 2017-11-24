@@ -12,7 +12,7 @@ class Image extends Artifact {
         this._points = {};
         if (data && data.points) {
             for (var point in data.points) {
-                this._points[point] = new Point(point, data.points[point]);
+                this._points[point] = Artifact.new(point, data.points[point], this);
             }
         }
         this._isBackground = data.isBackground ?  data.isBackground : false;
@@ -31,7 +31,7 @@ class Image extends Artifact {
     }
 
     addPoint(idPoint, data) {
-        this._points[idPoint] = new Point(idPoint, data);
+        this._points[idPoint] = Artifact.new(idPoint, data, this);
     }
 
     removePoint(idPoint) {
@@ -44,6 +44,8 @@ class Image extends Artifact {
 
     set background(isBackground) {
         this._isBackground = isBackground;
+        this.setChanged();
+        this.notifyObservers("background");
     }
     
     toJSON() {

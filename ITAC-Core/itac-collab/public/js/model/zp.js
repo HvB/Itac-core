@@ -32,7 +32,13 @@ class ZP {
     }
 
     set background(background) {
-        this._background = background;
+        if (this._background !== background) {
+            let art1 = this.getArtifact(this._background);
+            if (art1) art1.background = false;
+            this._background = background;
+            let art2 = this.getArtifact(this._background);
+            if (art2) art2.background = true;
+        }
     }
 
     get menu() {
@@ -43,10 +49,12 @@ class ZP {
         return this._artifacts[idArtifact];
     }
 
-    addArtifact(idArtifact, data) {
+    addArtifactFromJson(idArtifact, data) {
         this._artifacts[idArtifact] = Artifact.new(idArtifact, data);
     }
-
+    addArtifact(artifact){
+        this._artifacts[artifact.id] = artifact;
+    }
     removeArtifact(idArtifact) {
         delete this._artifacts[idArtifact];
     }

@@ -16,6 +16,11 @@ class LineView extends View {
                     var shape = event.target;
                     shape.setAttributeNS(null, 'x2', event.clientX);
                     shape.setAttributeNS(null, 'y2', event.clientY);
+                },
+                onend: function (event) {
+                    console.log("line end");
+                    let $shape = $(event.target);
+                    setTimeout(()=>{ if ($shape.hasClass("temporary")) $shape.remove(); });
                 }
             }
         }];

@@ -48,14 +48,15 @@ class ZEView extends View {
                     $artifact.remove().css('transform', '').appendTo($(event.target).find('.container'));
                     $artifact.removeClass('can-drop');
                     $artifact.addClass('dropped');
-                    $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function (index, element) {
-                        var $shape = $(element),
-                            $artifact = $('#' + $shape.attr('data-from'));
-                        $shape.remove();
-                        if ($artifact.hasClass('point') && $('line[data-from=' + $artifact.attr('id') + ']').length == 0) {
-                            $artifact.remove();
-                        }
-                    });
+                    $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').css("visibility","hidden");
+                    // $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function (index, element) {
+                    //     var $shape = $(element),
+                    //         $artifact = $('#' + $shape.attr('data-from'));
+                    //     $shape.remove();
+                        // if ($artifact.hasClass('point') && $('line[data-from=' + $artifact.attr('id') + ']').length == 0) {
+                        //     $artifact.remove();
+                        // }
+                    // });
                 }).bind(this),
 
                 ondropdeactivate: function (event) {
