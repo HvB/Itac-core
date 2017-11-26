@@ -29,6 +29,10 @@ class Point extends Artifact {
         return this._parent;
     }
 
+    set parent(parent) {
+        this._parent = parent;
+    }
+
     delete(){
         if (this._parent) this._parent.removePoint(this.id)
         super.delete()

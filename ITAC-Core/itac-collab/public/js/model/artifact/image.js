@@ -30,8 +30,15 @@ class Image extends Artifact {
         return this._points[idPoint];
     }
 
-    addPoint(idPoint, data) {
+    addPointFromJson(idPoint, data) {
         this._points[idPoint] = Artifact.new(idPoint, data, this);
+    }
+
+    addPoint(point) {
+        if (point) {
+            this._points[point.id] = point;
+            point.parent = this;
+        }
     }
 
     removePoint(idPoint) {
