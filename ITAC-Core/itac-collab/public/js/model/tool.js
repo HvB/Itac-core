@@ -1,8 +1,10 @@
 class Tool {
-    constructor() {
+    constructor(ZE) {
         this._opened = false;
         let p = new Point();
         this._point = p;
+        this._ZE = ZE;
+        if (ZE) this._point.ZE = ZE.id;
     }
 
     get opened() {
@@ -24,5 +26,6 @@ class Tool {
     reload() {
         let p = new Point();
         this._point = p;
+        if (this._ZE) this._point.ZE = this._ZE.id;
     }
 }
