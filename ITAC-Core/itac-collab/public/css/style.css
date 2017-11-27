@@ -153,6 +153,11 @@ ul.menu li.send {
     border: solid 2px #ffffff;
     border-radius: 10px;
 }
+.ZP > .artifact {
+    left:-115px;
+    top:-75px;
+}
+
 .artifact .historic {
     display: none;
     position: absolute;
@@ -193,6 +198,10 @@ ul.menu li.send {
     height: 20px;
     border-radius: 20px;
     background-color: #ff0000;
+}
+.ZP > .point {
+    left:-10px;
+    top:-10px;
 }
 .container .artifact.dropped {
     position: relative;

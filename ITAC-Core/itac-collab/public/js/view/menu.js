@@ -13,8 +13,8 @@ class MenuView extends View {
             option: {
                 //accepter que les elements avec ce CSS selector
                 accept: '.artifact.message, .artifact.image',
-                // il faut 10% de l'element overlap pour que le drop soit possible
-                overlap: 0.1,
+                // il faut que le menu soit sous lepointer pour que le drop soit possible
+                overlap: 'pointer',
                 // les evenements de drop:
                 ondragenter: function (event) {
                     console.log("menu ITAC -> ZP.ondragenter");
@@ -58,8 +58,8 @@ class MenuView extends View {
             option: {
                 //accepter que les elements avec ce CSS selector
                 accept: '.artifact',
-                // il faut 10% de l'element overlap pour que le drop soit possible
-                overlap: 0.1,
+                // il faut que le menu soit sous lepointer pour que le drop soit possible
+                overlap: 'pointer',
                 // les evenements de drop:
                 ondragenter: function (event) {
                     event.target.classList.add('trash-target');
@@ -109,8 +109,8 @@ class MenuView extends View {
             option: {
                 //accepter que les elements avec ce CSS selector
                 accept: '.artifact.image',
-                // il faut 10% de l'element overlap pour que le drop soit possible
-                overlap: 0.1,
+                // il faut que le menu soit sous lepointer pour que le drop soit possible
+                overlap: 'pointer',
                 // les evenements de drop:
                 ondragenter: function (event) {
                     event.target.classList.add('trash-target');
