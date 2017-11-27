@@ -6,7 +6,7 @@ class ZE {
         this._scale = 1;
         this._angle = angle;
         this._artifacts = {};
-        this._tool = new Tool();
+        this._tool = new Tool(this);
     }
 
     get id() {

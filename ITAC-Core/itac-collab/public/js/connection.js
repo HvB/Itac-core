@@ -395,7 +395,7 @@ class ArtifactObserver {
             }
             $('line[data-from=' + idArtifact + ']').each(function (index, element) {
                 let $link = $(element);
-                let artifactTo = this._ZP.getArtifact($('#' + $link.attr('data-to')));
+                let artifactTo = this._ZP.getArtifact($link.attr('data-to'));
                 if (artifactTo && artifact.removeLinkFrom instanceof Function) {
                     artifactTo.removeLinkFrom(artifact);
                 }
@@ -406,7 +406,7 @@ class ArtifactObserver {
                 console.log(this._ZP);
                 console.log(this._connection);
                 let $link = $(element);
-                let artifactFrom = this._ZP.getArtifact($('#' + $link.attr('data-from')));
+                let artifactFrom = this._ZP.getArtifact($link.attr('data-from'));
                 if (artifactFrom && artifact.removeLinkTo instanceof Function) {
                     artifactFrom.removeLinkTo(artifact);
                 }
@@ -447,10 +447,12 @@ class ArtifactObserver {
             if ($element && $element.parent().hasClass("ZP")) {
                 $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
                     + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
-                let x = $element.offset().left + $element.width() / 2;
-                let y = $element.offset().top + $element.height() / 2;
+                // let x = $element.offset().left + $element.width() / 2;
+                // let y = $element.offset().top + $element.height() / 2;
                 // let x = artifact.x +$element.width()/2;
                 // let y = artifact.y +$element.height()/2;
+                let x = artifact.x;
+                let y = artifact.y;
                 $('line[data-from=' + artifact.id + ']').each(function (index, line) {
                     line.setAttributeNS(null, 'x1', x);
                     line.setAttributeNS(null, 'y1', y);
@@ -530,7 +532,7 @@ class ArtifactObserver {
     _createArtifactView(artifact){
         let idArtifact = artifact.id;
         let $element = $('#'+idArtifact);
-        if ($element.length==0) {
+        if ($element.length ==0 ) {
             $element = $('.template .artifact.' + artifact.type).clone();
             $element.attr('id', idArtifact);
         }
@@ -540,18 +542,29 @@ class ArtifactObserver {
         artifact.position = position;
             //this._createArtifact(json).css('transform', 'translate(' + json.position.x + 'px, ' + json.position.y
         //     + 'px) scale(' + json.position.scale + ') rotate(' + json.position.angle + 'deg)').appendTo('.ZP');
-        $element.css('transform', 'translate(' + position.x + 'px, ' + position.y + 'px) scale('
-            + position.scale + ') rotate(' + position.angle + 'deg)');
-        $element.show();
-        let x1 = $element.offset().left + $element.width() / 2;
-        let y1 = $element.offset().top + $element.height() / 2;
+        // $element.css('transform', 'translate(' + position.x + 'px, ' + position.y + 'px) scale('
+        //     + position.scale + ') rotate(' + position.angle + 'deg)');
+        // $element.show();
+        // let x1 = $element.offset().left + $element.width() / 2;
+        // let y1 = $element.offset().top + $element.height() / 2;
+        let x1 = artifact.x;
+        let y1 = artifact.y;
         let id1 = idArtifact;
         for (let artId in artifact.linksTo) {
             console.log("artifact To : " + artId);
             let $art = $('#' + artId), id2 = artId, x2 = x1, y2 = y1;
-            if ($art && $art.offset()) {
-                x2 = $art.offset().left + $art.width() / 2;
-                y2 = $art.offset().top + $art.height() / 2;
+            // if ($art && $art.offset()) {
+            //     x2 = $art.offset().left + $art.width() / 2;
+            //     y2 = $art.offset().top + $art.height() / 2;
+            // }
+            // if ($art && $art.offset()) {
+            //     x2 = $art.offset().left + $art.width() / 2;
+            //     y2 = $art.offset().top + $art.height() / 2;
+            // }
+            let artifactTo = this._ZP.getArtifact(artId);
+            if (artifactTo) {
+                x2 = artifactTo.x;
+                y2 = artifactTo.y;
             }
             let line = View.createLine(false, id1, x1, y1, id2, x2, y2, (artifact.parent ? "annotation" : "link"));
         }

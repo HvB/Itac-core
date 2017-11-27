@@ -40,8 +40,10 @@ class ArtifactView extends View {
                     if (artifactFrom.hasLinkTo(artifactTo.id)) {
                         $('line[data-from=' + artifactFrom.id + '].temporary').remove();
                     } else {
-                        shape.setAttributeNS(null, 'x2', artifactTo.x + $target.width() / 2);
-                        shape.setAttributeNS(null, 'y2', artifactTo.y + $target.height() / 2);
+                        // shape.setAttributeNS(null, 'x2', artifactTo.x + $target.width() / 2);
+                        // shape.setAttributeNS(null, 'y2', artifactTo.y + $target.height() / 2);
+                        shape.setAttributeNS(null, 'x2', artifactTo.x );
+                        shape.setAttributeNS(null, 'y2', artifactTo.y );
                         shape.setAttributeNS(null, 'data-to', artifactTo.id);
                         $shape.attr('data-to', artifactTo.id);
                         $shape.removeClass('temporary');
@@ -112,18 +114,41 @@ class ArtifactView extends View {
         }];
     }
 
-    _startArtifact($element, artifact) {
+    _startArtifact(event) {
+        let $element = $(event.target);
+        let artifact = this._ZP.getArtifact($element.attr('id'));
         if ($element.hasClass('dropped')) {
-            var offset = $element.offset();
-            let x = offset.left - $element.width()/2;
-            let y = offset.top - $element.height()/2;
+            let x = event.clientX0;
+            let y = event.clientY0;
             artifact.setXY(x,y);
         }
+        artifact.startMove();
         $element.removeClass('active');
         $('svg [data-artifact=' + artifact.id + ']').remove();
         $element.css('z-index', Z_INDEX);
         Z_INDEX++;
     }
+
+    // ToDo: remove obsolete code
+    // _startArtifact($element, artifact, event) {
+    //     if ($element.hasClass('dropped')) {
+    //         var offset = $element.offset();
+    //         // let x = offset.left - $element.width()/2;
+    //         // let y = offset.top - $element.height()/2;
+    //         let x = offset.left;
+    //         let y = offset.top;
+    //         if (event){
+    //             x = event.clientX0;
+    //             y = event.clientY0;
+    //         }
+    //         artifact.setXY(x,y);
+    //     }
+    //     artifact.startMove();
+    //     $element.removeClass('active');
+    //     $('svg [data-artifact=' + artifact.id + ']').remove();
+    //     $element.css('z-index', Z_INDEX);
+    //     Z_INDEX++;
+    // }
 
     // ToDo: remove obsolete code
     // _moveArtifact(event, $element, artifact) {
@@ -152,24 +177,26 @@ class ArtifactView extends View {
                 restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
                 onstart: (function (event) {
-                    var $element = $(event.target);
-                    this._startArtifact($element, this._ZP.getArtifact($element.attr('id')));
+                    // ToDo: remove obsolete code
+                    // var $element = $(event.target);
+                    // this._startArtifact($element, this._ZP.getArtifact($element.attr('id')), event);
+                    this._startArtifact(event);
                 }).bind(this),
                 onmove: (function (event) {
-                    var $element = $(event.target);
+                    let $element = $(event.target);
                     let artifact = this._ZP.getArtifact($element.attr('id'));
                     artifact.move(event.dx, event.dy);
                     // ToDo: remove obsolete code
                     //this._moveArtifact(event, $element, this._ZP.getArtifact($element.attr('id')));
                 }).bind(this),
                 onend: (function (event) {
-                    var id = $(event.target).attr('id'),
-                        artifact = this._ZP.getArtifact(id);
+                    let id = $(event.target).attr('id');
+                    let artifact = this._ZP.getArtifact(id);
                     if (artifact) {
                         this._connection.emitArtifactPartialUpdate(id, [{
                             op: 'add',
                             path: '/position',
-                            value: artifact.position
+                            value: artifact.jsonPosition
                         }]);
                     }
                 }).bind(this)
@@ -181,18 +208,20 @@ class ArtifactView extends View {
                 restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
                 onstart: (function (event) {
-                    var $element = $(event.target);
-                    this._startArtifact($element, this._ZP.getArtifact($element.attr('id')));
+                    // ToDo: remove obsolete code
+                    // var $element = $(event.target);
+                    // this._startArtifact($element, this._ZP.getArtifact($element.attr('id')), event);
+                    this._startArtifact(event);
                 }).bind(this),
                 onmove: (function (event) {
-                    var $element = $(event.target);
+                    let $element = $(event.target);
                     let artifact = this._ZP.getArtifact($element.attr('id'));
                     artifact.move(event.dx, event.dy);
                     // ToDo: remove obsolete code
                     // this._moveArtifact(event, $element, this._ZP.getArtifact($element.attr('id')));
                 }).bind(this),
                 onend: (function (event) {
-                    var id = $(event.target).attr('id');
+                    let id = $(event.target).attr('id');
                     this._connection.emitArtifactPartialUpdate(id, [{
                         op: 'add',
                         path: '/position',
@@ -208,25 +237,29 @@ class ArtifactView extends View {
                 autoScroll: true,
                 onstart: (function (event) {
                     if (this._ZP.background) {
-                        var $element = $(event.target);
+                        let $element = $(event.target);
                         if ($element.hasClass('dropped')) {
                             let idZE = $element.parents('.ZE').attr('id');
                             let tool = this._ZP.getZE(idZE).tool;
-                            tool.point.ZE = idZE;
-                            this._ZP.getArtifact(this._ZP.background).addPoint(tool.point.id, tool.point.toJSON());
-                            let point = this._ZP.getArtifact(this._ZP.background).getPoint(tool.point.id);
+                            // tool.point.ZE = idZE;
+                            // this._ZP.getArtifact(this._ZP.background).addPoint(tool.point.id, tool.point.toJSON());
+                            let point = tool.point;
+                            this._ZP.getArtifact(this._ZP.background).addPoint(point);
+                            this._ZP.addArtifact(point);
+                            //let point = this._ZP.getArtifact(this._ZP.background).getPoint(tool.point.id);
                             point.visible = true;
                             tool.reset();
                             let observer = this._pointObserver;
                             setTimeout(()=>{point.addObserver(observer);});
                         }
-                        this._startArtifact($element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
-
+                        // ToDo: remove obsolete code
+                        //this._startArtifact($element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')), event);
+                        this._startArtifact(event);
                     }
                 }).bind(this),
                 onmove: (function (event) {
                     if (this._ZP.background) {
-                        var $element = $(event.target);
+                        let $element = $(event.target);
                         let point = this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id'));
                         // let point = this._ZP.getArtifact($element.attr('id'));
                         if (point) point.move(event.dx, event.dy);
@@ -245,7 +278,7 @@ class ArtifactView extends View {
                                 path: '/points/' + id,
                                 value: point.toJSON()
                             }]);
-                            var $point = $('.template .artifact.point').clone(),
+                            let $point = $('.template .artifact.point').clone(),
                                 idZE = point.ZE, tool;
                             if (this._ZP.getZE(idZE)) tool = this._ZP.getZE(idZE).tool;
                             if (tool && !tool.point) {
@@ -268,17 +301,19 @@ class ArtifactView extends View {
                 restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
                 onstart: (function (event) {
-                    var $element = $(event.target);
-                    this._startArtifact($element, this._ZP.getArtifact($element.attr('id')));
+                    // ToDo: remove obsolete code
+                    // var $element = $(event.target);
+                    // this._startArtifact($element, this._ZP.getArtifact($element.attr('id')), event);
+                    this._startArtifact(event);
                 }).bind(this),
                 onmove: (function (event) {
-                    var $element = $(event.target),
-                        artifact = this._ZP.getArtifact($element.attr('id'));
+                    let $element = $(event.target);
+                    let artifact = this._ZP.getArtifact($element.attr('id'));
                     artifact.move(event.dx, event.dy, event.ds, event.da);
                 }).bind(this),
                 onend: (function (event) {
-                    var id = $(event.target).attr('id'),
-                        artifact = this._ZP.getArtifact(id);
+                    let id = $(event.target).attr('id');
+                    let artifact = this._ZP.getArtifact(id);
                     if (artifact) {
                         this._connection.emitArtifactPartialUpdate(id, [{
                             op: 'add',
@@ -322,8 +357,10 @@ class ArtifactView extends View {
                                     shape.setAttributeNS(null, 'x1', $ZE.offset().left + $ZE.height() / 2);
                                     shape.setAttributeNS(null, 'y1', $ZE.offset().top + $ZE.width() / 2);
                             }
-                            shape.setAttributeNS(null, 'x2', artifact.x + $artifact.width() / 2);
-                            shape.setAttributeNS(null, 'y2', artifact.y + $artifact.height() / 2);
+                            // shape.setAttributeNS(null, 'x2', artifact.x + $artifact.width() / 2);
+                            // shape.setAttributeNS(null, 'y2', artifact.y + $artifact.height() / 2);
+                            shape.setAttributeNS(null, 'x2', artifact.x );
+                            shape.setAttributeNS(null, 'y2', artifact.y );
                             shape.setAttributeNS(null, 'stroke', 'black');
                             shape.setAttributeNS(null, 'stroke-width', 3);
                             $('svg').append(shape);
@@ -363,11 +400,14 @@ class ArtifactView extends View {
             action: (function (event) {
                 var $element = $(event.target);
                 let id1 = $element.attr('id');
-                let x1 = $element.offset().left + $element.width()/2;
-                let y1 = $element.offset().top + $element.height()/2;
+                let artifact = this._ZP.getArtifact(id1);
+                // let x1 = $element.offset().left + $element.width()/2;
+                // let y1 = $element.offset().top + $element.height()/2;
+                let x1 = artifact.x;
+                let y1 = artifact.y;
                 let id2 = null;
-                let x2 = event.clientX;
-                let y2 = event.clientY;
+                let x2 = artifact.x;
+                let y2 = artifact.y;
                 //ToDO:remove obsolete code
                 // this._createLine(event, $element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
                 let interaction = event.interaction;

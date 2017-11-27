@@ -1,18 +1,24 @@
 class Artifact {
     static new(id, data , parent) {
+        let a;
         switch (data.type) {
             case ARTIFACT_MESSAGE:
-                return new Message(id, data);
+                a = new Message(id, data);
+                break;
             case ARTIFACT_IMAGE:
-                return new Image(id, data);
+                a = new Image(id, data);
+                break;
             case ARTIFACT_LINK:
-                return new Link(id, data);
+                a = new Link(id, data);
+                break;
             case ARTIFACT_POINT:
-                return new Point(id, data, parent);
+                a = new Point(id, data, parent);
+                break;
             default:
                 // cas on cela ne rentre pas dans les categories précédentes
-                return new Artifact(id, data, parent);
+                a = new Artifact(id, data, parent);
         }
+        return a;
     }
 
     constructor(id, type, data) {
@@ -31,6 +37,10 @@ class Artifact {
         this._observers = new Set();
         this._changed = false;
         this._status = "new";
+        this._dx = 0;
+        this._dy = 0;
+        this._da = 0;
+        this._ds = 0;
     }
 
     get id() {
@@ -42,38 +52,42 @@ class Artifact {
     }
 
     get x() {
-        return this._x;
+        return (this._x + this._dx);
     }
 
     set x(x) {
         this._x = x;
+        this._dx = 0;
         this.setChanged();
     }
 
     get y() {
-        return this._y;
+        return (this._y + this._dy);
     }
 
     set y(y) {
         this._y = y;
+        this._dy = 0;
         this.setChanged();
     }
 
     get scale() {
-        return this._scale;
+        return (this._scale * (1 + this._ds));
     }
 
     set scale(scale) {
         this._scale = scale;
+        this._ds = 0;
         this.setChanged();
     }
 
     get angle() {
-        return this._angle;
+        return (this._angle + this._da);
     }
 
     set angle(angle) {
         this._angle = angle;
+        this._da = 0;
         this.setChanged();
     }
 
@@ -98,11 +112,28 @@ class Artifact {
         return this._history;
     }
 
+    startMove(){
+        this._x += this._dx;
+        this._y += this._dy;
+        this._angle += this._da;
+        this._scale *= (1 + this._ds);
+        this._dx = 0;
+        this._dy = 0;
+        this._ds = 0;
+        this._da = 0;
+    }
+    endMove(){
+        // this._dx = 0;
+        // this._dy = 0;
+        // this._ds = 0;
+        // this._da = 0;
+    }
     move (dx, dy, ds=0, da=0){
-        this.x += dx;
-        this.y += dy;
-        this.angle += da;
-        this.scale *= (1+ds);
+        this._dx += dx;
+        this._dy += dy;
+        this._da += da;
+        this._ds += ds;
+        this.setChanged();
         this.notifyObservers("position");
     }
 
@@ -124,8 +155,15 @@ class Artifact {
         return object;
     }
 
+    get jsonPosition (){
+        let x = this.x;
+        let y = this.y;
+        return {x: x, y: y, scale: this.scale, angle: this.angle};
+    }
     get position (){
-        return {x: this._x, y: this._y, scale: this._scale, angle: this._angle};
+        let x = this.x;
+        let y = this.y;
+        return {x: x, y: y, scale: this.scale, angle: this.angle};
     }
     set position (position){
         this.x = position.x;
