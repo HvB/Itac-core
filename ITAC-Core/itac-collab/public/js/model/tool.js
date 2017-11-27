@@ -1,7 +1,8 @@
 class Tool {
     constructor() {
         this._opened = false;
-        this._point = new Point();
+        let p = new Point();
+        this._point = p;
     }
 
     get opened() {
@@ -21,6 +22,7 @@ class Tool {
     }
 
     reload() {
-        this._point = new Point();
+        let p = new Point();
+        this._point = p;
     }
 }

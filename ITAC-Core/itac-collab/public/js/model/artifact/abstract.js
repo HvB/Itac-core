@@ -1,18 +1,24 @@
 class Artifact {
     static new(id, data , parent) {
+        let a;
         switch (data.type) {
             case ARTIFACT_MESSAGE:
-                return new Message(id, data);
+                a = new Message(id, data);
+                break;
             case ARTIFACT_IMAGE:
-                return new Image(id, data);
+                a = new Image(id, data);
+                break;
             case ARTIFACT_LINK:
-                return new Link(id, data);
+                a = new Link(id, data);
+                break;
             case ARTIFACT_POINT:
-                return new Point(id, data, parent);
+                a = new Point(id, data, parent);
+                break;
             default:
                 // cas on cela ne rentre pas dans les categories précédentes
-                return new Artifact(id, data, parent);
+                a = new Artifact(id, data, parent);
         }
+        return a;
     }
 
     constructor(id, type, data) {
