@@ -459,9 +459,9 @@ class ArtifactObserver {
                     let id2 = line.getAttributeNS(null, 'data-to');
                     let $element2 = $('#' + id2);
                     if ($element && $element.parent().hasClass("ZP") && $element2 && $element2.parent().hasClass("ZP")) {
-                        $(line).css("visibility", "visible");
+                        $(line).show();
                     } else {
-                        $(line).css("visibility", "hidden");
+                        $(line).hide();
                     }
                 }.bind(this));
                 $('line[data-to=' + artifact.id + ']').each(function (index, line) {
@@ -470,9 +470,9 @@ class ArtifactObserver {
                     let id2 = line.getAttributeNS(null, 'data-from');
                     let $element2 = $('#' + id2);
                     if ($element && $element.parent().hasClass("ZP") && $element2 && $element2.parent().hasClass("ZP")) {
-                        $(line).css("visibility", "visible");
+                        $(line).show();
                     } else {
-                        $(line).css("visibility", "hidden");
+                        $(line).hide();
                     }
                 }.bind(this));
             }

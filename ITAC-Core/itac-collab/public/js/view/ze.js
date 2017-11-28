@@ -48,7 +48,7 @@ class ZEView extends View {
                     $artifact.remove().css('transform', '').appendTo($(event.target).find('.container'));
                     $artifact.removeClass('can-drop');
                     $artifact.addClass('dropped');
-                    $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').css("visibility","hidden");
+                    $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').hide();
                     // $('line[data-from=' + idAr + '], line[data-to=' + idAr + ']').each(function (index, element) {
                     //     var $shape = $(element),
                     //         $artifact = $('#' + $shape.attr('data-from'));
