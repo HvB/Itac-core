@@ -393,3 +393,43 @@ var jsonPositionProxyHandler = {
     }
 };
 
+class ArtifactEvent {
+    constructor(type, source) {
+        this._type = type;
+        this._source = source;
+    }
+    get type() {
+        return _type;
+    }
+    get source() {
+        return this._source;
+    }
+}
+
+class ArtifactMoveEvent extends ArtifactEvent {
+    constructor(type, source) {
+        super(type, source);
+        this._position = source.position;
+    }
+
+    get position() {
+        return this._position;
+    }
+}
+
+class ArtifactValueChangedEvent extends ArtifactEvent {
+    constructor(type, source) {
+        super(type, source);
+        this._position = source.position;
+    }
+
+    get position() {
+        return this._position;
+    }
+    addModificaion(name, oldValue, newValue){
+
+    }
+    get modifications (){
+
+    }
+}
