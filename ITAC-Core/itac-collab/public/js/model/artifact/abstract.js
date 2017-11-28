@@ -76,6 +76,18 @@ class Artifact {
         this.setChanged();
     }
 
+    getX(unit="px", refX=0, refY=0) {
+        return(this.x+"px");
+    }
+
+    getY(unit="px", refX=0, refY=0) {
+        return(this.y+"px");
+    }
+
+    getAngle(unit="deg", ref=0){
+        return (this.angle+"deg")
+    }
+
     get scale() {
         return (this._scale * (1 + this._ds));
     }
