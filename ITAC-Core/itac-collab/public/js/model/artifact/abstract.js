@@ -153,7 +153,8 @@ class Artifact {
     }
 
     get scale() {
-        return (this._scale * (1 + this._ds));
+        let s = this._scale * (1 + this._ds);
+        return s;
     }
 
     set scale(scale) {
@@ -163,7 +164,8 @@ class Artifact {
     }
 
     get angle() {
-        return (this._angle + this._da);
+        let a = this._angle + this._da;
+        return a;
     }
 
     set angle(angle) {
