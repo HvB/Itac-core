@@ -496,7 +496,7 @@ class ArtifactObserver {
                     .css('background-image', $element.css('background-image'))
                     .css('background-position', 'center')
                     .css('background-repeat', 'no-repeat')
-                    .css('background-size', 'contain')
+                    .css('background-size', 'contain, cover')
                     .addClass('background');
                 for (let id in artifact.points) {
                     // let $point = $('.template .artifact.point').clone();
@@ -591,7 +591,7 @@ class ArtifactObserver {
                         .css('background-image', $element.css('background-image'))
                         .css('background-position', 'center')
                         .css('background-repeat', 'no-repeat')
-                        .css('background-size', 'contain')
+                        .css('background-size', 'contain, cover')
                         .addClass('background');
                     for (var id in artifact.points) {
                         let point = artifact.getPoint(id);
