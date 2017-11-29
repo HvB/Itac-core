@@ -272,7 +272,7 @@ class MenuView extends View {
                     .css('background-image', '')
                     .css('background-position', '')
                     .css('background-repeat', '')
-                    .css('background-size', '')
+                    .css('background-size', 'cover')
                     .removeClass('background');
             }).bind(this)
         }];

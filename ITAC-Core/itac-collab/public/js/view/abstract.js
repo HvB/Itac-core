@@ -56,9 +56,9 @@ class View {
             line.setAttributeNS(null, 'class', 'temporary ' + (type ? type : ''));
         } else if (id1 && $('#'+id1) && $('#'+id1).parent().hasClass("ZP")
             && id2 && $('#'+id2) && $('#'+id2).parent().hasClass("ZP")) {
-            line.setAttributeNS(null, 'style', 'visibility:visible;');
+            // line.setAttributeNS(null, 'style', 'visibility:visible;');
         } else {
-            line.setAttributeNS(null, 'style', 'visibility:hidden;');
+            line.setAttributeNS(null, 'style', 'display:none;');
         }
         $('svg').append(line);
         return line;
