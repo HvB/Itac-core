@@ -42,8 +42,9 @@ class ArtifactView extends View {
                     } else {
                         // shape.setAttributeNS(null, 'x2', artifactTo.x + $target.width() / 2);
                         // shape.setAttributeNS(null, 'y2', artifactTo.y + $target.height() / 2);
-                        shape.setAttributeNS(null, 'x2', artifactTo.x );
-                        shape.setAttributeNS(null, 'y2', artifactTo.y );
+                        // a priori la fixation de x1/y1/x2/y2 est inutile -- elle est faite dans la mise a jour de l'artefact
+                        shape.setAttributeNS(null, 'x2', artifactTo.getX('px') );
+                        shape.setAttributeNS(null, 'y2', artifactTo.getY('px') );
                         shape.setAttributeNS(null, 'data-to', artifactTo.id);
                         $shape.attr('data-to', artifactTo.id);
                         $shape.removeClass('temporary');
@@ -359,8 +360,8 @@ class ArtifactView extends View {
                             }
                             // shape.setAttributeNS(null, 'x2', artifact.x + $artifact.width() / 2);
                             // shape.setAttributeNS(null, 'y2', artifact.y + $artifact.height() / 2);
-                            shape.setAttributeNS(null, 'x2', artifact.x );
-                            shape.setAttributeNS(null, 'y2', artifact.y );
+                            shape.setAttributeNS(null, 'x2', artifact.getX('px') );
+                            shape.setAttributeNS(null, 'y2', artifact.getY('px') );
                             shape.setAttributeNS(null, 'stroke', 'black');
                             shape.setAttributeNS(null, 'stroke-width', 3);
                             $('svg').append(shape);
@@ -403,11 +404,11 @@ class ArtifactView extends View {
                 let artifact = this._ZP.getArtifact(id1);
                 // let x1 = $element.offset().left + $element.width()/2;
                 // let y1 = $element.offset().top + $element.height()/2;
-                let x1 = artifact.x;
-                let y1 = artifact.y;
+                let x1 = artifact.getX('px');
+                let y1 = artifact.getY('px');
                 let id2 = null;
-                let x2 = artifact.x;
-                let y2 = artifact.y;
+                let x2 = x1;
+                let y2 = y1;
                 //ToDO:remove obsolete code
                 // this._createLine(event, $element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
                 let interaction = event.interaction;
