@@ -232,7 +232,7 @@ class ArtifactView extends View {
         }, {
             target: '.artifact.point',
             option: {
-                inertia: true,
+                inertia: false,
                 restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
                 autoScroll: true,
                 onstart: (function (event) {
