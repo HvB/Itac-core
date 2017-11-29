@@ -76,6 +76,81 @@ class Artifact {
         this.setChanged();
     }
 
+    getX(unit="px", refX=0) {
+        let h = window.innerHeight;
+        let w = window.innerWidth;
+        let val = this.x;
+        if (typeof refX === 'number') {
+            val -= refX;
+        } else if (refX == 'center') {
+            val -= w/2;
+        } else if (refX == 'right') {
+            val -= w;
+        }
+        switch(unit) {
+            case "px":
+                val += 'px';
+                break;
+            case "%":
+                val *= 100/w;
+                val += '%';
+                break;
+            case "vw":
+                val *= 100/w;
+                val += 'vw';
+                break;
+            case "vh":
+                val *= 100/h;
+                val += 'vh';
+                break;
+            default:
+                val += 'px';
+        }
+        return val;
+    }
+
+    getY(unit="px", refY=0) {
+        let h = window.innerHeight;
+        let w = window.innerWidth;
+        let val = this.y;
+        if (typeof refY === 'number') {
+            val -= refY;
+        } else if (refY == 'center') {
+            val -= h/2;
+        } else if (refY == 'bottom') {
+            val -= h;
+        }
+        switch(unit) {
+            case "px":
+                val += 'px';
+                break;
+            case "%":
+                val *= 100/h;
+                val += '%';
+                break;
+            case "vw":
+                val *= 100/w;
+                val += 'vw';
+                break;
+            case "vh":
+                val *= 100/h;
+                val += 'vh';
+                break;
+            default:
+                val += 'px';
+        }
+        return val;
+    }
+
+    getAngle(unit="deg", ref=0){
+        let val = this.angle;
+        if (typeof ref === 'number') {
+            val -= ref;
+        }
+        val +='deg'
+        return val;
+    }
+
     get scale() {
         return (this._scale * (1 + this._ds));
     }
