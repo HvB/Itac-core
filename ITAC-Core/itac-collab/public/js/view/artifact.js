@@ -231,7 +231,7 @@ class ArtifactView extends View {
                 }).bind(this)
             }
         }, {
-            target: '.artifact.point',
+            target: '.artifact.point.unpinned',
             option: {
                 inertia: false,
                 restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
@@ -279,7 +279,7 @@ class ArtifactView extends View {
                                 path: '/points/' + id,
                                 value: point.toJSON()
                             }]);
-                            let $point = $('.template .artifact.point').clone(),
+                            let $point = $('.template > .artifact.point').clone(),
                                 idZE = point.ZE, tool;
                             if (this._ZP.getZE(idZE)) tool = this._ZP.getZE(idZE).tool;
                             if (tool && !tool.point) {
@@ -369,6 +369,12 @@ class ArtifactView extends View {
                     }
                 }
             }).bind(this)
+        }, {
+            target: '.ZP > .artifact.point',
+            action: (function (event) {
+                let $artifact = $(event.currentTarget);
+                $artifact.toggleClass("pinned unpinned");
+            }).bind(this),
         }];
     }
 
@@ -411,6 +417,28 @@ class ArtifactView extends View {
                 let y2 = y1;
                 //ToDO:remove obsolete code
                 // this._createLine(event, $element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')));
+                let interaction = event.interaction;
+                let line = View.createLine(true, id1, x1, y1, id2, x2, y2);
+                if (!interaction.interacting()) {
+                    interaction.start({name: 'drag'}, interact('line'), line);
+                }
+            }).bind(this)
+        }];
+    }
+
+    _down() {
+        return [{
+            target: '.ZP > .artifact.point.pinned',
+            action: (function (event) {
+                console.log("down");
+                var $element = $(event.target);
+                let id1 = $element.attr('id');
+                let artifact = this._ZP.getArtifact(id1);
+                let x1 = artifact.getX('px');
+                let y1 = artifact.getY('px');
+                let id2 = null;
+                let x2 = x1;
+                let y2 = y1;
                 let interaction = event.interaction;
                 let line = View.createLine(true, id1, x1, y1, id2, x2, y2);
                 if (!interaction.interacting()) {

@@ -120,7 +120,7 @@ class Connection {
     _onZEConnection(login, idZE, idZEP, posAvatar) {
         console.log('PAGE : workspace.ejs -> Creation d une ZE =' + idZE + ' \n ZEP associee = ' + idZEP + '\n pour pseudo=' + login);
         var $element = $('.template .ZE').clone(),
-            $point = $('.template .artifact.point').clone(),
+            $point = $('.template > .artifact.point').clone(),
             nbZE = $('.ZP > .ZE').length;
         $('.ZP > .ZE').removeClass('n' + nbZE).addClass('n' + (nbZE + 1));
         $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
@@ -535,7 +535,7 @@ class ArtifactObserver {
         let idArtifact = artifact.id;
         let $element = $('#'+idArtifact);
         if ($element.length ==0 ) {
-            $element = $('.template .artifact.' + artifact.type).clone();
+            $element = $('.template > .artifact.' + artifact.type).clone();
             $element.attr('id', idArtifact);
         }
         $element.show();

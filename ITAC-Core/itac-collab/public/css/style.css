@@ -199,6 +199,9 @@ ul.menu li.send {
     border-radius: 20px;
     background-color: #ff0000;
 }
+.artifact.point.pinned {
+    background-color: #FFB6C1;
+}
 .ZP > .point {
     left:-10px;
     top:-10px;
