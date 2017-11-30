@@ -445,6 +445,24 @@ class ArtifactView extends View {
                     interaction.start({name: 'drag'}, interact('line'), line);
                 }
             }).bind(this)
+        },{
+            target: '.ZP > .artifact > .artifact.point.pinned',
+            action: (function (event) {
+                console.log("down");
+                var $element = $(event.target).parent();
+                let id1 = $element.attr('id');
+                let artifact = this._ZP.getArtifact(id1);
+                let x1 = artifact.getX('px');
+                let y1 = artifact.getY('px');
+                let id2 = null;
+                let x2 = x1;
+                let y2 = y1;
+                let interaction = event.interaction;
+                let line = View.createLine(true, id1, x1, y1, id2, x2, y2);
+                if (!interaction.interacting()) {
+                    interaction.start({name: 'drag'}, interact('line'), line);
+                }
+            }).bind(this)
         }];
     }
 }

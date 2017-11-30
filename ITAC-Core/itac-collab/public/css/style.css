@@ -206,6 +206,14 @@ ul.menu li.send {
     left:-10px;
     top:-10px;
 }
+.artifact > .artifact.point.pinned {
+    position:absolute;
+    left:0;
+    top:0;
+}
+.artifact.dropped > .point {
+    display:none;
+}
 .container .artifact.dropped {
     position: relative;
     float: left;
@@ -222,7 +230,6 @@ ul.menu li.send {
 .artifact.message.dropped p {
     display: none;
 }
-
 /*
     DROP STATE
 */
