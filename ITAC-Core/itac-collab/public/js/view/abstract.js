@@ -17,6 +17,9 @@ class View {
         for (var i = 0; i < this._hold().length; i++) {
             interact(this._hold()[i].target).on('hold', this._hold()[i].action);
         }
+        for (var i = 0; i < this._down().length; i++) {
+            interact(this._down()[i].target).on('down', this._down()[i].action);
+        }
     }
 
     _dropzone() {
@@ -36,6 +39,10 @@ class View {
     }
 
     _hold() {
+        return [];
+    }
+
+    _down() {
         return [];
     }
 
