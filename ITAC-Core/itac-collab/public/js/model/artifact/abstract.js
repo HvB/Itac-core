@@ -404,32 +404,65 @@ class ArtifactEvent {
     get source() {
         return this._source;
     }
-}
+};
 
 class ArtifactMoveEvent extends ArtifactEvent {
-    constructor(type, source) {
-        super(type, source);
+    constructor(source) {
+        super("ArtifactMoveEvent", source);
         this._position = source.position;
     }
 
     get position() {
         return this._position;
     }
-}
+};
 
-class ArtifactValueChangedEvent extends ArtifactEvent {
-    constructor(type, source) {
-        super(type, source);
-        this._position = source.position;
+class ArtifactPropertyValueChangedEvent extends ArtifactEvent {
+    constructor(type, source, modifications=[]) {
+        super("ArtifactPropertyValueChangedEvent", source);
+        this._modifications = modifications;
     }
 
-    get position() {
-        return this._position;
+    addModificaion(property, oldValue, newValue){
+         this._modifications.push({ property: property, old: oldValue, new: newValue });
     }
-    addModificaion(name, oldValue, newValue){
 
-    }
     get modifications (){
-
+        return this._modifications;
     }
-}
+};
+
+class ArtifactStatusEvent extends ArtifactEvent {
+    constructor(type, source, status) {
+        super("ArtifactStatusEvent", source);
+        this._position = source.position;
+        this._status = status;
+    }
+
+    get status() {
+        return this._status;
+    }
+};
+
+class ArtifactPropertyListChangedEvent extends ArtifactEvent {
+    constructor(type, source, op, property,  value) {
+        super("ArtifactPropertyListChangedEvent", source);
+        this._op = op;
+        tgis._property = property;
+        this._value = value;
+        this._property = property;
+    }
+
+    get op() {
+        return this._op;
+    }
+
+    get property() {
+        return this._property;
+    }
+
+    get value() {
+        return this._value;
+    }
+};
+
