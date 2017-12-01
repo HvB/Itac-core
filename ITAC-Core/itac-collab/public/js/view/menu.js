@@ -133,6 +133,8 @@ class MenuView extends View {
                     //     $('#' + this._ZP.background).show();
                     // }
                     this._ZP.background = artifact.id;
+                    // on annule le deplacement: on remet l'artefact a sa position de depart
+                    artifact.cancelMove();
                     //ToDo: remove obsolete code
                     // if (Object.keys(artifact.points).length === 0) {
                     //     this._connection.emitArtifactPartialUpdate(artifact.id, [{
