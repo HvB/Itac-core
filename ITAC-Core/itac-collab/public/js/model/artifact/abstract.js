@@ -128,6 +128,14 @@ class Artifact {
         // this._ds = 0;
         // this._da = 0;
     }
+    cancelMove(){
+        this._dx = 0;
+        this._dy = 0;
+        this._ds = 0;
+        this._da = 0;
+        this.setChanged();
+        this.notifyObservers("position");
+    }
     move (dx, dy, ds=0, da=0){
         this._dx += dx;
         this._dy += dy;
