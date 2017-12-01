@@ -134,6 +134,13 @@ class ZEView extends View {
                     $element.css('transform', 'translate(' + ZE.x + 'px, ' + ZE.y + 'px) rotate(' + ZE.angle + 'deg)');
                 }).bind(this)
             }
+        }, {
+            target: '.ZE .tool',
+            option: {
+                onstart: function (event) {
+                    event.stopPropagation();
+                }
+            }
         }];
     }
 
@@ -147,6 +154,11 @@ class ZEView extends View {
                 tool.opened ? $ZE.find('.tool').hide() : $ZE.find('.tool').show();
                 tool.toggle();
             }).bind(this)
+        }, {
+            target: '.ZE .tool',
+            action: (function (event) {
+                event.stopPropagation();
+             }).bind(this)
         }];
     }
 }
