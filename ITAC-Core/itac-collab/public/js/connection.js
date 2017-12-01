@@ -368,15 +368,18 @@ class ArtifactObserver {
         this._ZP = ZP;
         this._connection = connection;
         console.log("new ArtifactObserver");
-        console.log(this._ZP);
-        console.log(this._connection);
+        // console.log(this._ZP);
+        // console.log(this._connection);
     }
-    update (source, something) {
-        console.log("ArtifactObserver update "+something+ ' id '+source.id);
-        console.log(this._ZP);
-        console.log(this._connection);
+    update (source, event) {
+        if (event.type != "ArtifactMoveEvent") {
+            console.log("ArtifactObserver update " + event + ' id ' + source.id);
+            console.log(event);
+        }
+        // console.log(this._ZP);
+        // console.log(this._connection);
         let artifact = source;
-        if (something == "deleted") {
+        if (event.status == "deleted") {
             let idArtifact = artifact.id;
             this._ZP.removeArtifact(idArtifact);
             console.log("deleted "+idArtifact+" "+artifact.type+" - "+ARTIFACT_POINT);
@@ -402,7 +405,7 @@ class ArtifactObserver {
                 $link.remove();
             }.bind(this));
             $('line[data-to=' + idArtifact + ']').each(function (index, element) {
-                console.log("ArtifactObserver line"+something+ ' id '+idArtifact);
+                console.log("ArtifactObserver line"+event+ ' id '+idArtifact);
                 console.log(this._ZP);
                 console.log(this._connection);
                 let $link = $(element);
@@ -413,7 +416,7 @@ class ArtifactObserver {
                 $link.remove();
             }.bind(this));
             $('#'+idArtifact).remove();
-        } else if (something == "migrated"  || something == "hidden") {
+        } else if (event.status == "migrated"  || event.status == "hidden") {
             let idArtifact = artifact.id;
             console.log("ArtifactObserver");
             console.log(this._ZP);
@@ -431,17 +434,17 @@ class ArtifactObserver {
             }
             $('line[data-from=' + idArtifact + '], line[data-to=' + idArtifact + ']').hide();
             $('#'+idArtifact).remove();
-        } else if (something == "newInZP" || something == "newInZE") {
+        } else if (event.status == "newInZP" || event.status == "newInZE") {
             this._ZP.addArtifact(artifact);
             let $element = this._createArtifactView(artifact);
-            if (something == "newInZP"){
+            if (event.status == "newInZP"){
                 $('.ZP').append($element);
             } else {
                 $element.addClass('dropped').appendTo($('#' + artifact.ZE).find('.container'));
 
             }
         }
-        if (!something || something == "newInZE"  ||  something == "newInZP"  || something == "position") {
+        if (!event || event.status == "newInZE"  ||  event.status == "newInZP"  || event.type == "ArtifactMoveEvent") {
             let $element = $('#' + artifact.id);
             console.log("update id" + source.id + "elt : " + $element.attr('id') + "parent.class : " + $element.parent().hasClass("ZP"));
             if ($element && $element.parent().hasClass("ZP")) {
@@ -478,7 +481,7 @@ class ArtifactObserver {
                     }
                 }.bind(this));
             }
-        } else if (something == "background") {
+        } else if (event.status == "background") {
             console.log("background artifact: " + artifact.id + " " + artifact.isBackground);
             let $element = $('#' + artifact.id);
             if (artifact.isBackground) {

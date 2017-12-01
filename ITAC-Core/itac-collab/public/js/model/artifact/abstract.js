@@ -46,6 +46,7 @@ class Artifact {
         this._dy = 0;
         this._da = 0;
         this._ds = 0;
+        this._modifications = [];
     }
 
     get id() {
@@ -176,6 +177,7 @@ class Artifact {
     }
 
     set ZE(ZE) {
+        this._addModification("ZE", this.ZE, ZE);
         this._ZE = ZE;
         this.setChanged();
     }
@@ -200,13 +202,16 @@ class Artifact {
         if (! this._data.linksTo) this._data.linksTo = {};
         this._data.linksTo[linkTo] = linkTo;
         this.setChanged();
+        let event = new ArtifactPropertyListChangedEvent(this, "add", "linksTo", linkTo);
+        this.notifyObservers(event)  ;
     }
 
     removeLinkTo(linkTo) {
         if (this._data.linksTo) {
             delete this._data.linksTo[linkTo];
             this.setChanged();
-            this.notifyObservers("position")
+            let event = new ArtifactPropertyListChangedEvent(this, "remove", "linksTo", linkTo);
+            this.notifyObservers(event)  ;
         }
     }
 
@@ -244,13 +249,16 @@ class Artifact {
         this._da += da;
         this._ds += ds;
         this.setChanged();
-        this.notifyObservers("position");
+        let event =  new ArtifactMoveEvent(this);
+        this.notifyObservers(event);
     }
 
     setXY (x, y){
         this.x = x;
         this.y = y;
-        this.notifyObservers("position");
+        this.setChanged();
+        let event =  new ArtifactMoveEvent(this);
+        this.notifyObservers(event);
     }
 
     toJSON() {
@@ -287,8 +295,15 @@ class Artifact {
         this.y = position.y;
         this.angle = position.angle;
         this.scale = position.scale;
-        this.notifyObservers("position");
+        let event =  new ArtifactMoveEvent(this);
+        this.notifyObservers(event);
     }
+
+    _addModification(property, oldValue, newValue){
+        this._modifications.push({ property: property, old: oldValue, new: newValue });
+        this.setChanged();
+    }
+
     setChanged(){
         this._changed = true;
     }
@@ -297,37 +312,45 @@ class Artifact {
     }
     addObserver(observer){
         if (observer) {
+             let event = new ArtifactStatusEvent(this, this._status);
             this._observers.add(observer);
-            this._notifyObserver(observer, this._status);
+            this._notifyObserver(observer, event);
         }
     }
     removeObserver(observer){
         if (observer) this._observers.delete(observer);
     }
-    notifyObservers(something){
-        if (this._changed){
+    notifyObservers(event){
+        if (this._changed ){
             this.clearChanged();
-            this._observers.forEach((o) => {this._notifyObserver(o, something);});
+            this._observers.forEach((o) => {this._notifyObserver(o, event);});
+        }
+        if (this._modifications.length > 0 && event.type !== "ArtifactPropertyValueChangedEvent"){
+            let myEvent = new ArtifactPropertyValueChangedEvent(this, this._modifications);
+            this._modifications = [];
+            this._observers.forEach((o) => {this._notifyObserver(o, myEvent);});
         }
     }
-    _notifyObserver(observer, something){
+    _notifyObserver(observer, event){
         let source = this;
         if (observer && observer.update instanceof Function){
-            setTimeout(observer.update.bind(observer), 0, source, something);
+            setTimeout(observer.update.bind(observer), 0, source, event);
         }
     }
 
     delete(){
         this._status = "deleted";
         this.setChanged();
-        this.notifyObservers(this._status);
+        let event = new ArtifactStatusEvent(this, this._status);
+        this.notifyObservers(event);
         this._observers = {};
     }
 
     migrate(){
         this._status = "migrated";
         this.setChanged();
-        this.notifyObservers(this._status);
+        let event = new ArtifactStatusEvent(this, this._status);
+        this.notifyObservers(event);
         this._observers = {};
     }
 
@@ -335,20 +358,28 @@ class Artifact {
         if (visible) this._status = "newInZP";
         else  this._status = "hidden";
         this.setChanged();
-        this.notifyObservers(this._status)
+        let event = new ArtifactStatusEvent(this, this._status);
+        this.notifyObservers(event);
     }
 
     newInZE(){
-        this._status = "newInZE"
+        this._status = "newInZE";
+        this.setChanged();
+        let event = new ArtifactStatusEvent(this, this._status);
+        this.notifyObservers(event);
     }
 
     newInZP(){
-        this._status = "newInZP"
+        this._status = "newInZP";
+        this.setChanged();
+        let event = new ArtifactStatusEvent(this, this._status);
+        this.notifyObservers(event);
     }
 
     update(source, something){
     }
 }
+
 var jsonPositionProxyHandler = {
     defaultHeight: 1080,
     defaultWidth: 1920,
@@ -399,56 +430,50 @@ class ArtifactEvent {
         this._source = source;
     }
     get type() {
-        return _type;
+        return this._type;
     }
     get source() {
         return this._source;
     }
-};
+}
 
 class ArtifactMoveEvent extends ArtifactEvent {
     constructor(source) {
         super("ArtifactMoveEvent", source);
-        this._position = source.position;
     }
-
-    get position() {
-        return this._position;
-    }
-};
+}
 
 class ArtifactPropertyValueChangedEvent extends ArtifactEvent {
-    constructor(type, source, modifications=[]) {
+    constructor(source, modifications=[]) {
         super("ArtifactPropertyValueChangedEvent", source);
         this._modifications = modifications;
     }
 
-    addModificaion(property, oldValue, newValue){
+    addModification(property, oldValue, newValue){
          this._modifications.push({ property: property, old: oldValue, new: newValue });
     }
 
     get modifications (){
         return this._modifications;
     }
-};
+}
 
 class ArtifactStatusEvent extends ArtifactEvent {
-    constructor(type, source, status) {
+    constructor(source, status) {
         super("ArtifactStatusEvent", source);
-        this._position = source.position;
         this._status = status;
     }
 
     get status() {
         return this._status;
     }
-};
+}
 
 class ArtifactPropertyListChangedEvent extends ArtifactEvent {
-    constructor(type, source, op, property,  value) {
+    constructor(source, op, property,  value) {
         super("ArtifactPropertyListChangedEvent", source);
         this._op = op;
-        tgis._property = property;
+        this._property = property;
         this._value = value;
         this._property = property;
     }
@@ -464,5 +489,6 @@ class ArtifactPropertyListChangedEvent extends ArtifactEvent {
     get value() {
         return this._value;
     }
-};
+}
+
 
