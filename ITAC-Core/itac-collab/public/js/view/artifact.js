@@ -202,6 +202,7 @@ class ArtifactView extends View {
                 onend: (function (event) {
                     let id = $(event.target).attr('id');
                     let artifact = this._ZP.getArtifact(id);
+                    artifact.endMove();
                     if (artifact) {
                         this._connection.emitArtifactPartialUpdate(id, [{
                             op: 'add',
@@ -282,6 +283,7 @@ class ArtifactView extends View {
                         let id = $(event.target).attr('id');
                         let point = this._ZP.getArtifact(this._ZP.background).getPoint(id);
                         // let point = this._ZP.getArtifact(id);
+                        point.endMove();
                         if (point) {
                             this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
                                 op: 'add',
@@ -324,6 +326,7 @@ class ArtifactView extends View {
                 onend: (function (event) {
                     let id = $(event.target).attr('id');
                     let artifact = this._ZP.getArtifact(id);
+                    artifact.endMove();
                     if (artifact) {
                         this._connection.emitArtifactPartialUpdate(id, [{
                             op: 'add',
