@@ -192,6 +192,28 @@ class Artifact {
         return this._history;
     }
 
+    hasLinkTo(linkTo) {
+        return (this._data.linksTo && this._data.linksTo[linkTo]);
+    }
+
+    addLinkTo(linkTo) {
+        if (! this._data.linksTo) this._data.linksTo = {};
+        this._data.linksTo[linkTo] = linkTo;
+        this.setChanged();
+    }
+
+    removeLinkTo(linkTo) {
+        if (this._data.linksTo) {
+            delete this._data.linksTo[linkTo];
+            this.setChanged();
+            this.notifyObservers("position")
+        }
+    }
+
+    get linksTo (){
+        return this._data.linksTo;
+    }
+
     startMove(){
         this._x += this._dx;
         this._y += this._dy;
@@ -299,6 +321,13 @@ class Artifact {
         this.setChanged();
         this.notifyObservers(this._status);
         this._observers = {};
+    }
+
+    set visible(visible){
+        if (visible) this._status = "newInZP";
+        else  this._status = "hidden";
+        this.setChanged();
+        this.notifyObservers(this._status)
     }
 
     newInZE(){
