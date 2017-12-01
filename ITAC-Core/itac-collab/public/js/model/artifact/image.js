@@ -53,6 +53,7 @@ class Image extends Artifact {
         this._isBackground = isBackground;
         this.setChanged();
         this.notifyObservers("background");
+        this.visible = (! isBackground );
     }
     
     toJSON() {

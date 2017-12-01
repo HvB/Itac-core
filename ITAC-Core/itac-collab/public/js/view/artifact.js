@@ -34,12 +34,9 @@ class ArtifactView extends View {
                         artifactFrom = this._ZP.getArtifact($shape.attr('data-from')),
                         artifactTo = this._ZP.getArtifact($target.attr('id'));
                     console.log("source "+$shape.attr('data-from')+" drop "+$(event.target).attr('id'));
-                    if (!artifactFrom) {
-                        artifactFrom = this._ZP.getArtifact(this._ZP.background).getPoint($shape.attr('data-from'));
-                    }
-                    if (artifactFrom.hasLinkTo(artifactTo.id)) {
-                        $('line[data-from=' + artifactFrom.id + '].temporary').remove();
-                    } else {
+                    if (!artifactFrom || artifactFrom.hasLinkTo(artifactTo.id)) {
+                        $shape.remove();
+                    } else if (artifactFrom && artifactTo && artifactFrom != artifactTo ) {
                         // shape.setAttributeNS(null, 'x2', artifactTo.x + $target.width() / 2);
                         // shape.setAttributeNS(null, 'y2', artifactTo.y + $target.height() / 2);
                         // a priori la fixation de x1/y1/x2/y2 est inutile -- elle est faite dans la mise a jour de l'artefact
@@ -48,17 +45,29 @@ class ArtifactView extends View {
                         shape.setAttributeNS(null, 'data-to', artifactTo.id);
                         $shape.attr('data-to', artifactTo.id);
                         $shape.removeClass('temporary');
+                        let emptyLinksTo = artifactFrom.linksTo;
                         artifactFrom.addLinkTo(artifactTo.id);
                         // let imageId = this._ZP.background;
+                        let jsonPatchTargetId = artifactFrom.id;
+                        let jsonPatchPath;
+                        let jsonPatchValue;
+                        if (emptyLinksTo) {
+                            jsonPatchPath = '/linksTo/' + artifactTo.id;
+                            jsonPatchValue = artifactTo.id;
+                        } else {
+                            jsonPatchPath = '/linksTo';
+                            jsonPatchValue = artifactFrom.linksTo;
+                        }
                         if (artifactFrom.parent) {
-                            let imageId = artifactFrom.parent.id;
-                            if (artifactFrom && artifactTo && imageId) {
-                                this._connection.emitArtifactPartialUpdate(imageId, [{
-                                    op: 'add',
-                                    path: '/points/' + artifactFrom.id + '/linksTo/' + artifactTo.id,
-                                    value: artifactTo.id
-                                }]);
-                            }
+                            jsonPatchTargetId = artifactFrom.parent.id;
+                            jsonPatchPath = '/points/' + artifactFrom.id + jsonPatchPath;
+                        }
+                        if (artifactFrom && artifactTo && jsonPatchTargetId) {
+                            this._connection.emitArtifactPartialUpdate(jsonPatchTargetId, [{
+                                op: 'add',
+                                path: jsonPatchPath,
+                                value: jsonPatchValue
+                            }]);
                         }
                     }
                 }).bind(this),
@@ -441,6 +450,24 @@ class ArtifactView extends View {
                 let y2 = y1;
                 let interaction = event.interaction;
                 let line = View.createLine(true, id1, x1, y1, id2, x2, y2);
+                if (!interaction.interacting()) {
+                    interaction.start({name: 'drag'}, interact('line'), line);
+                }
+            }).bind(this)
+        },{
+            target: '.ZP > .artifact > .artifact.point.pinned',
+            action: (function (event) {
+                console.log("down");
+                var $element = $(event.target).parent();
+                let id1 = $element.attr('id');
+                let artifact = this._ZP.getArtifact(id1);
+                let x1 = artifact.getX('px');
+                let y1 = artifact.getY('px');
+                let id2 = null;
+                let x2 = x1;
+                let y2 = y1;
+                let interaction = event.interaction;
+                let line = View.createLine(true, id1, x1, y1, id2, x2, y2, "link");
                 if (!interaction.interacting()) {
                     interaction.start({name: 'drag'}, interact('line'), line);
                 }

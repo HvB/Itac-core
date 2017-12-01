@@ -418,7 +418,7 @@ class ArtifactObserver {
             console.log("ArtifactObserver");
             console.log(this._ZP);
             console.log(this._connection);
-            this._ZP.removeArtifact(idArtifact);
+            //this._ZP.removeArtifact(idArtifact);
             if (artifact.linksTo) {
                 for (let idTo in artifact.linksFrom){
                     $('line[data-from=' + idArtifact + '][data-to=' + idTo + ']').remove();
@@ -489,7 +489,7 @@ class ArtifactObserver {
                     }]);
                 }
                 $('.ZP > .point').remove();
-                $('line').remove();
+                $('line.annotation').remove();
                 this._connection.emitArtifactPartialUpdate(artifact.id, [{
                     op: 'add', path: '/isBackground', value: true
                 }]);
