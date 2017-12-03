@@ -254,9 +254,10 @@ class MenuView extends View {
             target: '.circleMenu-open .background',
             action: (function (event) {
                 $('.ZP > .point').remove();
-                this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
-                    op: 'add', path: '/isBackground', value: false
-                }]);
+                // ToDo: remove obsolete code
+                // this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
+                //     op: 'add', path: '/isBackground', value: false
+                // }]);
                 $('#' + this._ZP.background).show();
                 // $('.point[data-reference=' + this._ZP.background + ']').each(function (index, element) {
                 //     $('line[data-from=' + $(element).attr('id') + ']').hide();
