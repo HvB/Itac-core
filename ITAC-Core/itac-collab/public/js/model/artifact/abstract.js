@@ -16,7 +16,7 @@ class Artifact {
                 break;
             default:
                 // cas on cela ne rentre pas dans les categories précédentes
-                a = new Artifact(id, data, parent);
+                a = new Artifact(id, data.type, data, parent);
         }
         return a;
     }
@@ -199,10 +199,13 @@ class Artifact {
     }
 
     addLinkTo(linkTo) {
-        if (! this._data.linksTo) this._data.linksTo = {};
+        let empty = (! this._data.linksTo);
+        if (empty) {
+            this._data.linksTo = {};
+         }
         this._data.linksTo[linkTo] = linkTo;
         this.setChanged();
-        let event = new ArtifactPropertyListChangedEvent(this, "add", "linksTo", linkTo);
+        let event = new ArtifactPropertyListChangedEvent(this, "add", "linksTo", linkTo, linkTo, empty);
         this.notifyObservers(event)  ;
     }
 
@@ -228,20 +231,27 @@ class Artifact {
         this._dy = 0;
         this._ds = 0;
         this._da = 0;
+        this.setChanged();
+        let event =  new ArtifactStartMoveEvent(this);
+        this.notifyObservers(event);
     }
     endMove(){
         // this._dx = 0;
         // this._dy = 0;
         // this._ds = 0;
         // this._da = 0;
-    }
+        this.setChanged();
+        let event =  new ArtifactEndMoveEvent(this);
+        this.notifyObservers(event);
+   }
     cancelMove(){
         this._dx = 0;
         this._dy = 0;
         this._ds = 0;
         this._da = 0;
         this.setChanged();
-        this.notifyObservers("position");
+        let event =  new ArtifactCancelMoveEvent(this);
+        this.notifyObservers(event);
     }
     move (dx, dy, ds=0, da=0){
         this._dx += dx;
@@ -291,17 +301,21 @@ class Artifact {
     }
 
     set position (position){
-        this.x = position.x;
-        this.y = position.y;
-        this.angle = position.angle;
-        this.scale = position.scale;
-        let event =  new ArtifactMoveEvent(this);
-        this.notifyObservers(event);
+        if (position !== this.position) {
+            this.x = position.x;
+            this.y = position.y;
+            this.angle = position.angle;
+            this.scale = position.scale;
+            let event = new ArtifactMoveEvent(this);
+            this.notifyObservers(event);
+        }
     }
 
     _addModification(property, oldValue, newValue){
-        this._modifications.push({ property: property, old: oldValue, new: newValue });
-        this.setChanged();
+        if (oldValue !== newValue) {
+            this._modifications.push({property: property, old: oldValue, new: newValue});
+            this.setChanged();
+        }
     }
 
     setChanged(){
@@ -311,10 +325,12 @@ class Artifact {
         this._changed = false;
     }
     addObserver(observer){
+        console.log("artifact ("+this.id+") addObserver "+this._status + " obs: "+observer);
         if (observer) {
-             let event = new ArtifactStatusEvent(this, this._status);
+            // console.log("artifact ("+this.id+") addObserver "+this._status);
+            // let event = new ArtifactStatusEvent(this, this._status);
             this._observers.add(observer);
-            this._notifyObserver(observer, event);
+            // this._notifyObserver(observer, event);
         }
     }
     removeObserver(observer){
@@ -343,7 +359,7 @@ class Artifact {
         this.setChanged();
         let event = new ArtifactStatusEvent(this, this._status);
         this.notifyObservers(event);
-        this._observers = {};
+        this._observers.clear();
     }
 
     migrate(){
@@ -351,7 +367,7 @@ class Artifact {
         this.setChanged();
         let event = new ArtifactStatusEvent(this, this._status);
         this.notifyObservers(event);
-        this._observers = {};
+        this._observers.clear();
     }
 
     set visible(visible){
@@ -440,6 +456,35 @@ class ArtifactEvent {
 class ArtifactMoveEvent extends ArtifactEvent {
     constructor(source) {
         super("ArtifactMoveEvent", source);
+        this._jsonPosition = source.jsonPosition;
+        this._position = source.position;
+    }
+    get jsonPosition() {
+        return this._jsonPosition;
+    }
+    get position() {
+        return this._position;
+    }
+}
+
+class ArtifactEndMoveEvent extends ArtifactMoveEvent {
+    constructor(source) {
+        super(source);
+        this._type = "ArtifactEndMoveEvent";
+    }
+}
+
+class ArtifactStartMoveEvent extends ArtifactMoveEvent {
+    constructor(source) {
+        super(source);
+        this._type = "ArtifactStartMoveEvent";
+    }
+}
+
+class ArtifactCancelMoveEvent extends ArtifactMoveEvent {
+    constructor(source) {
+        super(source);
+        this._type = "ArtifactCancelMoveEvent";
     }
 }
 
@@ -448,11 +493,9 @@ class ArtifactPropertyValueChangedEvent extends ArtifactEvent {
         super("ArtifactPropertyValueChangedEvent", source);
         this._modifications = modifications;
     }
-
     addModification(property, oldValue, newValue){
          this._modifications.push({ property: property, old: oldValue, new: newValue });
     }
-
     get modifications (){
         return this._modifications;
     }
@@ -463,31 +506,35 @@ class ArtifactStatusEvent extends ArtifactEvent {
         super("ArtifactStatusEvent", source);
         this._status = status;
     }
-
     get status() {
         return this._status;
     }
 }
 
 class ArtifactPropertyListChangedEvent extends ArtifactEvent {
-    constructor(source, op, property,  value) {
+    constructor(source, op, property, key, value, empty=false) {
         super("ArtifactPropertyListChangedEvent", source);
         this._op = op;
         this._property = property;
+        this._key = key;
         this._value = value;
         this._property = property;
+        this._emptyList = empty;
     }
-
     get op() {
         return this._op;
     }
-
     get property() {
         return this._property;
     }
-
+    get key() {
+        return this._key;
+    }
     get value() {
         return this._value;
+    }
+    get emptyList() {
+        return this._emptyList;
     }
 }
 

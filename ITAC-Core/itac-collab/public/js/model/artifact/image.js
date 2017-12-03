@@ -15,7 +15,7 @@ class Image extends Artifact {
                 this._points[point] = Artifact.new(point, data.points[point], this);
             }
         }
-        this._isBackground = data.isBackground ?  data.isBackground : false;
+        this._isBackground = data.background;
     }
 
     get content() {
@@ -35,12 +35,13 @@ class Image extends Artifact {
     }
 
     addPoint(point) {
+        let empty = (Object.keys(this._points).length === 0)
         if (point) {
             this._points[point.id] = point;
             point.parent = this;
         }
         this.setChanged();
-        let event = new ArtifactPropertyListChangedEvent(this, "add", "points", point);
+        let event = new ArtifactPropertyListChangedEvent(this, "add", "points", point.id, point, empty);
         this.notifyObservers(event)  ;
     }
 
@@ -56,8 +57,8 @@ class Image extends Artifact {
     }
 
     set background(isBackground) {
-        this._isBackground = isBackground;
         this._addModification("background", this.isBackground, isBackground);
+        this._isBackground = isBackground;
         this.setChanged();
         let event = new ArtifactStatusEvent(this, "background");
         this.notifyObservers(event);

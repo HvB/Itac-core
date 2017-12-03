@@ -4,7 +4,6 @@
 class ArtifactView extends View {
     constructor(ZP, connection) {
         super(ZP, connection);
-        this._pointObserver = new PointObserver(ZP, connection);
     }
 
     _dropzone() {
@@ -45,30 +44,31 @@ class ArtifactView extends View {
                         shape.setAttributeNS(null, 'data-to', artifactTo.id);
                         $shape.attr('data-to', artifactTo.id);
                         $shape.removeClass('temporary');
-                        let emptyLinksTo = artifactFrom.linksTo;
                         artifactFrom.addLinkTo(artifactTo.id);
-                        // let imageId = this._ZP.background;
-                        let jsonPatchTargetId = artifactFrom.id;
-                        let jsonPatchPath;
-                        let jsonPatchValue;
-                        if (emptyLinksTo) {
-                            jsonPatchPath = '/linksTo/' + artifactTo.id;
-                            jsonPatchValue = artifactTo.id;
-                        } else {
-                            jsonPatchPath = '/linksTo';
-                            jsonPatchValue = artifactFrom.linksTo;
-                        }
-                        if (artifactFrom.parent) {
-                            jsonPatchTargetId = artifactFrom.parent.id;
-                            jsonPatchPath = '/points/' + artifactFrom.id + jsonPatchPath;
-                        }
-                        if (artifactFrom && artifactTo && jsonPatchTargetId) {
-                            this._connection.emitArtifactPartialUpdate(jsonPatchTargetId, [{
-                                op: 'add',
-                                path: jsonPatchPath,
-                                value: jsonPatchValue
-                            }]);
-                        }
+                        // ToDo: remove obsolete code
+                        // let emptyLinksTo = artifactFrom.linksTo;
+                        // // let imageId = this._ZP.background;
+                        // let jsonPatchTargetId = artifactFrom.id;
+                        // let jsonPatchPath;
+                        // let jsonPatchValue;
+                        // if (emptyLinksTo) {
+                        //     jsonPatchPath = '/linksTo/' + artifactTo.id;
+                        //     jsonPatchValue = artifactTo.id;
+                        // } else {
+                        //     jsonPatchPath = '/linksTo';
+                        //     jsonPatchValue = artifactFrom.linksTo;
+                        // }
+                        // if (artifactFrom.parent) {
+                        //     jsonPatchTargetId = artifactFrom.parent.id;
+                        //     jsonPatchPath = '/points/' + artifactFrom.id + jsonPatchPath;
+                        // }
+                        // if (artifactFrom && artifactTo && jsonPatchTargetId) {
+                        //     this._connection.emitArtifactPartialUpdate(jsonPatchTargetId, [{
+                        //         op: 'add',
+                        //         path: jsonPatchPath,
+                        //         value: jsonPatchValue
+                        //     }]);
+                        // }
                     }
                 }).bind(this),
                 ondropdeactivate: function (event) {
@@ -128,8 +128,8 @@ class ArtifactView extends View {
         let $element = $(event.target);
         let artifact = this._ZP.getArtifact($element.attr('id'));
         if ($element.hasClass('dropped')) {
-            let x = event.clientX0;
-            let y = event.clientY0;
+            let x = event.clientX;
+            let y = event.clientY;
             artifact.setXY(x,y);
         }
         artifact.startMove();
@@ -203,13 +203,14 @@ class ArtifactView extends View {
                     let id = $(event.target).attr('id');
                     let artifact = this._ZP.getArtifact(id);
                     artifact.endMove();
-                    if (artifact) {
-                        this._connection.emitArtifactPartialUpdate(id, [{
-                            op: 'add',
-                            path: '/position',
-                            value: artifact.jsonPosition
-                        }]);
-                    }
+                    // ToDo: remove obsolete code
+                    // if (artifact) {
+                    //     this._connection.emitArtifactPartialUpdate(id, [{
+                    //         op: 'add',
+                    //         path: '/position',
+                    //         value: artifact.jsonPosition
+                    //     }]);
+                    // }
                 }).bind(this)
             }
         }, {
@@ -233,11 +234,14 @@ class ArtifactView extends View {
                 }).bind(this),
                 onend: (function (event) {
                     let id = $(event.target).attr('id');
-                    this._connection.emitArtifactPartialUpdate(id, [{
-                        op: 'add',
-                        path: '/position',
-                        value: this._ZP.getArtifact(id).toJSON()['position']
-                    }]);
+                    let artifact = this._ZP.getArtifact(id);
+                    artifact.endMove();
+                    // ToDo: remove obsolete code
+                    // this._connection.emitArtifactPartialUpdate(id, [{
+                    //     op: 'add',
+                    //     path: '/position',
+                    //     value: this._ZP.getArtifact(id).toJSON()['position']
+                    // }]);
                 }).bind(this)
             }
         }, {
@@ -257,11 +261,16 @@ class ArtifactView extends View {
                             let point = tool.point;
                             this._ZP.getArtifact(this._ZP.background).addPoint(point);
                             this._ZP.addArtifact(point);
+                            this._startArtifact(event);
                             //let point = this._ZP.getArtifact(this._ZP.background).getPoint(tool.point.id);
                             point.visible = true;
                             tool.reset();
-                            let observer = this._pointObserver;
-                            setTimeout(()=>{point.addObserver(observer);});
+                            let observer1 = this._connection.pointObserver;
+                            let observer2 = this._connection.jsonPatchArtifactObserver;
+                            point.addObserver(observer1);
+                            point.addObserver(observer2);
+                            // setTimeout(()=>{point.addObserver(observer1);});
+                            // setTimeout(()=>{point.addObserver(observer2);});
                         }
                         // ToDo: remove obsolete code
                         //this._startArtifact($element, this._ZP.getArtifact(this._ZP.background).getPoint($element.attr('id')), event);
@@ -283,19 +292,20 @@ class ArtifactView extends View {
                         let id = $(event.target).attr('id');
                         let point = this._ZP.getArtifact(this._ZP.background).getPoint(id);
                         // let point = this._ZP.getArtifact(id);
-                        point.endMove();
                         if (point) {
-                            this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
-                                op: 'add',
-                                path: '/points/' + id,
-                                value: point.toJSON()
-                            }]);
+                            point.endMove();
+                            // ToDo: remove obsolete code
+                            // this._connection.emitArtifactPartialUpdate(this._ZP.background, [{
+                            //     op: 'add',
+                            //     path: '/points/' + id,
+                            //     value: point.toJSON()
+                            // }]);
                             let $point = $('.template > .artifact.point').clone(),
                                 idZE = point.ZE, tool;
                             if (this._ZP.getZE(idZE)) tool = this._ZP.getZE(idZE).tool;
                             if (tool && !tool.point) {
                                 tool.reload();
-                                $('.ZE#' + idZE + ' .tool').append($point.addClass('dropped'));
+                                $('.ZE#' + idZE + ' .tool').append($point.addClass('dropped unpinned').removeClass('pinned'));
                                 $point.attr('id', tool.point.id);
                             }
                         }
@@ -327,13 +337,14 @@ class ArtifactView extends View {
                     let id = $(event.target).attr('id');
                     let artifact = this._ZP.getArtifact(id);
                     artifact.endMove();
-                    if (artifact) {
-                        this._connection.emitArtifactPartialUpdate(id, [{
-                            op: 'add',
-                            path: '/position',
-                            value: artifact.toJSON()['position']
-                        }]);
-                    }
+                    // ToDo: remove obsolete code
+                    // if (artifact) {
+                    //     this._connection.emitArtifactPartialUpdate(id, [{
+                    //         op: 'add',
+                    //         path: '/position',
+                    //         value: artifact.toJSON()['position']
+                    //     }]);
+                    // }
                 }).bind(this)
             }
         }];

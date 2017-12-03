@@ -17,6 +17,17 @@ class Connection {
         this._socket.connect();
         this._artifactObserver = new ArtifactObserver(ZP, this);
         this._pointObserver = new PointObserver(ZP, this);
+        this._jsonPatchArtifactObserver = new JsonPatchArtifactObserver(ZP, this);
+    }
+
+    get artifactObserver() {
+        return this._artifactObserver;
+    }
+    get pointObserver() {
+        return this._pointObserver;
+    }
+    get jsonPatchArtifactObserver() {
+        return this._jsonPatchArtifactObserver;
     }
 
     /**
@@ -126,7 +137,7 @@ class Connection {
         $element.addClass('n' + (nbZE + 1)).addClass('ZE' + (nbZE + 1)).attr('id', idZE).appendTo('.ZP');
         $element.find('.login').text(login);
         $element.find('img').attr('id', 'avatar' + posAvatar);
-        $element.find('.tool').append($point.addClass('dropped')).hide();
+        $element.find('.tool').append($point.addClass('dropped unpinned').removeClass("pinned")).hide();
 
         var matrix = $element.css('transform'),
             angle = 0;
@@ -153,10 +164,12 @@ class Connection {
         }
         // let $element = $('.template .artifact.' + artifact.type).clone();
         artifact.addObserver(this._artifactObserver);
+        artifact.addObserver(this._jsonPatchArtifactObserver);
         if (artifact.points){
             for (var id in artifact.points){
                 //this._ZP.addArtifact(id, artifact.getPoint(id));
                 artifact.getPoint(id).addObserver(this._pointObserver);
+                artifact.getPoint(id).addObserver(this._jsonPatchArtifactObserver);
             }
         }
         // TODO: remove obsolete code
@@ -212,7 +225,7 @@ class Connection {
         var json = JSON.parse(data);
         console.log(json);
         this._ZP.getZE(idZE).addArtifact(json.id);
-        this._createArtifact(json, "ZE");
+        this._createArtifact(json, "ZE").newInZE();
         //this._createArtifact(json).addClass('dropped').appendTo($('#' + idZE).find('.container'));
     }
 
@@ -227,7 +240,7 @@ class Connection {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
         var json = JSON.parse(data);
         console.log(json);
-        this._createArtifact(json, "ZP");
+        this._createArtifact(json, "ZP").newInZP();
         //json.position = getRandomPositionInZP(json.position);
         //this._createArtifact(json).css('transform', 'translate(' + json.position.x + 'px, ' + json.position.y
         //     + 'px) scale(' + json.position.scale + ') rotate(' + json.position.angle + 'deg)').appendTo('.ZP');
@@ -368,16 +381,12 @@ class ArtifactObserver {
         this._ZP = ZP;
         this._connection = connection;
         console.log("new ArtifactObserver");
-        // console.log(this._ZP);
-        // console.log(this._connection);
     }
     update (source, event) {
         if (event.type != "ArtifactMoveEvent") {
             console.log("ArtifactObserver update " + event + ' id ' + source.id);
             console.log(event);
         }
-        // console.log(this._ZP);
-        // console.log(this._connection);
         let artifact = source;
         if (event.status == "deleted") {
             let idArtifact = artifact.id;
@@ -386,31 +395,21 @@ class ArtifactObserver {
             if (artifact.type !==  ARTIFACT_POINT) {
                 this._connection.emitRemovedArtifactInZP(idArtifact);
             } else {
-                if (artifact.parent) {
-                    this._connection.emitArtifactPartialUpdate(artifact.parent.id, [{
-                        op: 'remove',
-                        path: '/points/' + idArtifact
-                    }]);
-                }
-                // this._ZP.getArtifact(this._ZP.background).removePoint(idArtifact);
                 artifact.parent.removePoint(idArtifact);
 
             }
             $('line[data-from=' + idArtifact + ']').each(function (index, element) {
                 let $link = $(element);
                 let artifactTo = this._ZP.getArtifact($link.attr('data-to'));
-                if (artifactTo && artifact.removeLinkFrom instanceof Function) {
+                if (artifactTo && artifactTo.removeLinkFrom instanceof Function) {
                     artifactTo.removeLinkFrom(artifact);
                 }
                 $link.remove();
             }.bind(this));
             $('line[data-to=' + idArtifact + ']').each(function (index, element) {
-                console.log("ArtifactObserver line"+event+ ' id '+idArtifact);
-                console.log(this._ZP);
-                console.log(this._connection);
                 let $link = $(element);
                 let artifactFrom = this._ZP.getArtifact($link.attr('data-from'));
-                if (artifactFrom && artifact.removeLinkTo instanceof Function) {
+                if (artifactFrom && artifactFrom.removeLinkTo instanceof Function) {
                     artifactFrom.removeLinkTo(artifact);
                 }
                 $link.remove();
@@ -418,12 +417,9 @@ class ArtifactObserver {
             $('#'+idArtifact).remove();
         } else if (event.status == "migrated"  || event.status == "hidden") {
             let idArtifact = artifact.id;
-            console.log("ArtifactObserver");
-            console.log(this._ZP);
-            console.log(this._connection);
             //this._ZP.removeArtifact(idArtifact);
             if (artifact.linksTo) {
-                for (let idTo in artifact.linksFrom){
+                for (let idTo in artifact.linksTo){
                     $('line[data-from=' + idArtifact + '][data-to=' + idTo + ']').remove();
                 }
             }
@@ -438,8 +434,8 @@ class ArtifactObserver {
             this._ZP.addArtifact(artifact);
             let $element = this._createArtifactView(artifact);
             if (event.status == "newInZP"){
-                $('.ZP').append($element);
-            } else {
+                $element.appendTo('.ZP');
+             } else {
                 $element.addClass('dropped').appendTo($('#' + artifact.ZE).find('.container'));
 
             }
@@ -486,16 +482,8 @@ class ArtifactObserver {
             let $element = $('#' + artifact.id);
             if (artifact.isBackground) {
                 console.log("background artifact: " + artifact.id);
-                if (Object.keys(artifact.points).length === 0) {
-                    this._connection.emitArtifactPartialUpdate(artifact.id, [{
-                        op: 'add', path: '/points', value: {}
-                    }]);
-                }
                 $('.ZP > .point').remove();
                 $('line.annotation').remove();
-                this._connection.emitArtifactPartialUpdate(artifact.id, [{
-                    op: 'add', path: '/isBackground', value: true
-                }]);
                 $('#' + artifact.id).hide();
                 $('.ZP')
                     .css('background-image', $element.css('background-image'))
@@ -526,9 +514,6 @@ class ArtifactObserver {
                     // }
                 }
             } else {
-                this._connection.emitArtifactPartialUpdate(artifact.id, [{
-                    op: 'add', path: '/isBackground', value: false
-                }]);
                 $('#' + artifact.id).show();
             }
         }
@@ -630,7 +615,8 @@ class ArtifactObserver {
 class PointObserver extends ArtifactObserver {
     constructor(ZP, connection){
         super(ZP, connection);
-        console.log("new PointObserver");    }
+        // console.log("new PointObserver");
+    }
     // update (source, something) {
     //     let artifact = source;
     //     let $element = $('#'+artifact.id);
@@ -641,4 +627,80 @@ class PointObserver extends ArtifactObserver {
     //     }
     //
     // }
+}
+
+class JsonPatchArtifactObserver {
+    constructor(ZP, connection){
+        this._ZP = ZP;
+        this._connection = connection;
+    }
+    update (source, event) {
+        console.log('JsonPatchArtifactObserver update');
+        console.log(source);
+        console.log(event);
+        if (source && event) {
+            if (event.type === 'ArtifactEndMoveEvent') {
+                let jsonPatchTargetId = source.id;
+                let jsonPatchPath = '/position';
+                let jsonPatchValue = event.jsonPosition;
+                if (source.parent) {
+                    jsonPatchTargetId = source.parent.id;
+                    jsonPatchPath = '/points/' + source.id + jsonPatchPath;
+                }
+                if (jsonPatchTargetId) {
+                    this._connection.emitArtifactPartialUpdate(jsonPatchTargetId, [{
+                        op: 'add',
+                        path: jsonPatchPath,
+                        value: jsonPatchValue
+                    }]);
+                }
+            } else if (event.type === 'ArtifactPropertyValueChangedEvent') {
+                let jsonPatchTargetId = source.id;
+                let jsonPatchPath = '/';
+                if (source.parent) {
+                    jsonPatchTargetId = source.parent.id;
+                    jsonPatchPath = '/points/' + source.id + jsonPatchPath;
+                }
+                let modifications = event.modifications;
+                if (jsonPatchTargetId && modifications && modifications.length > 0) {
+                    let patch = [];
+                    for (let i in modifications){
+                        let modif = modifications[i];
+                        let path = jsonPatchPath + modif.property;
+                        let op = 'replace';
+                        if (modif.old !== undefined && modif.new === undefined) {
+                            op = 'remove';
+                        } else if (modif.old === undefined && modif.new !== undefined) {
+                            op = 'add'
+                        }
+                        patch.push({op: op, path: path, value: modif.new });
+                    }
+                    this._connection.emitArtifactPartialUpdate(jsonPatchTargetId, patch);
+                }
+            } else if (event.type === 'ArtifactPropertyListChangedEvent') {
+                let jsonPatchTargetId = source.id;
+                let jsonPatchPath = '/' + event.property;
+                let jsonPatchValue = event.value;
+                if (source.parent) {
+                    jsonPatchTargetId = source.parent.id;
+                    jsonPatchPath = '/points/' + source.id + jsonPatchPath;
+                }
+                if (! event.emptyList) {
+                    this._connection.emitArtifactPartialUpdate(jsonPatchTargetId, [{
+                        op: event.op,
+                        path: jsonPatchPath+ '/' + event.key,
+                        value: jsonPatchValue
+                    }]);
+                } else {
+                    let value = {};
+                    value[event.key] = event.value;
+                    this._connection.emitArtifactPartialUpdate(jsonPatchTargetId, [{
+                        op: event.op,
+                        path: jsonPatchPath,
+                        value: value
+                    }]);
+                }
+            }
+        }
+    }
 }
