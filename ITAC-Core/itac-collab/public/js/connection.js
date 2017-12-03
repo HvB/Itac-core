@@ -240,7 +240,51 @@ class Connection {
     _onAddedArtifactInZP(login, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
         var json = JSON.parse(data);
-        this._createArtifact(json, "ZP").newInZP();
+        // this._createArtifact(json, "ZP").newInZP();
+        this._createArtifact(json, "ZP");
+        let artifact = this._ZP.getArtifact(json.id);
+        // let artifact = Artifact.new(json.id, json);
+        let $element = this._artifactObserver._createArtifactView(artifact);
+        $element.css('z-index', Z_INDEX++);
+        let x = 0;
+        let y = 0;
+        if (artifact.ZE /* && ! artifact.isBackground */ ) {
+            let $source = $('#'+artifact.ZE+'.ZE');
+            let ZE =  this._ZP.getZE(artifact.ZE);
+            $element.css('transition', 'transform 500ms');
+            if ($source.length > 0) {
+                let offset = $source.offset();
+                let x = offset.left;
+                let y = offset.top;
+                let w = $source.width() ;
+                let h = $source.height() ;
+                let x1 = x + w/2;
+                let y1 = y + h/2;
+                //$element.css('transform', 'translate(' + x1 + 'px, ' + y1 + 'px) rotate(' + artifact.getAngle('deg') + ')');
+                $element.css('transform', 'translate(' + x1 + 'px, ' + y1 + 'px)').show();
+            } else {
+                let x = this._ZP.menu.x;
+                let y = this._ZP.menu.y;
+                //$element.css('transform', 'translate(200px, 50vh)');//, 'transition', 'transform 5s');
+                $element.css('transform', 'translateX(calc(50vw + ' + x + 'px)) translateY(calc(50vh + ' + y + 'px)) ').show();
+            }
+            $element.appendTo('.ZP')
+                .on('transitionend', (function(event){
+                    console.log('end transition');
+                    $element.css('transition', '').off('transitionend');
+                    artifact.newInZP();
+                }).bind(this));
+            setTimeout(()=>{$element.css('transform', 'translate(' + artifact.getX('px') +', '+ artifact.getY('px') + ') scale('
+                + artifact.scale + ') rotate(' + artifact.getAngle('deg') + ')');
+            });
+            setTimeout((function(){
+                $element.css('transition', '').off('transitionend');
+                artifact.newInZP();
+            }).bind(this),500);
+        } else {
+            this._createArtifact(artifact.toJSON(), "ZP");
+            artifact.newInZP();
+        }
         //json.position = getRandomPositionInZP(json.position);
         //this._createArtifact(json).css('transform', 'translate(' + json.position.x + 'px, ' + json.position.y
         //     + 'px) scale(' + json.position.scale + ') rotate(' + json.position.angle + 'deg)').appendTo('.ZP');
