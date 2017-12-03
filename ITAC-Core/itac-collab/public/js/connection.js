@@ -375,7 +375,6 @@ class Connection {
     }
 }
 
-
 class ArtifactObserver {
     constructor(ZP, connection){
         this._ZP = ZP;
@@ -383,12 +382,13 @@ class ArtifactObserver {
         console.log("new ArtifactObserver");
     }
     update (source, event) {
-        if (event.type != "ArtifactMoveEvent") {
-            console.log("ArtifactObserver update " + event + ' id ' + source.id);
-            console.log(event);
-        }
+        console.log("ArtifactObserver update " + event + ' id ' + source.id);
+        console.log(source);
+        console.log(event);
+        console.log("ArtifactObserver status: " + event.status);
         let artifact = source;
         if (event.status == "deleted") {
+            console.log("ArtifactObserver status: " + event.status);
             let idArtifact = artifact.id;
             this._ZP.removeArtifact(idArtifact);
             console.log("deleted "+idArtifact+" "+artifact.type+" - "+ARTIFACT_POINT);
@@ -496,22 +496,6 @@ class ArtifactObserver {
                     console.log("background display point: " + id);
                     let point = artifact.getPoint(id);
                     point.visible = true;
-                    //ToDo: remove obsolet code
-                    // $('.ZP').append($point);
-                    // $point.attr('id', id);
-                    // $point.css('transform', 'translate(' + point.x + 'px, ' + point.y + 'px)');
-                    // let x1 = $point.offset().left + $point.width()/2;
-                    // let y1 = $point.offset().top + $point.height()/2;
-                    // let id1 = id;
-                    // for (let artId in point.linksTo){
-                    //     console.log("artifact id : "+artId);
-                    //     let $art=$('#'+artId), id2=artId, x2=x1, y2=y1;
-                    //     if ($art && $art.offset()) {
-                    //         x2 = $art.offset().left + $art.width()/2;
-                    //         y2 = $art.offset().top + $art.height()/2;
-                    //     }
-                    //     let line = View.createLine(false, id1, x1, y1, id2, x2, y2);
-                    // }
                 }
             } else {
                 $('#' + artifact.id).show();
@@ -586,14 +570,6 @@ class ArtifactObserver {
                         .css('background-repeat', 'no-repeat')
                         .css('background-size', 'contain, cover')
                         .addClass('background');
-                    for (var id in artifact.points) {
-                        let point = artifact.getPoint(id);
-                        // var $point = $('.template .artifact.point').clone(),
-                        //     point = artifact.getPoint(id);
-                        // $('.ZP').append($point);
-                        // $point.attr('id', id);
-                        // $point.css('transform', 'translate(' + point.x + 'px, ' + point.y + 'px)');
-                    }
                 }
         }
         $element.find('.historic .creator').text(artifact.creator);
