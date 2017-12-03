@@ -30,12 +30,12 @@ class ZPView extends View {
                 ondragleave: function (event) {
                     // $(event.target).removeClass('drop-target');
                     $(event.relatedTarget).removeClass('can-drop');
-                    $(event.relatedTarget).addClass('artifact');
+                    // $(event.relatedTarget).addClass('artifact');
                 },
 
                 ondrop: function (event) {
                     $(event.relatedTarget).removeClass('can-drop');
-                    $(event.relatedTarget).addClass('artifact');
+                    // $(event.relatedTarget).addClass('artifact');
                 },
 
                 ondropdeactivate: function (event) {
