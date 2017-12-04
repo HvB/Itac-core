@@ -157,11 +157,11 @@ class Connection {
     _createArtifact(json, container = "ZP") {
         this._ZP.addArtifactFromJson(json.id, json);
         let artifact = this._ZP.getArtifact(json.id);
-        if (container == "ZP"){
-            artifact.newInZP();
-        } else {
-            artifact.newInZE();
-        }
+        // if (container == "ZP"){
+        //     artifact.newInZP();
+        // } else {
+        //     artifact.newInZE();
+        // }
         // let $element = $('.template .artifact.' + artifact.type).clone();
         artifact.addObserver(this._artifactObserver);
         artifact.addObserver(this._jsonPatchArtifactObserver);
@@ -223,7 +223,6 @@ class Connection {
     _onAddedArtifactInZE(login, idZE, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZE= ' + idZE + ' et pseudo=' + login);
         var json = JSON.parse(data);
-        console.log(json);
         this._ZP.getZE(idZE).addArtifact(json.id);
         this._createArtifact(json, "ZE").newInZE();
         //this._createArtifact(json).addClass('dropped').appendTo($('#' + idZE).find('.container'));
@@ -239,7 +238,6 @@ class Connection {
     _onAddedArtifactInZP(login, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
         var json = JSON.parse(data);
-        console.log(json);
         this._createArtifact(json, "ZP").newInZP();
         //json.position = getRandomPositionInZP(json.position);
         //this._createArtifact(json).css('transform', 'translate(' + json.position.x + 'px, ' + json.position.y
@@ -382,10 +380,7 @@ class ArtifactObserver {
         console.log("new ArtifactObserver");
     }
     update (source, event) {
-        console.log("ArtifactObserver update " + event + ' id ' + source.id);
-        console.log(source);
-        console.log(event);
-        console.log("ArtifactObserver status: " + event.status);
+        console.log('ArtifactObserver update  - artifact id: '+ source.id + 'event.type: ' + event.type);
         let artifact = source;
         if (event.status == "deleted") {
             console.log("ArtifactObserver status: " + event.status);
@@ -396,7 +391,6 @@ class ArtifactObserver {
                 this._connection.emitRemovedArtifactInZP(idArtifact);
             } else {
                 artifact.parent.removePoint(idArtifact);
-
             }
             $('line[data-from=' + idArtifact + ']').each(function (index, element) {
                 let $link = $(element);
@@ -435,15 +429,19 @@ class ArtifactObserver {
             let $element = this._createArtifactView(artifact);
             if (event.status == "newInZP"){
                 $element.appendTo('.ZP');
-             } else {
+                $element.show();
+                if (artifact.isBackground) {
+                    this._ZP.background = artifact.id;
+                }
+            } else {
                 $element.addClass('dropped').appendTo($('#' + artifact.ZE).find('.container'));
-
+                $element.show();
             }
         }
         if (!event || event.status == "newInZE"  ||  event.status == "newInZP"  || event.type == "ArtifactMoveEvent") {
             let $element = $('#' + artifact.id);
             console.log("update id" + source.id + "elt : " + $element.attr('id') + "parent.class : " + $element.parent().hasClass("ZP"));
-            if ($element && $element.parent().hasClass("ZP")) {
+            if ($element.parent().hasClass("ZP")) {
                 // $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
                 //     + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
                 $element.css('transform', 'translate(' + artifact.getX('px') +', '+ artifact.getY('px') + ') scale('
@@ -484,106 +482,74 @@ class ArtifactObserver {
                 console.log("background artifact: " + artifact.id);
                 $('.ZP > .point').remove();
                 $('line.annotation').remove();
-                $('#' + artifact.id).hide();
                 $('.ZP')
                     .css('background-image', $element.css('background-image'))
                     .css('background-position', 'center')
                     .css('background-repeat', 'no-repeat')
                     .css('background-size', 'contain, cover')
                     .addClass('background');
-                for (let id in artifact.points) {
-                    // let $point = $('.template .artifact.point').clone();
-                    console.log("background display point: " + id);
-                    let point = artifact.getPoint(id);
-                    point.visible = true;
-                }
-            } else {
-                $('#' + artifact.id).show();
             }
         }
     }
 
     _createArtifactView(artifact){
+        // on verifie que l'artefact est bien visible - sinon on le replace
+        let position = getRandomPositionInZP(artifact.position);
+        artifact.position = position;
         let idArtifact = artifact.id;
         let $element = $('#'+idArtifact);
         if ($element.length ==0 ) {
+            console.log("creation de la vue pour l'artifact: " + idArtifact + '(' + artifact.type + ')');
             $element = $('.template > .artifact.' + artifact.type).clone();
             $element.attr('id', idArtifact);
-        }
-        $element.show();
-        console.log("new artifact: " + idArtifact);
-        let position = getRandomPositionInZP(artifact.position);
-        artifact.position = position;
-            //this._createArtifact(json).css('transform', 'translate(' + json.position.x + 'px, ' + json.position.y
-        //     + 'px) scale(' + json.position.scale + ') rotate(' + json.position.angle + 'deg)').appendTo('.ZP');
-        // $element.css('transform', 'translate(' + position.x + 'px, ' + position.y + 'px) scale('
-        //     + position.scale + ') rotate(' + position.angle + 'deg)');
-        // $element.show();
-        // let x1 = $element.offset().left + $element.width() / 2;
-        // let y1 = $element.offset().top + $element.height() / 2;
-        let x1 = artifact.getX("px");
-        let y1 = artifact.getY("px");
-        let id1 = idArtifact;
-        for (let artId in artifact.linksTo) {
-            console.log("artifact To : " + artId);
-            // let $art = $('#' + artId), id2 = artId, x2 = x1, y2 = y1;
-            // if ($art && $art.offset()) {
-            //     x2 = $art.offset().left + $art.width() / 2;
-            //     y2 = $art.offset().top + $art.height() / 2;
-            // }
-            let id2 = artId, x2 = x1, y2 = y1;
-            let artifactTo = this._ZP.getArtifact(artId);
-            if (artifactTo) {
-                x2 = artifactTo.getX('px');
-                y2 = artifactTo.getY('px');
-            }
-            let line = View.createLine(false, id1, x1, y1, id2, x2, y2, (artifact.parent ? "annotation" : "link"));
-        }
-        for (let artId in artifact.linksFrom) {
-            console.log("artifact From : " + artId);
-            //let $art = $('#' + artId), id2 = artId, x2 = x1, y2 = y1;
-            // if ($art && $art.offset()) {
-            //     x2 = $art.offset().left + $art.width() / 2;
-            //     y2 = $art.offset().top + $art.height() / 2;
-            // }
-            let id2 = artId, x2 = x1, y2 = y1;
-            let artifactFrom = this._ZP.getArtifact(artId);
-            if (artifactFrom) {
-                x2 = artifactFrom.getX('px');
-                y2 = artifactFrom.getY('px');
-            }
-            let line = View.createLine(false, id2, x2, y2, id1, x1, y1, (artifact.parent ? "annotation" : "link"));
-        }
-        switch (artifact.type) {
-            case ARTIFACT_MESSAGE:
-                $element.find('h1').text(artifact.title);
-                $element.find('p').first().text(artifact.content);
-                break;
-            case ARTIFACT_IMAGE:
-                $element.css('background-image', 'url(' + artifact.content + ')');
-                if (artifact.isBackground) {
-                    this._ZP.background = artifact.id;
-                    $element.hide();
-                    $('.ZP')
-                        .css('background-image', $element.css('background-image'))
-                        .css('background-position', 'center')
-                        .css('background-repeat', 'no-repeat')
-                        .css('background-size', 'contain, cover')
-                        .addClass('background');
+            // creation des vues pour les liens de l'artefact
+            let x1 = artifact.getX("px");
+            let y1 = artifact.getY("px");
+            let id1 = idArtifact;
+            // liens sortants
+            for (let artId in artifact.linksTo) {
+                let id2 = artId, x2 = x1, y2 = y1;
+                let artifactTo = this._ZP.getArtifact(artId);
+                if (artifactTo) {
+                    x2 = artifactTo.getX('px');
+                    y2 = artifactTo.getY('px');
                 }
+                let line = View.createLine(false, id1, x1, y1, id2, x2, y2, (artifact.parent ? "annotation" : "link"));
+            }
+            // liens entrants
+            for (let artId in artifact.linksFrom) {
+                let id2 = artId, x2 = x1, y2 = y1;
+                let artifactFrom = this._ZP.getArtifact(artId);
+                if (artifactFrom) {
+                    x2 = artifactFrom.getX('px');
+                    y2 = artifactFrom.getY('px');
+                }
+                let line = View.createLine(false, id2, x2, y2, id1, x1, y1, (artifact.parent ? "annotation" : "link"));
+            }
+            // contenu de l'artefact
+            switch (artifact.type) {
+                case ARTIFACT_MESSAGE:
+                    $element.find('h1').text(artifact.title);
+                    $element.find('p').first().text(artifact.content);
+                    break;
+                case ARTIFACT_IMAGE:
+                    $element.css('background-image', 'url(' + artifact.content + ')');
+            }
+            // generation de l'historique
+            $element.find('.historic .creator').text(artifact.creator);
+            $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
+            $element.find('.historic .owner').text(artifact.owner);
+            var $temp = $element.find('.historic .modification');
+            for (var i = 0; i < artifact.history.length; i++) {
+                var $clone = $temp.clone();
+                $clone.find('.modifier').text(artifact.history[i].user);
+                $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
+                $element.find('.historic').append($clone);
+            }
+            $temp.remove();
+            $element.attr('id', artifact.id);
+            $element.hide();
         }
-        $element.find('.historic .creator').text(artifact.creator);
-        $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
-        $element.find('.historic .owner').text(artifact.owner);
-        var $temp = $element.find('.historic .modification');
-        for (var i = 0; i < artifact.history.length; i++) {
-            var $clone = $temp.clone();
-            $clone.find('.modifier').text(artifact.history[i].user);
-            $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
-            $element.find('.historic').append($clone);
-        }
-        $temp.remove();
-        $element.attr('id', artifact.id);
         return $element;
     }
 }
@@ -591,18 +557,7 @@ class ArtifactObserver {
 class PointObserver extends ArtifactObserver {
     constructor(ZP, connection){
         super(ZP, connection);
-        // console.log("new PointObserver");
     }
-    // update (source, something) {
-    //     let artifact = source;
-    //     let $element = $('#'+artifact.id);
-    //     console.log("update id"+source.id + "elt : " +$element.attr('id') + "parent.class : " + $element.parent().hasClass("ZP"));
-    //     if ($element && $element.parent().hasClass("ZP")) {
-    //         $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
-    //             + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
-    //     }
-    //
-    // }
 }
 
 class JsonPatchArtifactObserver {
@@ -611,9 +566,7 @@ class JsonPatchArtifactObserver {
         this._connection = connection;
     }
     update (source, event) {
-        console.log('JsonPatchArtifactObserver update');
-        console.log(source);
-        console.log(event);
+        console.log('JsonPatchArtifactObserver update - artifact id: '+ source.id + 'event.type: ' + event.type);
         if (source && event) {
             if (event.type === 'ArtifactEndMoveEvent') {
                 let jsonPatchTargetId = source.id;

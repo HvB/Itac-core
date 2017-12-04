@@ -325,7 +325,6 @@ class Artifact {
         this._changed = false;
     }
     addObserver(observer){
-        console.log("artifact ("+this.id+") addObserver "+this._status + " obs: "+observer);
         if (observer) {
             // console.log("artifact ("+this.id+") addObserver "+this._status);
             // let event = new ArtifactStatusEvent(this, this._status);
