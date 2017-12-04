@@ -20,7 +20,6 @@ class Point extends Artifact {
 
     toJSON() {
         var object = super.toJSON();
-        object['linksTo'] = this._linksTo;
         return object;
     }
 }
