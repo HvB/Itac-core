@@ -50,7 +50,7 @@ var putInFront = function ($element) {
 var getRandomPositionInZP = function (position) {
     var width = $(window).width(),
         height = $(window).height();
-    if (position && position.x >= 0 && position.x < width && position.y >= 0 && position.y < height) {
+    if (position && position.x > 0 && position.x < width && position.y > 0 && position.y < height) {
         return position;
     } else {
         var $artifact = $('.template .artifact.message').clone();
