@@ -158,6 +158,10 @@ ul.menu li.send {
     top:-75px;
 }
 
+.ZP > .artifact.newInZP {
+    transition: transform 500ms;
+}
+
 .artifact .historic {
     display: none;
     position: absolute;
