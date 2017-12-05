@@ -2,27 +2,43 @@ class Link extends Artifact {
     constructor(id, data) {
         super(id, ARTIFACT_LINK, data);
         this._title = data && data.title ? data.title : '';
-        this._linksTo = data && data.linksTo ? data.linksTo : [];
-        this._linksFrom = data && data.linksFrom ? data.linksFrom : [];
     }
 
     get title() {
         return this._title;
     }
 
-    get linksTo() {
-        return this._linksTo;
+    get linksFrom (){
+        return this._data.linksFrom;
     }
 
-    get linksFrom() {
-        return this._linksFrom;
+    hasLinkFrom(linkFrom) {
+        return (this._data.linksFrom && this._data.linksFrom[linkFrom]);
+    }
+
+    addLinkFrom(linkFrom) {
+        let empty = (! this._data.linksFrom);
+        if (empty) {
+            this._data.linksFrom = {};
+        }
+        this._data.linksFrom[linkFrom] = linkFrom;
+        this.setChanged();
+        let event = new ArtifactPropertyListChangedEvent(this, "add", "linksFrom", linkFrom, linkFrom, empty);
+        this.notifyObservers(event)  ;
+    }
+
+    removeLinkfrom(linksFrom) {
+        if (this._data.linksTo) {
+            delete this._data.linksTo[linksFrom];
+            this.setChanged();
+            let event = new ArtifactPropertyListChangedEvent(this, "remove", "linksFrom", linkFrom);
+            this.notifyObservers(event)  ;
+        }
     }
 
     toJSON() {
         var object = super.toJSON();
         object['title'] = this._title;
-        object['linksTo'] = this._linksTo;
-        object['linksFrom'] = this._linksFrom;
         return object;
     }
 }
