@@ -397,6 +397,7 @@ class Artifact {
     }
 }
 
+//ToDo: deplacer le proxy ailleurs ?
 var jsonPositionProxyHandler = {
     defaultHeight: 1080,
     defaultWidth: 1920,
@@ -441,6 +442,7 @@ var jsonPositionProxyHandler = {
     }
 };
 
+//ToDo: deplacer les ArtefactEvent ailleurs ?
 class ArtifactEvent {
     constructor(type, source) {
         this._type = type;

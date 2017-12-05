@@ -12,6 +12,7 @@ class ArtifactView extends View {
             option: {
                 accept: 'line',
                 ondropactivate: (function (event) {
+                    //ToDo: verifier si on peut supprimer cette partie
                     // var artifactId = $(event.relatedTarget).attr('data-from');
                     // if ($('#' + artifactId).is('.message', '.image')) {
                     // var artifact = this._ZP.getArtifact(artifactId);
@@ -20,10 +21,12 @@ class ArtifactView extends View {
                     // }
                 }).bind(this),
                 ondragenter: function (event) {
+                    //ToDo: verifier si on peut supprimer cette partie
                     // console.log($(event.target));
                     // $(event.target).not('#' + $(event.relatedTarget).attr('data-from')).addClass('drop-target');
                 },
                 ondragleave: function (event) {
+                    //ToDo: verifier si on peut supprimer cette partie
                     // $(event.target).removeClass('drop-target');
                 },
                 ondrop: (function (event) {
@@ -36,6 +39,7 @@ class ArtifactView extends View {
                     if (!artifactFrom || artifactFrom.hasLinkTo(artifactTo.id)) {
                         $shape.remove();
                     } else if (artifactFrom && artifactTo && artifactFrom != artifactTo ) {
+                        //ToDo: verifier si on peut supprimer cette partie
                         // a priori la fixation de x1/y1/x2/y2 est inutile -- elle est faite dans la mise a jour de l'artefact
                         shape.setAttributeNS(null, 'x2', artifactTo.getX('px') );
                         shape.setAttributeNS(null, 'y2', artifactTo.getY('px') );
@@ -46,6 +50,7 @@ class ArtifactView extends View {
                     }
                 }).bind(this),
                 ondropdeactivate: function (event) {
+                    //ToDo: verifier si on peut supprimer cette partie
                     // var artifactId = $(event.relatedTarget).attr('data-to');
                     // var $shape = $(event.relatedTarget);
                     // $(event.target).removeClass('drop-active drop-target');
@@ -55,6 +60,7 @@ class ArtifactView extends View {
                 }
             }
         }, {
+            //ToDo: verifier si on peut supprimer cette partie
             target: '.ZP > .artifact.point',
             option: {
                 accept: 'line',
@@ -166,13 +172,13 @@ class ArtifactView extends View {
                         if ($element.hasClass('dropped')) {
                             let idZE = $element.parents('.ZE').attr('id');
                             let tool = this._ZP.getZE(idZE).tool;
+                            //ToDo: verifier si il faut supprimer ce code
                             // tool.point.ZE = idZE;
                             // this._ZP.getArtifact(this._ZP.background).addPoint(tool.point.id, tool.point.toJSON());
                             let point = tool.point;
                             this._ZP.getArtifact(this._ZP.background).addPoint(point);
                             this._ZP.addArtifact(point);
                             this._startArtifact(event);
-                            //let point = this._ZP.getArtifact(this._ZP.background).getPoint(tool.point.id);
                             point.visible = true;
                             tool.reset();
                             let observer1 = this._connection.pointObserver;
@@ -241,6 +247,7 @@ class ArtifactView extends View {
 
     _tap() {
         return [{
+            //ToDo: verifier si on doit supprimer cette partie (cf. reunion du 29/11/2017)
             target: '.ZP > .artifact.message, .ZP > .artifact.image',
             action: (function (event) {
                 let $artifact = $(event.currentTarget);

@@ -361,6 +361,7 @@ class Connection {
     }
 }
 
+//ToDo: deplacer les ArtefactObserver ailleurs ?
 class ArtifactObserver {
     constructor(ZP, connection){
         this._ZP = ZP;
@@ -474,6 +475,7 @@ class ArtifactObserver {
         }
     }
 
+    //ToDo: deplacer cette methode a un meilleur endroit (View ?)
     _createArtifactView(artifact){
         // on verifie que l'artefact est bien visible - sinon on le replace
         let position = getRandomPositionInZP(artifact.position);
@@ -536,12 +538,14 @@ class ArtifactObserver {
     }
 }
 
+//ToDo: deplacer les ArtefactObserver ailleurs ?
 class PointObserver extends ArtifactObserver {
     constructor(ZP, connection){
         super(ZP, connection);
     }
 }
 
+//ToDo: deplacer les ArtefactObserver ailleurs ?
 class JsonPatchArtifactObserver {
     constructor(ZP, connection){
         this._ZP = ZP;
