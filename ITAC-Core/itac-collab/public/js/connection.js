@@ -18,6 +18,7 @@ class Connection {
         this._artifactObserver = new ArtifactObserver(ZP, this);
         this._pointObserver = new PointObserver(ZP, this);
         this._jsonPatchArtifactObserver = new JsonPatchArtifactObserver(ZP, this);
+        this._animations = false;
     }
 
     get artifactObserver() {
@@ -110,6 +111,9 @@ class Connection {
 
         console.log('Zone collaborative active : ' + ZC.idZC + '\n\nBienvenue sur l\'Espace de Partage :' + this._ZP.id + '\n\n');
         console.log('PAGE : workspace.ejs -> reception evenement [EVT_ReponseOKConnexionZA] pour ZP= ' + this._ZP.id);
+
+        // on attends un peu avant d'accepter les animations lors de l'arrivee des artefacts
+        setTimeout(()=> { this._animations = true;}, 10000);
     }
 
     /**
@@ -240,54 +244,38 @@ class Connection {
     _onAddedArtifactInZP(login, idZP, data) {
         console.log('PAGE : workspace.ejs -> reception artefact pour ZP= ' + idZP + ' et pseudo=' + login);
         var json = JSON.parse(data);
-        // this._createArtifact(json, "ZP").newInZP();
         this._createArtifact(json, "ZP");
         let artifact = this._ZP.getArtifact(json.id);
-        // let artifact = Artifact.new(json.id, json);
         let $element = this._artifactObserver._createArtifactView(artifact);
         $element.css('z-index', Z_INDEX++);
         let x = 0;
         let y = 0;
-        if (artifact.ZE /* && ! artifact.isBackground */ ) {
+        if (this._animations && artifact.ZE /* && ! artifact.isBackground */ ) {
             let $source = $('#'+artifact.ZE+'.ZE');
             let ZE =  this._ZP.getZE(artifact.ZE);
-            $element.css('transition', 'transform 500ms');
+            $element.addClass('newInZP');
             if ($source.length > 0) {
-                let offset = $source.offset();
-                let x = offset.left;
-                let y = offset.top;
-                let w = $source.width() ;
-                let h = $source.height() ;
-                let x1 = x + w/2;
-                let y1 = y + h/2;
-                //$element.css('transform', 'translate(' + x1 + 'px, ' + y1 + 'px) rotate(' + artifact.getAngle('deg') + ')');
-                $element.css('transform', 'translate(' + x1 + 'px, ' + y1 + 'px)').show();
+                let x1 = 'calc( '+ $source.css('left') + ' + ' + ZE.x + 'px + ' + $source.width()/2 + 'px)';
+                let y1 = 'calc( '+ $source.css('top') + ' + ' + ZE.y + 'px + ' + $source.height()/2 + 'px)';
+                let angle = ZE.angle;
+                $element.css('transform', 'translate(' + x1 + ', ' + y1 + ') rotate(' + angle + 'deg)');
             } else {
                 let x = this._ZP.menu.x;
                 let y = this._ZP.menu.y;
-                //$element.css('transform', 'translate(200px, 50vh)');//, 'transition', 'transform 5s');
-                $element.css('transform', 'translateX(calc(50vw + ' + x + 'px)) translateY(calc(50vh + ' + y + 'px)) ').show();
+                let angle = this._ZP.menu.angle;
+                $element.css('transform', 'translateX(calc(50vw + ' + x + 'px)) translateY(calc(50vh + ' + y + 'px)) rotate(' + angle + 'deg)');
             }
-            $element.appendTo('.ZP')
-                .on('transitionend', (function(event){
-                    console.log('end transition');
-                    $element.css('transition', '').off('transitionend');
-                    artifact.newInZP();
-                }).bind(this));
+            $element.appendTo('.ZP').show();
             setTimeout(()=>{$element.css('transform', 'translate(' + artifact.getX('px') +', '+ artifact.getY('px') + ') scale('
                 + artifact.scale + ') rotate(' + artifact.getAngle('deg') + ')');
             });
             setTimeout((function(){
-                $element.css('transition', '').off('transitionend');
+                $element.removeClass('newInZP');
                 artifact.newInZP();
             }).bind(this),500);
         } else {
-            this._createArtifact(artifact.toJSON(), "ZP");
             artifact.newInZP();
         }
-        //json.position = getRandomPositionInZP(json.position);
-        //this._createArtifact(json).css('transform', 'translate(' + json.position.x + 'px, ' + json.position.y
-        //     + 'px) scale(' + json.position.scale + ') rotate(' + json.position.angle + 'deg)').appendTo('.ZP');
     }
 
     /**
