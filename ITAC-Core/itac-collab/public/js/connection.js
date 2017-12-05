@@ -155,8 +155,10 @@ class Connection {
      * @private
      */
     _createArtifact(json, container = "ZP") {
-        this._ZP.addArtifactFromJson(json.id, json);
-        let artifact = this._ZP.getArtifact(json.id);
+        let artifact = Artifact.new(json.id, json);
+        this._ZP.addArtifact(artifact);
+        //this._ZP.addArtifactFromJson(json.id, json);
+        // let artifact = this._ZP.getArtifact(json.id);
         // if (container == "ZP"){
         //     artifact.newInZP();
         // } else {

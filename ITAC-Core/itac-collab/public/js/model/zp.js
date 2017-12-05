@@ -49,6 +49,7 @@ class ZP {
         return this._artifacts[idArtifact];
     }
 
+    //ToDo : supprimmer cette methode qui n'esr normalement plus utilisee
     addArtifactFromJson(idArtifact, data) {
         this._artifacts[idArtifact] = Artifact.new(idArtifact, data);
     }
