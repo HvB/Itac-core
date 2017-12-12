@@ -385,7 +385,7 @@ class ArtifactObserver {
                 let $link = $(element);
                 let artifactTo = this._ZP.getArtifact($link.attr('data-to'));
                 if (artifactTo && artifactTo.removeLinkFrom instanceof Function) {
-                    artifactTo.removeLinkFrom(artifact);
+                    artifactTo.removeLinkFrom(artifact.id);
                 }
                 $link.remove();
             }.bind(this));
@@ -393,7 +393,7 @@ class ArtifactObserver {
                 let $link = $(element);
                 let artifactFrom = this._ZP.getArtifact($link.attr('data-from'));
                 if (artifactFrom && artifactFrom.removeLinkTo instanceof Function) {
-                    artifactFrom.removeLinkTo(artifact);
+                    artifactFrom.removeLinkTo(artifact.id);
                 }
                 $link.remove();
             }.bind(this));
