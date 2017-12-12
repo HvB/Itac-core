@@ -47,6 +47,7 @@ class Artifact {
         this._da = 0;
         this._ds = 0;
         this._modifications = [];
+        this._events =  [];
     }
 
     get id() {
@@ -315,6 +316,10 @@ class Artifact {
 
     _addModification(property, oldValue, newValue){
         if (oldValue !== newValue) {
+            if (this._modifications.length === 0){
+                let event = new ArtifactPropertyValueChangedEvent(this, this._modifications);
+                this._queueEvent(event);
+            }
             this._modifications.push({property: property, old: oldValue, new: newValue});
             this.setChanged();
         }
@@ -337,15 +342,23 @@ class Artifact {
     removeObserver(observer){
         if (observer) this._observers.delete(observer);
     }
-    notifyObservers(event){
-        if (this._changed ){
-            this.clearChanged();
-            this._observers.forEach((o) => {this._notifyObserver(o, event);});
+    _queueEvent(event) {
+        // on ajoute l'evnt a la liste des evnts en attente
+        if (event){
+            this._events.push(event);
         }
-        if (this._modifications.length > 0 && event.type !== "ArtifactPropertyValueChangedEvent"){
-            let myEvent = new ArtifactPropertyValueChangedEvent(this, this._modifications);
+    }
+    notifyObservers(event){
+        // on ajoute l'evnt a la liste des evnts en attente
+        this._queueEvent(event)
+        // s'il y a eu des modifications on envoie les events en attente aux observers
+        if (this._changed ){
+            for (let evt of this._events){
+                this._observers.forEach((o) => {this._notifyObserver(o, evt);});
+            }
+            this.clearChanged();
             this._modifications = [];
-            this._observers.forEach((o) => {this._notifyObserver(o, myEvent);});
+            this._events = [];
         }
     }
     _notifyObserver(observer, event){
