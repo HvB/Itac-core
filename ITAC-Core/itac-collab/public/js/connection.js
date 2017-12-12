@@ -423,7 +423,7 @@ class ArtifactObserver {
                     this._ZP.background = artifact.id;
                 }
             } else {
-                $element.addClass('dropped').appendTo($('#' + artifact.ZE).find('.container'));
+                $element.addClass('dropped').appendTo($('#' + artifact.idContainer).find('.container'));
                 $element.show();
             }
         }

@@ -33,6 +33,7 @@ class ZEView extends View {
                     console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP]');
                     this._connection.emitArtifactFromZEToZP(idAr, idZE);
                     this._ZP.getZE(idZE).removeArtifact(idAr);
+                    this._ZP.getArtifact(idAr).moveFromZEtoZP(this._ZP.id);
                     console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
 
                     $(event.target).removeClass('drop-target');
@@ -43,9 +44,11 @@ class ZEView extends View {
                     var idAr = event.relatedTarget.id, idZE = event.target.id;
                     console.log('ondrop d un Artefact (' + idAr + ') vers ZE= ' + idZE);
                     console.log('ondrop d un Artefact --> className =' + $(event.relatedTarget).attr('class'));
+
                     console.log('ondrop d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
                     this._connection.emitArtifactFromZPToZE(idAr, idZE);
                     this._ZP.getZE(idZE).addArtifact(idAr);
+                    this._ZP.getArtifact(idAr).moveFromZPtoZE(idZE);
 
                     var $artifact = $(event.relatedTarget);
                     $artifact.remove().css('transform', '').appendTo($(event.target).find('.container'));
