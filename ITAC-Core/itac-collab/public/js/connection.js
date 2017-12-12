@@ -161,14 +161,6 @@ class Connection {
     _createArtifact(json, container = "ZP") {
         let artifact = Artifact.new(json.id, json);
         this._ZP.addArtifact(artifact);
-        //this._ZP.addArtifactFromJson(json.id, json);
-        // let artifact = this._ZP.getArtifact(json.id);
-        // if (container == "ZP"){
-        //     artifact.newInZP();
-        // } else {
-        //     artifact.newInZE();
-        // }
-        // let $element = $('.template .artifact.' + artifact.type).clone();
         artifact.addObserver(this._artifactObserver);
         artifact.addObserver(this._jsonPatchArtifactObserver);
         if (artifact.points){
@@ -178,44 +170,6 @@ class Connection {
                 artifact.getPoint(id).addObserver(this._jsonPatchArtifactObserver);
             }
         }
-        // TODO: remove obsolete code
-        // switch (artifact.type) {
-        //     case ARTIFACT_MESSAGE:
-        //         $element.find('h1').text(artifact.title);
-        //         $element.find('p').first().text(artifact.content);
-        //         break;
-        //     case ARTIFACT_IMAGE:
-        //         $element.css('background-image', 'url(' + artifact.content + ')');
-        //         if (artifact.isBackground) {
-        //             this._ZP.background = artifact.id;
-        //             $element.hide();
-        //             $('.ZP')
-        //                 .css('background-image', $element.css('background-image'))
-        //                 .css('background-position', 'center')
-        //                 .css('background-repeat', 'no-repeat')
-        //                 .css('background-size', 'contain')
-        //                 .addClass('background');
-        //             for (var id in artifact.points) {
-        //                 var $point = $('.template .artifact.point').clone(),
-        //                     point = artifact.getPoint(id);
-        //                 $('.ZP').append($point);
-        //                 $point.attr('id', id);
-        //                 $point.css('transform', 'translate(' + point.x + 'px, ' + point.y + 'px)');
-        //             }
-        //         }
-        // }
-        // $element.find('.historic .creator').text(artifact.creator);
-        // $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
-        // $element.find('.historic .owner').text(artifact.owner);
-        // var $temp = $element.find('.historic .modification');
-        // for (var i = 0; i < artifact.history.length; i++) {
-        //     var $clone = $temp.clone();
-        //     $clone.find('.modifier').text(artifact.history[i].user);
-        //     $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
-        //     $element.find('.historic').append($clone);
-        // }
-        // $temp.remove();
-        // $element.attr('id', artifact.id);
         return artifact;
     }
 
@@ -407,6 +361,7 @@ class Connection {
     }
 }
 
+//ToDo: deplacer les ArtefactObserver ailleurs ?
 class ArtifactObserver {
     constructor(ZP, connection){
         this._ZP = ZP;
@@ -476,14 +431,8 @@ class ArtifactObserver {
             let $element = $('#' + artifact.id);
             console.log("update id" + source.id + "elt : " + $element.attr('id') + "parent.class : " + $element.parent().hasClass("ZP"));
             if ($element.parent().hasClass("ZP")) {
-                // $element.css('transform', 'translate(' + artifact.x + 'px, ' + artifact.y + 'px) scale('
-                //     + artifact.scale + ') rotate(' + artifact.angle + 'deg)');
                 $element.css('transform', 'translate(' + artifact.getX('px') +', '+ artifact.getY('px') + ') scale('
                     + artifact.scale + ') rotate(' + artifact.getAngle('deg') + ')');
-                // let x = $element.offset().left + $element.width() / 2;
-                // let y = $element.offset().top + $element.height() / 2;
-                // let x = artifact.x +$element.width()/2;
-                // let y = artifact.y +$element.height()/2;
                 let x = artifact.getX('px');
                 let y = artifact.getY('px');
                 $('line[data-from=' + artifact.id + ']').each(function (index, line) {
@@ -526,6 +475,7 @@ class ArtifactObserver {
         }
     }
 
+    //ToDo: deplacer cette methode a un meilleur endroit (View ?)
     _createArtifactView(artifact){
         // on verifie que l'artefact est bien visible - sinon on le replace
         let position = getRandomPositionInZP(artifact.position);
@@ -588,12 +538,14 @@ class ArtifactObserver {
     }
 }
 
+//ToDo: deplacer les ArtefactObserver ailleurs ?
 class PointObserver extends ArtifactObserver {
     constructor(ZP, connection){
         super(ZP, connection);
     }
 }
 
+//ToDo: deplacer les ArtefactObserver ailleurs ?
 class JsonPatchArtifactObserver {
     constructor(ZP, connection){
         this._ZP = ZP;
