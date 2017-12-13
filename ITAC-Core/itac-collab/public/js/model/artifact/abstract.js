@@ -400,7 +400,7 @@ class Artifact {
 
     moveFromZPtoZE(id) {
         if (this._idContainer !== id) {
-            this._status = "newInZE";
+            this._status = "inZE";
             this._idContainer = id;
             this.setChanged();
             let event = new ArtifactStatusEvent(this, this._status, {ZP:this._idContainer, ZE:id});
@@ -410,7 +410,7 @@ class Artifact {
 
     moveFromZEtoZP(id){
         if (this._idContainer !== id) {
-            this._status = "newInZP";
+            this._status = "inZP";
             this.setChanged();
             let event = new ArtifactStatusEvent(this, this._status, {ZE:this._idContainer, ZP:id});
             this._idContainer = id;
