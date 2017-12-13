@@ -36,6 +36,7 @@ class Artifact {
         this._scale = this._position.scale;
         this._angle = this._position.angle;
         this._ZE = data && data.lastZE ? data.lastZE : null;
+        this._idContainer = data ? data.idContainer : undefined;
         this._creator = data && data.creator ? data.creator : null;
         this._dateCreation = data && data.dateCreation ? data.dateCreation : new Date().toISOString();
         this._history = data && data.history ? data.history : [];
@@ -182,6 +183,10 @@ class Artifact {
         this._addModification("ZE", this.ZE, ZE);
         this._ZE = ZE;
         this.setChanged();
+    }
+
+    get idContainer() {
+        return this._idContainer;
     }
 
     get creator() {
@@ -393,6 +398,26 @@ class Artifact {
         this.notifyObservers(event);
     }
 
+    moveFromZPtoZE(id) {
+        if (this._idContainer !== id) {
+            this._status = "inZE";
+            this._idContainer = id;
+            this.setChanged();
+            let event = new ArtifactStatusEvent(this, this._status, {ZP:this._idContainer, ZE:id});
+            this.notifyObservers(event);
+        }
+    }
+
+    moveFromZEtoZP(id){
+        if (this._idContainer !== id) {
+            this._status = "inZP";
+            this.setChanged();
+            let event = new ArtifactStatusEvent(this, this._status, {ZE:this._idContainer, ZP:id});
+            this._idContainer = id;
+            this.notifyObservers(event);
+        }
+    }
+
     update(source, something){
     }
 }
@@ -505,12 +530,16 @@ class ArtifactPropertyValueChangedEvent extends ArtifactEvent {
 }
 
 class ArtifactStatusEvent extends ArtifactEvent {
-    constructor(source, status) {
+    constructor(source, status, params) {
         super("ArtifactStatusEvent", source);
         this._status = status;
+        this._params = params;
     }
     get status() {
         return this._status;
+    }
+    get params() {
+        return this._params;
     }
 }
 

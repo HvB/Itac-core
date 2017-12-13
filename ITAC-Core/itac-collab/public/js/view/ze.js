@@ -23,17 +23,19 @@ class ZEView extends View {
                     $(event.target).addClass('drop-target');
                     $(event.relatedTarget).addClass('can-drop');
                     $(event.relatedTarget).removeClass('dropped left right top');
-                    $(event.relatedTarget).appendTo('.ZP');
+                    // $(event.relatedTarget).appendTo('.ZP');
                 }).bind(this),
 
                 ondragleave: (function (event) {
                     var idAr = event.relatedTarget.id, idZE = event.target.id;
                     console.log('ondragleave d un Artefact (' + idAr + ') de la ZE= ' + idZE);// + ' vers la ZP= ' + mZP.id);
 
-                    console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP]');
-                    this._connection.emitArtifactFromZEToZP(idAr, idZE);
-                    this._ZP.getZE(idZE).removeArtifact(idAr);
-                    console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
+                    // Todo: remove obsolete code
+                    // console.log('ondragleave d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZEversZP]');
+                    // this._connection.emitArtifactFromZEToZP(idAr, idZE);
+                    // this._ZP.getZE(idZE).removeArtifact(idAr);
+                    this._ZP.getArtifact(idAr).moveFromZEtoZP(this._ZP.id);
+                    // console.log('ondragleave d un Artefact --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
 
                     $(event.target).removeClass('drop-target');
                     $(event.relatedTarget).removeClass('can-drop');
@@ -43,9 +45,12 @@ class ZEView extends View {
                     var idAr = event.relatedTarget.id, idZE = event.target.id;
                     console.log('ondrop d un Artefact (' + idAr + ') vers ZE= ' + idZE);
                     console.log('ondrop d un Artefact --> className =' + $(event.relatedTarget).attr('class'));
-                    console.log('ondrop d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
-                    this._connection.emitArtifactFromZPToZE(idAr, idZE);
-                    this._ZP.getZE(idZE).addArtifact(idAr);
+
+                    // Todo: remove obsolete code / finish transfert into observer
+                    // console.log('ondrop d un Artefact --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
+                    // this._connection.emitArtifactFromZPToZE(idAr, idZE);
+                    // this._ZP.getZE(idZE).addArtifact(idAr);
+                    this._ZP.getArtifact(idAr).moveFromZPtoZE(idZE);
 
                     var $artifact = $(event.relatedTarget);
                     $artifact.remove().css('transform', '').appendTo($(event.target).find('.container'));

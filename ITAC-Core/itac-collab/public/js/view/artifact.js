@@ -104,6 +104,7 @@ class ArtifactView extends View {
         }];
     }
 
+    //ToDo: supprimer cette fonction ?
     _startArtifact(event) {
         let $element = $(event.target);
         let artifact = this._ZP.getArtifact($element.attr('id'));
@@ -113,10 +114,13 @@ class ArtifactView extends View {
             artifact.setXY(x,y);
         }
         artifact.startMove();
-        $element.removeClass('active');
-        $('svg [data-artifact=' + artifact.id + ']').remove();
-        $element.css('z-index', Z_INDEX);
-        Z_INDEX++;
+        // $element.removeClass('active');
+        // $('svg [data-artifact=' + artifact.id + ']').remove();
+        // $element.appendTo(".ZP");
+        // $element.css('transform', 'translate(' + artifact.getX('px') +', '+ artifact.getY('px') + ') scale('
+        //     + artifact.scale + ') rotate(' + artifact.getAngle('deg') + ')');
+        // $element.css('z-index', Z_INDEX);
+        // Z_INDEX++;
     }
 
     _draggable() {

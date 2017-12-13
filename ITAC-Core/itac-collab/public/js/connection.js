@@ -423,9 +423,46 @@ class ArtifactObserver {
                     this._ZP.background = artifact.id;
                 }
             } else {
-                $element.addClass('dropped').appendTo($('#' + artifact.ZE).find('.container'));
+                $element.addClass('dropped').appendTo($('#' + artifact.idContainer).find('.container'));
                 $element.show();
+             }
+        } else if (event.status == "inZP") {
+            let $element = $('#'+artifact.id);
+            $element.appendTo('.ZP');
+            $element.show();
+            if (event.params) {
+                // c'est un transfert de ZE vers la ZP
+                let idZE = event.params.ZE;
+                let idZP = event.params.ZP;
+                let idAr = artifact.id;
+                console.log('transfert Artefact de ZE vers ZP --> emission sur socket de [EVT_EnvoieArtefactdeZEversZP]');
+                this._connection.emitArtifactFromZEToZP(idAr, idZE);
+                console.log('transfert Artefact de ZE vers ZP --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
+                this._ZP.getZE(idZE).removeArtifact(idAr);
             }
+        } else  if (event.status == "inZE") {
+            let $element = $('#'+artifact.id);
+            $element.css('transform', '').addClass('dropped').appendTo($('#' + artifact.idContainer).find('.container'));
+            $element.show();
+            if (event.params) {
+                // c'est un transfert de la ZP vers une ZE
+                let idZE = event.params.ZE;
+                let idZP = event.params.ZP;
+                let idAr = artifact.id;
+                console.log('transfert Artefact de ZP vers ZE --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
+                this._connection.emitArtifactFromZPToZE(idAr, idZE);
+                console.log('transfert Artefact de ZP vers ZE -->[OK} evenement emis [EVT_EnvoieArtefactdeZPversZE]');
+                this._ZP.getZE(idZE).addArtifact(idAr);
+            }
+        } else if (event.type == "ArtifactStartMoveEvent") {
+            let $element = $('#'+artifact.id);
+            $element.removeClass('active');
+            $('svg [data-artifact=' + artifact.id + ']').remove();
+            $element.appendTo(".ZP");
+            // $element.css('transform', 'translate(' + artifact.getX('px') +', '+ artifact.getY('px') + ') scale('
+            //     + artifact.scale + ') rotate(' + artifact.getAngle('deg') + ')');
+            $element.css('z-index', Z_INDEX);
+            Z_INDEX++;
         }
         if (!event || event.status == "newInZE"  ||  event.status == "newInZP"  || event.type == "ArtifactMoveEvent") {
             let $element = $('#' + artifact.id);
