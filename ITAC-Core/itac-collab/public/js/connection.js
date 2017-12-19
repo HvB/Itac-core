@@ -220,7 +220,7 @@ class Connection {
                 $element.css('transform', 'translateX(calc(50vw + ' + x + 'px)) translateY(calc(50vh + ' + y + 'px)) rotate(' + angle + 'deg)');
             }
             $element.appendTo('.ZP').show();
-            setTimeout(()=>{$element.css('transform', 'translate(' + artifact.getX('px') +', '+ artifact.getY('px') + ') scale('
+            setTimeout(()=>{$element.css('transform', 'translate(50vw, 50vh) translate(' + artifact.getX('vh', 'center') +', '+ artifact.getY('vh', 'center') + ') scale('
                 + artifact.scale + ') rotate(' + artifact.getAngle('deg') + ')');
             });
             setTimeout((function(){
@@ -468,7 +468,7 @@ class ArtifactObserver {
             let $element = $('#' + artifact.id);
             console.log("update id" + source.id + "elt : " + $element.attr('id') + "parent.class : " + $element.parent().hasClass("ZP"));
             if ($element.parent().hasClass("ZP")) {
-                $element.css('transform', 'translate(' + artifact.getX('px') +', '+ artifact.getY('px') + ') scale('
+                $element.css('transform', 'translate(50vw, 50vh) translate(' + artifact.getX('vh','center') +', '+ artifact.getY('vh', 'center') + ') scale('
                     + artifact.scale + ') rotate(' + artifact.getAngle('deg') + ')');
                 let x = artifact.getX('px');
                 let y = artifact.getY('px');

@@ -31,10 +31,10 @@ class Artifact {
         this._position = new Proxy(this._data.position, jsonPositionProxyHandler);
         let x = this._position.x;
         let y = this._position.y;
-        this._x = x;
-        this._y = y;
-        this._scale = this._position.scale;
-        this._angle = this._position.angle;
+        this.x = x;
+        this.y = y;
+        this.scale = this._position.scale;
+        this.angle = this._position.angle;
         this._ZE = data && data.lastZE ? data.lastZE : null;
         this._idContainer = data ? data.idContainer : undefined;
         this._creator = data && data.creator ? data.creator : null;
@@ -43,10 +43,6 @@ class Artifact {
         this._observers = new Set();
         this._changed = false;
         this._status = "new";
-        this._dx = 0;
-        this._dy = 0;
-        this._da = 0;
-        this._ds = 0;
         this._modifications = [];
         this._events =  [];
     }
@@ -60,20 +56,30 @@ class Artifact {
     }
 
     get x() {
-        return (this._x + this._dx);
+        let h = window.innerHeight;
+        let w = window.innerWidth;
+        let x = (this._x + this._dx)*h/100 + w/2;
+        return x;
     }
 
     set x(x) {
+        let h = window.innerHeight;
+        let w = window.innerWidth;
+        x = (x - w/2)*100/h;
         this._x = x;
         this._dx = 0;
         this.setChanged();
     }
 
     get y() {
-        return (this._y + this._dy);
+        let h = window.innerHeight;
+        let y = (this._y + this._dy + 50)*h/100;
+        return y;
     }
 
     set y(y) {
+        let h = window.innerHeight;
+        y = y*100/h - 50;
         this._y = y;
         this._dy = 0;
         this.setChanged();
@@ -262,6 +268,9 @@ class Artifact {
         this.notifyObservers(event);
     }
     move (dx, dy, ds=0, da=0){
+        let h = window.innerHeight;
+        dx = dx*100/h;
+        dy = dy*100/h;
         this._dx += dx;
         this._dy += dy;
         this._da += da;
