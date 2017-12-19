@@ -57,13 +57,15 @@ class Artifact {
 
     get x() {
         let h = window.innerHeight;
-        let x = (this._x + this._dx)*h/100;
+        let w = window.innerWidth;
+        let x = (this._x + this._dx)*h/100 + w/2;
         return x;
     }
 
     set x(x) {
         let h = window.innerHeight;
-        x = x*100/h;
+        let w = window.innerWidth;
+        x = (x - w/2)*100/h;
         this._x = x;
         this._dx = 0;
         this.setChanged();
@@ -71,13 +73,13 @@ class Artifact {
 
     get y() {
         let h = window.innerHeight;
-        let y = (this._y + this._dy)*h/100;
+        let y = (this._y + this._dy + 50)*h/100;
         return y;
     }
 
     set y(y) {
         let h = window.innerHeight;
-        y = y*100/h;
+        y = y*100/h - 50;
         this._y = y;
         this._dy = 0;
         this.setChanged();
