@@ -21,6 +21,11 @@ svg {
     height: 100%;
 }
 
+svg line {
+    stroke:black;
+    stroke-width:3;
+}
+
 /*
     MENU
 */

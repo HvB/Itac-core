@@ -54,8 +54,9 @@ class View {
         if (id2) line.setAttributeNS(null, 'data-to', id2);
         line.setAttributeNS(null, 'x2', x2);
         line.setAttributeNS(null, 'y2', y2);
-        line.setAttributeNS(null, 'stroke', 'black');
-        line.setAttributeNS(null, 'stroke-width', 3);
+        //ToDo: remove obsolete code
+        // line.setAttributeNS(null, 'stroke', 'black');
+        // line.setAttributeNS(null, 'stroke-width', 3);
         if (type) {
             line.setAttributeNS(null, 'class', (type ? type : ''));
         }
