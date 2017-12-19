@@ -376,11 +376,6 @@ class ArtifactObserver {
             let idArtifact = artifact.id;
             this._ZP.removeArtifact(idArtifact);
             console.log("deleted "+idArtifact+" "+artifact.type+" - "+ARTIFACT_POINT);
-            if (artifact.type !==  ARTIFACT_POINT) {
-                this._connection.emitRemovedArtifactInZP(idArtifact);
-            } else {
-                artifact.parent.removePoint(idArtifact);
-            }
             $('line[data-from=' + idArtifact + ']').each(function (index, element) {
                 let $link = $(element);
                 let artifactTo = this._ZP.getArtifact($link.attr('data-to'));
@@ -430,30 +425,10 @@ class ArtifactObserver {
             let $element = $('#'+artifact.id);
             $element.appendTo('.ZP');
             $element.show();
-            if (event.params) {
-                // c'est un transfert de ZE vers la ZP
-                let idZE = event.params.ZE;
-                let idZP = event.params.ZP;
-                let idAr = artifact.id;
-                console.log('transfert Artefact de ZE vers ZP --> emission sur socket de [EVT_EnvoieArtefactdeZEversZP]');
-                this._connection.emitArtifactFromZEToZP(idAr, idZE);
-                console.log('transfert Artefact de ZE vers ZP --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
-                this._ZP.getZE(idZE).removeArtifact(idAr);
-            }
         } else  if (event.status == "inZE") {
             let $element = $('#'+artifact.id);
             $element.css('transform', '').addClass('dropped').appendTo($('#' + artifact.idContainer).find('.container'));
             $element.show();
-            if (event.params) {
-                // c'est un transfert de la ZP vers une ZE
-                let idZE = event.params.ZE;
-                let idZP = event.params.ZP;
-                let idAr = artifact.id;
-                console.log('transfert Artefact de ZP vers ZE --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
-                this._connection.emitArtifactFromZPToZE(idAr, idZE);
-                console.log('transfert Artefact de ZP vers ZE -->[OK} evenement emis [EVT_EnvoieArtefactdeZPversZE]');
-                this._ZP.getZE(idZE).addArtifact(idAr);
-            }
         } else if (event.type == "ArtifactStartMoveEvent") {
             let $element = $('#'+artifact.id);
             $element.removeClass('active');
@@ -591,7 +566,37 @@ class JsonPatchArtifactObserver {
     update (source, event) {
         console.log('JsonPatchArtifactObserver update - artifact id: '+ source.id + 'event.type: ' + event.type);
         if (source && event) {
-            if (event.type === 'ArtifactEndMoveEvent') {
+            let artifact = source;
+            if (event.status == "deleted") {
+                let idArtifact = artifact.id;
+                if (artifact.type !==  ARTIFACT_POINT) {
+                    this._connection.emitRemovedArtifactInZP(idArtifact);
+                } else {
+                    artifact.parent.removePoint(idArtifact);
+                }
+            } else if (event.status == "inZP") {
+                if (event.params) {
+                    // c'est un transfert de ZE vers la ZP
+                    let idZE = event.params.ZE;
+                    let idZP = event.params.ZP;
+                    let idAr = source.id;
+                    console.log('transfert Artefact de ZE vers ZP --> emission sur socket de [EVT_EnvoieArtefactdeZEversZP]');
+                    this._connection.emitArtifactFromZEToZP(idAr, idZE);
+                    console.log('transfert Artefact de ZE vers ZP --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
+                    this._ZP.getZE(idZE).removeArtifact(idAr);
+                }
+            } else  if (event.status == "inZE") {
+                if (event.params) {
+                    // c'est un transfert de la ZP vers une ZE
+                    let idZE = event.params.ZE;
+                    let idZP = event.params.ZP;
+                    let idAr = artifact.id;
+                    console.log('transfert Artefact de ZP vers ZE --> emission sur soket de [EVT_EnvoieArtefactdeZPversZE]');
+                    this._connection.emitArtifactFromZPToZE(idAr, idZE);
+                    console.log('transfert Artefact de ZP vers ZE -->[OK} evenement emis [EVT_EnvoieArtefactdeZPversZE]');
+                    this._ZP.getZE(idZE).addArtifact(idAr);
+                }
+            } else if (event.type === 'ArtifactEndMoveEvent') {
                 let jsonPatchTargetId = source.id;
                 let jsonPatchPath = '/position';
                 let jsonPatchValue = event.jsonPosition;
