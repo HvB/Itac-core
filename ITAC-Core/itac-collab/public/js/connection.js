@@ -200,11 +200,11 @@ class Connection {
         var json = JSON.parse(data);
         this._createArtifact(json, "ZP");
         let artifact = this._ZP.getArtifact(json.id);
-        let $element = this._artifactObserver._createArtifactView(artifact);
-        $element.css('z-index', Z_INDEX++);
         let x = 0;
         let y = 0;
         if (this._animations && artifact.ZE /* && ! artifact.isBackground */ ) {
+            let $element = this._artifactObserver._createArtifactView(artifact);
+            $element.css('z-index', Z_INDEX++);
             let $source = $('#'+artifact.ZE+'.ZE');
             let ZE =  this._ZP.getZE(artifact.ZE);
             $element.addClass('newInZP');
@@ -494,7 +494,7 @@ class ArtifactObserver {
         artifact.position = position;
         let idArtifact = artifact.id;
         let $element = $('#'+idArtifact);
-        if ($element.length ==0 ) {
+        if ($element.length == 0 ) {
             console.log("creation de la vue pour l'artifact: " + idArtifact + '(' + artifact.type + ')');
             $element = $('.template > .artifact.' + artifact.type).clone();
             $element.attr('id', idArtifact);
@@ -544,6 +544,7 @@ class ArtifactObserver {
             }
             $temp.remove();
             $element.attr('id', artifact.id);
+            // $element.appendTo('.ZP');
             $element.hide();
         }
         return $element;
