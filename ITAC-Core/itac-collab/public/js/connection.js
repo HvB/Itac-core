@@ -5,7 +5,7 @@ class Connection {
     /**
      * Crée la connexion
      * @param ZP zone de partage courante
-     * @param event liste des évènements de la socket
+     * @param events liste des évènements de la socket
      */
     constructor(ZP, events) {
         this._ZP = ZP;
@@ -535,9 +535,9 @@ class ArtifactObserver {
             $element.find('.historic .creator').text(artifact.creator);
             $element.find('.historic .dateCreation').text(getFormattedDate(artifact.dateCreation));
             $element.find('.historic .owner').text(artifact.owner);
-            var $temp = $element.find('.historic .modification');
-            for (var i = 0; i < artifact.history.length; i++) {
-                var $clone = $temp.clone();
+            let $temp = $element.find('.historic .modification');
+            for (let i = 0; i < artifact.history.length; i++) {
+                let $clone = $temp.clone();
                 $clone.find('.modifier').text(artifact.history[i].user);
                 $clone.find('.dateModification').text(getFormattedDate(artifact.history[i].dateModification));
                 $element.find('.historic').append($clone);
@@ -568,14 +568,14 @@ class JsonPatchArtifactObserver {
         console.log('JsonPatchArtifactObserver update - artifact id: '+ source.id + 'event.type: ' + event.type);
         if (source && event) {
             let artifact = source;
-            if (event.status == "deleted") {
+            if (event.status === "deleted") {
                 let idArtifact = artifact.id;
                 if (artifact.type !==  ARTIFACT_POINT) {
                     this._connection.emitRemovedArtifactInZP(idArtifact);
                 } else {
                     artifact.parent.removePoint(idArtifact);
                 }
-            } else if (event.status == "inZP") {
+            } else if (event.status === "inZP") {
                 if (event.params) {
                     // c'est un transfert de ZE vers la ZP
                     let idZE = event.params.ZE;
@@ -586,7 +586,7 @@ class JsonPatchArtifactObserver {
                     console.log('transfert Artefact de ZE vers ZP --> [OK} evenement emis [EVT_EnvoieArtefactdeZEversZP]');
                     this._ZP.getZE(idZE).removeArtifact(idAr);
                 }
-            } else  if (event.status == "inZE") {
+            } else  if (event.status === "inZE") {
                 if (event.params) {
                     // c'est un transfert de la ZP vers une ZE
                     let idZE = event.params.ZE;

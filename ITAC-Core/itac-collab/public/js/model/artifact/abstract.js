@@ -91,9 +91,9 @@ class Artifact {
         let val = this.x;
         if (typeof refX === 'number') {
             val -= refX;
-        } else if (refX == 'center') {
+        } else if (refX === 'center') {
             val -= w/2;
-        } else if (refX == 'right') {
+        } else if (refX === 'right') {
             val -= w;
         }
         switch(unit) {
@@ -124,9 +124,9 @@ class Artifact {
         let val = this.y;
         if (typeof refY === 'number') {
             val -= refY;
-        } else if (refY == 'center') {
+        } else if (refY === 'center') {
             val -= h/2;
-        } else if (refY == 'bottom') {
+        } else if (refY === 'bottom') {
             val -= h;
         }
         switch(unit) {
@@ -156,7 +156,7 @@ class Artifact {
         if (typeof ref === 'number') {
             val -= ref;
         }
-        val +='deg'
+        val +='deg';
         return val;
     }
 
@@ -374,7 +374,7 @@ class Artifact {
     }
     notifyObservers(event){
         // on ajoute l'evnt a la liste des evnts en attente
-        this._queueEvent(event)
+        this._queueEvent(event);
         // s'il y a eu des modifications on envoie les events en attente aux observers
         if (this._changed ){
             for (let evt of this._events){

@@ -14,12 +14,12 @@ class Point extends Artifact {
     }
 
     delete(){
-        if (this._parent) this._parent.removePoint(this.id)
-        super.delete()
+        if (this._parent) this._parent.removePoint(this.id);
+        super.delete();
     }
 
     toJSON() {
-        var object = super.toJSON();
+        let object = super.toJSON();
         return object;
     }
 }
