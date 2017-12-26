@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0 (2017-12-26)
+## Version 2.0 (2017-12-26)
 
 Types d'artefacts supportés :
 * messages
@@ -53,7 +53,7 @@ d'avoir de nouveaux types d'artéfacts.
 * Gestions des écrans de géometries différentes (nb de pixels /  aspect ratio). 
 * Prise en compte du changement du niveau de zoom (navigateur / systeme). 
 
-## 1.0 (2017-07-13)
+## Version 1.0 (2017-07-13)
 
 1ère version à peu près fonctionnelle du serveur et de la table ITAC (sauf reconnection).  
 À utiliser avec la version 1.0 du client android ITAC.
