@@ -2,116 +2,21 @@
 <html>
 <head>
     <title><%= title %></title>
-    <link rel="stylesheet" href="css/lib/jquery-ui.theme.min.css">
-    <link rel="stylesheet" href="css/lib/jquery-ui.structure.min.css">
     <link rel="stylesheet" href="css/style.css"/>
 </head>
-<body onload="date('date');initLogo()">
-<div id="center0">
-    <table id="content" border="0" class="center">
-        <tr>
-            <td class="info" colspan=3>
-                <div id="date"></div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <table border="0">
-                    <tr>
-                        <td class="menu">
-                            <div id="dvSource">
-                                <img src="img/rond.png" class="menugauchedecalmaxdroite" id="itacapp-collab"
-                                     onclick="changeImage(paramITAC,'itacapp-collab')"/>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div id="dvSource">
-                                <img src="img/meteo.png" class="menugauchedecalcentre" id="itacapp-meteo"
-                                     onclick="changeImage(paramITAC,'itacapp-meteo')"/>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div id="dvSource">
-                                <img src="img/check.png" class="menugauchedecalmaxgauche" id="itacapp-check"
-                                     onclick="changeImage(paramITAC,'itacapp-check')"/>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div id="dvSource">
-                                <img src="img/symboles.png" class="menugauchedecalcentre" id="itacapp-calcul"
-                                     onclick="changeImage(paramITAC,'itacapp-calcul')"/>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div id="dvSource">
-                                <img src="img/parametres.png" class="menugauchedecalmaxdroite" id="itacapp-param"
-                                     onclick="changeImage(paramITAC,'itacapp-meteo')"/>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <div id="change">
-                    <div id="droppable"></div>
-                </div>
-            </td>
-            <td>
-                <table id="" border="0">
-                    <tr>
-                        <td class="menu">
-                            <div id="dvSource">
-                                <img src="img/maison.png" class="menudroitedecalmaxgauche" id="itacapp-morpix"
-                                     onclick="changeImage(paramITAC,'itacapp-morpix')"/>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <img src="img/morpion.png" class="menudroitedecalcentre" id="itacapp-morpix"
-                                 onclick="changeImage(paramITAC,'itacapp-morpix')"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <img src="img/couronne.png" class="menudroitedecalmaxdroite" id="couronne"
-                                 onclick="changeImage(8)"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <img src="img/rond.png" class="menudroitedecalcentre" id="rond2" onclick="changeImage(9)"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="menu">
-                            <div id="dvSource">
-                                <img src="img/rond.png" class="menudroitedecalmaxgauche" id="itacapp-collab-config1"
-                                     onclick="changeImage(paramITAC,'itacapp-collab-config1')"/>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td class="info" colspan=3>
-                <div id="heure"></div>
-            </td>
-        </tr>
-    </table>
+<body oncontextmenu="return false;">
+<div>
+    <ul class="menu">
+        <li class="hand"></li>
+        <li class="meteo" data-name="Météo" data-url="meteo"></li>
+        <li class="calculation" data-name="Calculatrice" data-url="calcul"></li>
+        <li class="automation" data-name="Domotique" data-url="domotique"></li>
+        <li class="morpion" data-name="Jeu du Morpion" data-url="morpion"></li>
+        <li class="collab" data-name="Travail Collaboratif" data-url="collab"></li>
+    </ul>
 </div>
 <script type="text/javascript" src="/js/lib/jquery.min.js"></script>
-<script type="text/javascript" src="/js/lib/jquery-ui.min.js"></script>
-<script type="text/javascript" src="/js/toolsITAC.js"></script>
-<script type="text/javascript" src="/js/dragITAC.js"></script>
+<script type="text/javascript" src="/js/lib/interact.min.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
 </body>
 </html>
