@@ -156,7 +156,7 @@ class MenuView extends View {
 
     _tap() {
         return [{
-            target: '.menu li',
+            target: '.menu li:first-child',
             action: (function () {
                 var opened = this._ZP.menu.opened;
                 this._ZP.menu.opened = !opened;
