@@ -249,10 +249,11 @@ class Artifact {
         this._x += this._dx;
         this._y += this._dy;
         this._angle += this._da;
-        this._scale *= (1 + this._ds);
+        //this._scale *= (1 + this._ds);
         this._dx = 0;
         this._dy = 0;
-        this._ds = 0;
+        //this._ds = 0;
+        this.scale = this.scale;
         this._da = 0;
         this.setChanged();
         let event =  new ArtifactStartMoveEvent(this);
