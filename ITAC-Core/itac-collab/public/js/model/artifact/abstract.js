@@ -161,7 +161,16 @@ class Artifact {
     }
 
     get scale() {
+        let h = window.innerHeight;
+        let w = window.innerWidth;
+        let scaleMax = w/230*2;
+        let scaleMin = 0.25;
         let s = this._scale * (1 + this._ds);
+        if (s < scaleMin) {
+            s = scaleMin;
+        } else if (s > scaleMax) {
+            s = scaleMax;
+        }
         return s;
     }
 
@@ -240,10 +249,11 @@ class Artifact {
         this._x += this._dx;
         this._y += this._dy;
         this._angle += this._da;
-        this._scale *= (1 + this._ds);
+        //this._scale *= (1 + this._ds);
         this._dx = 0;
         this._dy = 0;
-        this._ds = 0;
+        //this._ds = 0;
+        this.scale = this.scale;
         this._da = 0;
         this.setChanged();
         let event =  new ArtifactStartMoveEvent(this);
