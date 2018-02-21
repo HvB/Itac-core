@@ -161,7 +161,16 @@ class Artifact {
     }
 
     get scale() {
+        let h = window.innerHeight;
+        let w = window.innerWidth;
+        let scaleMax = w/230*2;
+        let scaleMin = 0.25;
         let s = this._scale * (1 + this._ds);
+        if (s < scaleMin) {
+            s = scaleMin;
+        } else if (s > scaleMax) {
+            s = scaleMax;
+        }
         return s;
     }
 
