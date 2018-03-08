@@ -18,7 +18,9 @@ pipelines:
             - export IMAGE_NAME=stalb/itac:$BITBUCKET_COMMIT
             # build the Docker image (this will use the Dockerfile in the root of the repo)
             - docker build -t $IMAGE_NAME -f Dockerfile.linux .
-            - docker run -t $IMAGE_NAME npm test
+            - docker run --name itac_core $IMAGE_NAME npm test
+            - docker container cp itac_core:/usr/src/app/test-reports .
+            - docker container rm itac_core
             # authenticate with the Docker Hub registry
             #- docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
             # push the new Docker image to the Docker registry
