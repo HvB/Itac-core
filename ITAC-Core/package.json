@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www | bunyan -l debug",
-    "test": "mocha --recursive | bunyan -l debug"
+    "test": "mocha --recursive --reporter=xunit --reporter-options output=./test-reports/junit1.xml",
+    "coverage": "nyc --reporter=html --reporter=text-summary  mocha --recursive --reporter=xunit --reporter-options output=./test-reports/junit1.xml"
   },
   "devDependencies": {
     "mocha": "*",
     "chai-as-promised": "*",
-    "chai": ">= 4"
+    "chai": ">= 4",
+    "nyc": "^11.4.1"
   },
   "dependencies": {
     "body-parser": "~1.15.1",
@@ -29,6 +31,6 @@
     "bunyan": "*",
     "mkdirp": "*",
     "uuid": "*",
-    "fast-json-patch":"*"
+    "fast-json-patch": "*"
   }
 }
