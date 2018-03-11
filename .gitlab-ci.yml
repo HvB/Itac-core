@@ -1,0 +1,22 @@
+image: node:8
+
+stages:
+  - build
+  - test
+  
+install:
+  stage: build
+  script:
+    - cd ITAC-Core
+    - npm install --only=production
+
+test:
+  stage: test
+  script:
+    - cd ITAC-Core
+    - npm install
+    - npm run coverage
+  artifacts:
+    paths:
+      - ITAC-Core/test-reports
+      - ITAC-Core/coverage
