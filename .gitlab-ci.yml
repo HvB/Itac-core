@@ -1,4 +1,4 @@
-image: node:8
+image: node:8-stretch
 
 stages:
   - build
@@ -9,13 +9,57 @@ install:
   script:
     - cd ITAC-Core
     - npm install --only=production
+  tags:
+    - build
 
-test:
+install_preview:
+  stage: build
+  script:
+    - git merge origin/develop --no-commit --no-ff
+    - cd ITAC-Core
+    - npm install --only=production
+  except:
+    - master
+    - develop
+  tags:
+    - build
+
+test_sonar:
   stage: test
+  before_script:
+    - apt-get update -y
+    - apt-get install -y openjdk-8-jre-headless ca-certificates-java
   script:
     - cd ITAC-Core
     - npm install
     - npm run coverage
+    - npm run sonar-scanner -- -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=$CI_PROJECT_NAME.$CI_COMMIT_REF_SLUG -Dsonar.login=$SONAR_TOKEN -Dsonar.projectVersion=$CI_COMMIT_SHA -Dsonar.gitlab.url=https://manouchian.univ-smb.fr -Dsonar.gitlab.user_token=$SONAR_PLUGIN_TOKEN -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA -Dsonar.gitlab.ref_name=$CI_COMMIT_SHA -Dsonar.gitlab.project_id=$CI_PROJECT_ID
+  only:
+    - master
+    - develop
+  tags:
+    - test
+  artifacts:
+    paths:
+      - ITAC-Core/test-reports
+      - ITAC-Core/coverage
+
+test_sonar_preview:
+  stage: test
+  before_script:
+    - apt-get update -y
+    - apt-get install -y openjdk-8-jre-headless ca-certificates-java
+  script:
+    - git merge origin/develop --no-commit --no-ff
+    - cd ITAC-Core
+    - npm install
+    - npm run coverage
+    - npm run sonar-scanner -- -Dsonar.analysis.mode=preview  -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=$CI_PROJECT_NAME.develop -Dsonar.login=$SONAR_TOKEN -Dsonar.projectVersion=$CI_COMMIT_SHA -Dsonar.gitlab.url=https://manouchian.univ-smb.fr -Dsonar.gitlab.user_token=$SONAR_PLUGIN_TOKEN -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA -Dsonar.gitlab.ref_name=$CI_COMMIT_SHA -Dsonar.gitlab.project_id=$CI_PROJECT_ID
+  except:
+    - master
+    - develop
+  tags:
+    - test
   artifacts:
     paths:
       - ITAC-Core/test-reports
