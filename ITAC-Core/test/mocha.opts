@@ -1,0 +1,3 @@
+--recursive
+--reporter=xunit
+--reporter-options output=./test-reports/junit.xml
