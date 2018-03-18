@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www | bunyan -l debug",
-    "test": "mocha --recursive --reporter=xunit --reporter-options output=./test-reports/junit1.xml",
-    "coverage": "nyc --reporter=lcov --reporter=text-summary  mocha --recursive --reporter mocha-sonarqube-reporter --reporter-options output=./test-reports/unit.xml",
-    "sonar-scanner": "sonar-scanner -Dsonar.tests=. -Dsonar.test.inclusions=test/** -Dsonar.sources=. -Dsonar.exclusions=test/**,**/lib/**,**/coverage/**,**/build/** -Dsonar.sourceEncoding=UTF-8 -Dsonar.gitlab.project_id=ITAC-Core-GPL -Dsonar.testExecutionReportPaths=test-reports/unit.xml -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info  "
+    "test": "nyc  mocha ",
+    "coverage": "nyc  mocha --reporter mocha-sonarqube-reporter --reporter-options output=./test-reports/unit.xml",
+    "sonar-scanner": "sonar-scanner "
   },
   "devDependencies": {
     "chai": ">= 4",
