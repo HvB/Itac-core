@@ -32,9 +32,14 @@ test:
   stage: test
   script:
     - cd ITAC-Core
-    - npm install-test -- --reporter mocha-sonarqube-reporter --reporter-options output=./test-reports/unit.xml
+    - npm install
+    - npm test -- --reporter mocha-sonarqube-reporter --reporter-options output=./test-reports/unit.xml
   tags:
     - build
+  artifacts:
+    paths:
+      - ITAC-Core/test-reports
+      - ITAC-Core/coverage
 
 test_preview:
   stage: test
@@ -44,12 +49,17 @@ test_preview:
   script:
     - git merge origin/develop --no-commit --no-ff
     - cd ITAC-Core
-    - npm install-test -- --reporter mocha-sonarqube-reporter --reporter-options output=./test-reports/unit.xml
+    - npm install
+    - npm test -- --reporter mocha-sonarqube-reporter --reporter-options output=./test-reports/unit.xml
   except:
     - master
     - develop
   tags:
     - build
+  artifacts:
+    paths:
+      - ITAC-Core/test-reports
+      - ITAC-Core/coverage
 
 test_sonar:
   stage: scan
@@ -64,6 +74,8 @@ test_sonar:
     - develop
   tags:
     - build
+  dependencies:
+    - test
 
 test_sonar_preview:
   stage: scan
@@ -81,4 +93,6 @@ test_sonar_preview:
     - develop
   tags:
     - build
+  dependencies:
+    - test_preview
 
