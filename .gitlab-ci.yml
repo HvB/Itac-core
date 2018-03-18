@@ -48,6 +48,8 @@ test:
     paths:
       - ITAC-Core/test-reports
       - ITAC-Core/coverage
+  coverage: '/^Statements\s*:\s*([^%]+)/'
+
 
 test_preview:
   stage: test
