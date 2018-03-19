@@ -1,18 +1,10 @@
-# This is a sample build configuration for Docker.
-# Check our guides at https://confluence.atlassian.com/x/O1toN for more examples.
-# Only use spaces to indent your .yml configuration.
-# -----
-# You can specify a custom docker image from Docker Hub as your build environment.
-# image: atlassian/default-image:latest
-
-# enable Docker for your repository
-options:
-  docker: true
-
+image: node:8-stretch
 pipelines:
   branches:
     develop:
       - step:
+          services:
+            - docker
           script: # Modify the commands below to build your repository.
             # Set $DOCKER_HUB_USERNAME and $DOCKER_HUB_PASSWORD as environment variables in repository settings
             - export IMAGE_NAME=stalb/itac:$BITBUCKET_BRANCH
@@ -25,3 +17,42 @@ pipelines:
             #- docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
             # push the new Docker image to the Docker registry
             #- docker push $IMAGE_NAME
+
+    feature/*:
+      - step:
+          name: install
+          image: node:8-stretch
+          caches:
+            - node
+          script:
+            - cd ITAC-Core
+            - npm install --only=production
+      - step:
+          name: test
+          image: node:8-stretch
+          caches:
+            - node
+          script:
+            - cd ITAC-Core
+            - npm install
+            - npm test
+# pas d'acces au autre branche dans les pipeline bitbucket
+#      - step:
+#          name: install_merged
+#          image: node:8-stretch
+#          caches:
+#            - node
+#          script:
+#            - git merge origin/develop --no-ff --no-commit
+#            - cd ITAC-Core
+#            - npm install --only=production
+#      - step:
+#          name: test_merged
+#          image: node:8-stretch
+#          caches:
+#            - node
+#          script:
+#            - git merge origin/develop --no-ff --no-commit
+#            - cd ITAC-Core
+#            - npm install
+#            - npm test
