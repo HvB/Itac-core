@@ -6,3 +6,9 @@
 /artifacts/
 /artefacts/
 /build/
+/coverage/
+/test-reports/
+/.nyc_output/
+/.scannerwork/
+
+
