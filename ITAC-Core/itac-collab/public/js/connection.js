@@ -575,6 +575,15 @@ class JsonPatchArtifactObserver {
                 } else {
                     artifact.parent.removePoint(idArtifact);
                 }
+            } else if (event.status === "migrated") {
+                if (event.params && event.params.ZP) {
+                    // c'est un transfert de la ZP vers une autre ZP
+                    let idZP = event.params.ZP;
+                    let idAr = source.id;
+                    console.log('transfert Artefact de ZP vers ZP --> emission sur socket de [EVT_Envoie_ArtefactdeZPversZP]');
+                    this._connection.emitArtifactFromZPToOtherZP(idAr, idZP);
+                    console.log('transfert Artefact de ZP vers ZP --> [OK} evenement emis [EVT_Envoie_ArtefactdeZPversZP]');
+                }
             } else if (event.status === "inZP") {
                 if (event.params) {
                     // c'est un transfert de ZE vers la ZP

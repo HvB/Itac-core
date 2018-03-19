@@ -31,9 +31,9 @@ class MenuView extends View {
                     var $artifact = $(event.relatedTarget);
                     var idArtifact = $artifact.attr('id');
                     var idOtherZP = $(event.target).attr('id');
-                    this._connection.emitArtifactFromZPToOtherZP(idArtifact, idOtherZP);
-                    console.log("menu ITAC -> ZP.ondrop : envoi sur scket de : [EVT_Envoie_ArtefactdeZPversZP]");
-                    this._ZP.getArtifact(idArtifact).migrate();
+                    // this._connection.emitArtifactFromZPToOtherZP(idArtifact, idOtherZP);
+                    console.log("menu ITAC -> ZP.ondrop : suppression artefact " + idArtifact);
+                    this._ZP.getArtifact(idArtifact).migrate(idOtherZP);
                 }).bind(this),
 
                 ondropdeactivate: function (event) {
