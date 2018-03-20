@@ -23,10 +23,10 @@ var log = itacLogger.child({component: 'LdapAuthenticator'});
  * ldapAuth = new LdapAuthenticator({baseDn:'ou=people,ou=uds,dc=agalan,dc=org', config:{url:'ldaps://ldap-bourget.univ-savoie.fr', tlsOptions:{rejectUnauthorized:false,ciphers:"SSLv3"}}});
  * p1=ldapAuth.verifyCredential(ldapAuth.createCredential('uid=jdoe,ou=people,ou=uds,dc=agalan,dc=org', 'myPassword'));
  * 
- * @augments {LoginPwdAuthenticator}
+ * @augments {AbstractLoginPwdAuthenticator}
  * @author Stephane Talbot
  */
-class LdapAuthenticator extends BaseAuthentication.LoginPwdAuthenticator {
+class LdapAuthenticator extends BaseAuthentication.AbstractLoginPwdAuthenticator {
 	/**
 	 * Constructeur par defaut.
 	 * 
