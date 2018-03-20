@@ -26,11 +26,11 @@ function connectTablette(socket, pseudo, avatar, login, password, deviceId, call
             socket.off('connect',connect);
         }
         let failOnError = function (reason){
-            clean(socket);
+            clean();
             reject(reason);
         };
         let fail = function (reason){
-            clean(socket);
+            clean();
             reject(new Error(reason));
         };
         let success = function (ze, zep){
@@ -61,11 +61,11 @@ function connectZA(socket, url, zp, callback){
             socket.off('connect',connect);
         }
         let failOnError = function (reason){
-            clean(socket);
+            clean();
             reject(reason);
         };
         let fail = function (reason){
-            clean(socket);
+            clean();
             reject(new Error(reason));
         };
         let success = function (conf){
@@ -1099,7 +1099,7 @@ describe ("Test serveur", function (){
                 var entry = db[dn];
 
                 for (var i = 0; i < req.changes.length; i++) {
-                    mod = req.changes[i].modification;
+                    let mod = req.changes[i].modification;
                     switch (req.changes[i].operation) {
                         case 'replace':
                             if (!entry[mod.type])

@@ -148,13 +148,6 @@ module.exports = class ZonePartage {
         return (this.clientZAsocket != 0);
     };
 
-    /**
-     *  Indique si la ZA est connecté à la socket
-     */
-    isZAConnected() {
-        return (this.clientZAsocket != 0);
-    };
-
 
     /**
      * Retourne le type de ZP
