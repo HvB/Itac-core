@@ -400,10 +400,10 @@ class Artifact {
         this._observers.clear();
     }
 
-    migrate(){
+    migrate(idZp){
         this._status = "migrated";
         this.setChanged();
-        let event = new ArtifactStatusEvent(this, this._status);
+        let event = new ArtifactStatusEvent(this, this._status, {ZP:idZp});
         this.notifyObservers(event);
         this._observers.clear();
     }
