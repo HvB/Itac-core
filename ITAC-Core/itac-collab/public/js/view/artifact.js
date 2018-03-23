@@ -36,10 +36,9 @@ class ArtifactView extends View {
                         artifactFrom = this._ZP.getArtifact($shape.attr('data-from')),
                         artifactTo = this._ZP.getArtifact($target.attr('id'));
                     console.log("source "+$shape.attr('data-from')+" drop "+$(event.target).attr('id'));
-                    if (!artifactFrom || artifactFrom.hasLinkTo(artifactTo.id)) {
-                        $shape.remove();
-                    } else if (artifactFrom && artifactTo && artifactFrom != artifactTo ) {
+                    if (artifactFrom && artifactTo && artifactFrom != artifactTo && ! (artifactFrom.hasLinkTo(artifactTo.id))) {
                         //ToDo: verifier si on peut supprimer cette partie
+                        //ToDo: normalement ce code devrait avoir ete déplace dans l'observer des artefacts...
                         // a priori la fixation de x1/y1/x2/y2 est inutile -- elle est faite dans la mise a jour de l'artefact
                         shape.setAttributeNS(null, 'x2', artifactTo.getX('px') );
                         shape.setAttributeNS(null, 'y2', artifactTo.getY('px') );
@@ -47,6 +46,8 @@ class ArtifactView extends View {
                         $shape.attr('data-to', artifactTo.id);
                         $shape.removeClass('temporary');
                         artifactFrom.addLinkTo(artifactTo.id);
+                    } else {
+                        $shape.remove();
                     }
                 }).bind(this),
                 ondropdeactivate: function (event) {
