@@ -4,6 +4,7 @@ stages:
   - build
   - test
   - scan
+  - deploy
   
 install:
   stage: build
@@ -120,3 +121,20 @@ test_sonar_preview:
   dependencies:
     - test_preview
 
+build:image:
+  variables:
+    IMAGE_TAG1: $CI_REGISTRY_IMAGE/linux:$CI_COMMIT_REF_SLUG
+    IMAGE_TAG2: $CI_REGISTRY_IMAGE/linux:$CI_COMMIT_SHA
+  stage: deploy
+  image: docker
+  tags:
+    - build-docker-image
+    - dind1
+  script:
+    - docker build -t $IMAGE_TAG1 -t $IMAGE_TAG2  -f Dockerfile.linux .
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker push $IMAGE_TAG1
+    - docker push $IMAGE_TAG2
+  when: manual
+  environment:
+     name: staging
