@@ -143,7 +143,7 @@ build:image:
   environment:
      name: staging
 
-build:image:
+build:image:stable:
   variables:
     IMAGE_TAG1: $CI_REGISTRY_IMAGE/linux:$CI_COMMIT_REF_SLUG
     IMAGE_TAG2: $CI_REGISTRY_IMAGE/linux:$CI_COMMIT_SHA
