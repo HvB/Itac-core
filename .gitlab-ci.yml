@@ -135,6 +135,9 @@ build:image:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $IMAGE_TAG1
     - docker push $IMAGE_TAG2
+  only:
+    - master
+    - develop
   when: manual
   environment:
      name: staging
