@@ -17,3 +17,8 @@ ITAC-Core/artefacts/
 ITAC-Core/artifact/
 ITAC-Core/sessions/
 ITAC-Core/session/
+ITAC-Core/coverage/
+ITAC-Core/test-reports/
+ITAC-Core/.nyc_output/
+ITAC-Core/.scannerwork/
+**/sonar-project.properties
