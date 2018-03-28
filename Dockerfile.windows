@@ -1,11 +1,11 @@
 FROM stefanscherer/node-windows:8
-RUN mkdir \app
-WORKDIR /app
+WORKDIR /usr/src/app
 ARG NODE_ENV
 ENV NODE_ENV $NODE_ENV
-COPY ITAC-Core/package.json /app
-RUN npm install && npm cache clean --force
-COPY ITAC-Core/ /app/
+COPY ITAC-Core/package.json ./
+RUN npm install --only=production && npm cache clean --force
+COPY ITAC-Core/ ./
+VOLUME  "c:\usr\src\app\session"
 EXPOSE 3000 8080-8085
 
 CMD [ "npm.cmd", "start" ]

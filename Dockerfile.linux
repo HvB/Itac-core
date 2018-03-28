@@ -1,11 +1,11 @@
-FROM node:8
-RUN mkdir -p /usr/src/app
+FROM node:8-stretch
 WORKDIR /usr/src/app
 ARG NODE_ENV
 ENV NODE_ENV $NODE_ENV
-COPY ITAC-Core/package.json /usr/src/app
-RUN npm install && npm cache clean --force
-COPY ITAC-Core/ /usr/src/app/
+COPY ITAC-Core/package.json ./
+RUN npm install --only=production && npm cache clean --force
+COPY ITAC-Core/ ./
+VOLUME "/usr/src/app/session"
 EXPOSE 3000 8080-8085
 
 CMD [ "npm", "start" ]
