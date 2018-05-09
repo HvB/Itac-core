@@ -484,6 +484,9 @@ class ArtifactObserver {
                     .css('background-size', 'contain, cover')
                     .addClass('background');
             }
+        } else if (event.type == 'ArtifactPropertyListChangedEvent' && event.op == 'remove' && event.property == 'linksTo'){
+            console.log("remove link from: " + event.source.id + " to: " + event.key );
+            $('line[data-from=' + source.id + '][data-to=' + event.key + ']').remove();
         }
     }
 
