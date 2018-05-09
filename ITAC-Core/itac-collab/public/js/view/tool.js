@@ -41,8 +41,8 @@ class ToolView extends View {
                                    dropElement,       // dropzone elemnt
                                    draggable,         // draggable Interactable
                                    draggableElement) {// draggable element
-                    let x = event.clientX;
-                    let y = event.clientY;
+                    let x = dragEvent.clientX;
+                    let y = dragEvent.clientY;
                     let myLine = dropElement;
 
                     let x1 = myLine.x1.animVal.value;
