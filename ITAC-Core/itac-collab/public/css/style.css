@@ -184,8 +184,8 @@ ul.menu li.send {
     border-radius: 10px;
 }
 .ZP > .artifact {
-    left:-115px;
-    top:-75px;
+    left:-117px;
+    top:-77px;
 }
 
 .ZP > .artifact.newInZP {
@@ -243,8 +243,8 @@ ul.menu li.send {
 }
 
 .ZP > .point {
-    left:-10px;
-    top:-10px;
+    left:-12px;
+    top:-12px;
 }
 .artifact > .artifact.point.pinned {
     position:absolute;
