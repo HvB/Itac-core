@@ -174,7 +174,7 @@ class ArtifactView extends View {
             target: '.ZP > .artifact.message, .ZP > .artifact.image',
             option: {
                 inertia: true,
-                restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
+                restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0.5, left: 0.5, bottom: 0.5, right: 0.5}},
                 //restrict: {restriction: 'parent', endOnly: true},
                 autoScroll: true,
                 onstart: (function (event) {
@@ -299,8 +299,7 @@ class ArtifactView extends View {
             target: '.ZP > .artifact.message, .ZP > .artifact.image',
             option: {
                 inertia: false,
-                //restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
-                restrict: {restriction: 'parent', endOnly: true},
+                restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0.5, left: 0.5, bottom: 0.5, right: 0.5}},
                 autoScroll: true,
                 onstart: (function (event) {
                     // ToDo: remove obsolete code
