@@ -62,6 +62,11 @@ ul.menu li.trash {
 ul.menu li.background {
     background-image: url("../img/icon/background.png");
 }
+ul.menu li.save {
+    background-image: url("../img/icon/save.png");
+    background-position: center;
+    background-size: 50%;
+}
 ul.menu li.send {
     background-image: url("../img/icon/send.png");
     background-position: center 70%;

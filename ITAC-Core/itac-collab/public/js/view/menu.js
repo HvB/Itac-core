@@ -164,6 +164,19 @@ class MenuView extends View {
                 $('.menu').css('z-index', Z_INDEX);
                 Z_INDEX++;
             }).bind(this)
+        }, {
+            target: '.circleMenu-open .save',
+            action: (function (event) {
+                $.get(window.location.href.replace(this._ZP.id, 'save')).done(function () {
+                    $(event.target).css('background-color', 'green');
+                }).fail(function () {
+                    $(event.target).css('background-color', 'red');
+                }).always(function () {
+                    window.setTimeout(function () {
+                        $(event.target).css('background-color', '');
+                    }, 500);
+                })
+            }).bind(this)
         }];
     }
 
@@ -175,8 +188,8 @@ class MenuView extends View {
                 $('#' + this._ZP.background).show();
                 console.log("background artifact: " + this._ZP.background);
                 let artifact = this._ZP.getArtifact(this._ZP.background);
-                if (artifact){
-                    for (let pId in artifact.points ){
+                if (artifact) {
+                    for (let pId in artifact.points) {
                         console.log("background point: " + pId);
                         $('line[data-from=' + pId + '], line[data-to=' + pId + ']').remove();
                     }
