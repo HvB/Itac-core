@@ -252,7 +252,10 @@ class ArtifactView extends View {
     }
 
     _tap() {
-        return [{
+        return [
+            // suppression affichage de l'historique
+            /*
+            {
             //ToDo: verifier si on doit supprimer cette partie (cf. reunion du 29/11/2017)
             target: '.ZP > .artifact.message, .ZP > .artifact.image',
             action: (function (event) {
@@ -292,7 +295,9 @@ class ArtifactView extends View {
                     }
                 }
             }).bind(this)
-        }, {
+        },
+        */
+            {
             target: '.ZP > .artifact.point',
             action: (function (event) {
                 let $artifact = $(event.currentTarget);
