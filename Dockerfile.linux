@@ -6,6 +6,6 @@ COPY ITAC-Core/package.json ./
 RUN npm install --only=production && npm cache clean --force
 COPY ITAC-Core/ ./
 VOLUME "/usr/src/app/session"
-EXPOSE 3000 8080-8085
+EXPOSE 9000 8080-8085
 
 CMD [ "npm", "start" ]
