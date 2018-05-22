@@ -1,0 +1,42 @@
+plugins {
+    id "com.github.hierynomus.license" version "0.14.0"
+}
+
+task licenseFormatSrc(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+    source = fileTree(dir: '.').include('**/*.*')
+}
+
+licenseFormat.dependsOn licenseFormatSrc
+
+license {
+    header = rootProject.file('Header_GPLv3.txt')
+    include('**/*.js')
+    include('**/*.html')
+    include('**/*.ejs')
+    include('**/*.css')
+    include('**/*.gradle')
+    include('**/*.properties')
+    //include('bin/www')
+    exclude('**/license-gpl-3.0.html')
+    exclude('node_modules')
+    exclude('**/lib')
+    exclude('session')
+    exclude('itac-domotique')
+    exclude('itac-morpion')
+    exclude('build')
+    exclude('coverage')
+    exclude('test-reports')
+    exclude('sonar-project.properties')
+    exclude('.*')
+    exclude('gradle')
+    ext.yearsAIP = '2016-'+Calendar.getInstance().get(Calendar.YEAR)
+    ext.yearsUSMB = '2016-'+Calendar.getInstance().get(Calendar.YEAR)
+    ext.yearsJJ = 2017
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.authorAIP = "AIP Primeca RAO"
+    ext.authorUSMB = "Université Savoie Mont Blanc"
+    ext.authorJJ = "David Wayntal"
+    //sourceSets = project.sourceSets
+    mapping('ejs', 'XML_STYLE')
+}
