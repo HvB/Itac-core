@@ -20,9 +20,10 @@ images ou messages les uns aux autres.
 * Ajout / suppression  de points sur les images placés en fond d'écran.
 * Création et affichage de liens entre les points et les artéfacts. 
 * Créaton et affichage de liens entre artéfacts (images / messages). 
+* Suppression de liens entre artéfacts (point / images / messages).
 * Gestions des écrans de géometries différentes (nb de pixels /  aspect ratio) - 
 nécessite un rafraichissement du navigateur (F5). 
-* Prise en compte du changement du niveau de zoom (navigateur / systeme). 
+* Prise en compte du changement du niveau de zoom (navigateur / système). 
 
 ### Problèmes connus : 
 * Pb lors du changement de zone simultanée d'un même artéfact sur la table et sur la tablette (bug #34)
@@ -37,6 +38,7 @@ nécessite un rafraichissement du navigateur (F5).
 d'avoir de nouveaux types d'artéfacts. 
 * Ajout gestion des positions des artéfacts sur la table. 
 * Creation d'un service de mise à jour des artéfacts (maj partielle ou complète). 
+* modification du port pour le serveur (3000->9000)
 
 ### ITAC client (table computer / interactive whiteboard)
 * Réecriture du client pour la table tactile ou l'écran tactile.
@@ -46,12 +48,15 @@ d'avoir de nouveaux types d'artéfacts.
 * Possibiliteé d'ajouter des points sur des images en fond d'écran et des les lier aux autres artefacts 
 (messages ou images).
 * Possibilité de créer des liens entre les artéfacts images ou messages.
+* Possibilité de supprimer des liens entre les artéfacts.
+* Ajout option de sauvegarde de la session en cours sur le menu.
 * Ajout QR-code sur le menu pour simplifier la connection des clients. 
 * Ajout possibilité de déplacer les ZE (Zones d'échange) sur la table. 
 * Synchronisation des modifications des artéfacts sur la table avec le serveur. 
 (position des artéfacts sur la table / mise en fond d'écran / gestion des points sur les images / gestions des lients entre les artéfacts). 
 * Gestions des écrans de géometries différentes (nb de pixels /  aspect ratio). 
-* Prise en compte du changement du niveau de zoom (navigateur / systeme). 
+* Prise en compte du changement du niveau de zoom (navigateur / système). 
+* Suppression affichage historique des modifcations des artéfacts sur la table
 
 ## Version 1.0 (2017-07-13)
 
