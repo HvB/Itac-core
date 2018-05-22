@@ -91,9 +91,9 @@ class Artifact {
         let val = this.x;
         if (typeof refX === 'number') {
             val -= refX;
-        } else if (refX == 'center') {
+        } else if (refX === 'center') {
             val -= w/2;
-        } else if (refX == 'right') {
+        } else if (refX === 'right') {
             val -= w;
         }
         switch(unit) {
@@ -124,9 +124,9 @@ class Artifact {
         let val = this.y;
         if (typeof refY === 'number') {
             val -= refY;
-        } else if (refY == 'center') {
+        } else if (refY === 'center') {
             val -= h/2;
-        } else if (refY == 'bottom') {
+        } else if (refY === 'bottom') {
             val -= h;
         }
         switch(unit) {
@@ -156,12 +156,21 @@ class Artifact {
         if (typeof ref === 'number') {
             val -= ref;
         }
-        val +='deg'
+        val +='deg';
         return val;
     }
 
     get scale() {
+        let h = window.innerHeight;
+        let w = window.innerWidth;
+        let scaleMax = w/230*2;
+        let scaleMin = 0.25;
         let s = this._scale * (1 + this._ds);
+        if (s < scaleMin) {
+            s = scaleMin;
+        } else if (s > scaleMax) {
+            s = scaleMax;
+        }
         return s;
     }
 
@@ -240,10 +249,11 @@ class Artifact {
         this._x += this._dx;
         this._y += this._dy;
         this._angle += this._da;
-        this._scale *= (1 + this._ds);
+        //this._scale *= (1 + this._ds);
         this._dx = 0;
         this._dy = 0;
-        this._ds = 0;
+        //this._ds = 0;
+        this.scale = this.scale;
         this._da = 0;
         this.setChanged();
         let event =  new ArtifactStartMoveEvent(this);
@@ -364,7 +374,7 @@ class Artifact {
     }
     notifyObservers(event){
         // on ajoute l'evnt a la liste des evnts en attente
-        this._queueEvent(event)
+        this._queueEvent(event);
         // s'il y a eu des modifications on envoie les events en attente aux observers
         if (this._changed ){
             for (let evt of this._events){
@@ -390,10 +400,10 @@ class Artifact {
         this._observers.clear();
     }
 
-    migrate(){
+    migrate(idZp){
         this._status = "migrated";
         this.setChanged();
-        let event = new ArtifactStatusEvent(this, this._status);
+        let event = new ArtifactStatusEvent(this, this._status, {ZP:idZp});
         this.notifyObservers(event);
         this._observers.clear();
     }

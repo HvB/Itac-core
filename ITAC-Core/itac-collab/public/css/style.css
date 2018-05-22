@@ -26,6 +26,10 @@ svg line {
     stroke-width:3;
 }
 
+svg line.drop-target {
+    stroke: #3CA55C;
+}
+
 /*
     MENU
 */
@@ -58,10 +62,36 @@ ul.menu li.trash {
 ul.menu li.background {
     background-image: url("../img/icon/background.png");
 }
+ul.menu li.save {
+    background-image: url("../img/icon/save.png");
+    background-position: center;
+    background-size: 50%;
+}
 ul.menu li.send {
     background-image: url("../img/icon/send.png");
     background-position: center 70%;
     background-size: 40%;
+}
+
+.scissors {
+    background-image: url("../img/icon/scissors.png");
+    background-size: 100%;
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0.2em 0.2em 0.7em black, inset 0 0 10px #000000;
+    border: solid 2px #ffffff;
+}
+
+.ZP > .scissors {
+    left:-12px;
+    top:-12px;
+}
+
+.scissors.active {
+    border-color: #4e4;
+    position:fixed;
 }
 
 /*
@@ -159,8 +189,8 @@ ul.menu li.send {
     border-radius: 10px;
 }
 .ZP > .artifact {
-    left:-115px;
-    top:-75px;
+    left:-117px;
+    top:-77px;
 }
 
 .ZP > .artifact.newInZP {
@@ -211,9 +241,15 @@ ul.menu li.send {
 .artifact.point.pinned {
     background-color: #FFB6C1;
 }
+
+.tool > * {
+    position: relative;
+    margin:5px;
+}
+
 .ZP > .point {
-    left:-10px;
-    top:-10px;
+    left:-12px;
+    top:-12px;
 }
 .artifact > .artifact.point.pinned {
     position:absolute;

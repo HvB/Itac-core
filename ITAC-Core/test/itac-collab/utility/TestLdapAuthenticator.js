@@ -107,7 +107,7 @@ describe("LDAP Authentication", function () {
 		  var entry = db[dn];
 
 		  for (var i = 0; i < req.changes.length; i++) {
-		    mod = req.changes[i].modification;
+		    let mod = req.changes[i].modification;
 		    switch (req.changes[i].operation) {
 		    case 'replace':
 		      if (!entry[mod.type])

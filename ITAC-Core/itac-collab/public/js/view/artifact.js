@@ -36,10 +36,9 @@ class ArtifactView extends View {
                         artifactFrom = this._ZP.getArtifact($shape.attr('data-from')),
                         artifactTo = this._ZP.getArtifact($target.attr('id'));
                     console.log("source "+$shape.attr('data-from')+" drop "+$(event.target).attr('id'));
-                    if (!artifactFrom || artifactFrom.hasLinkTo(artifactTo.id)) {
-                        $shape.remove();
-                    } else if (artifactFrom && artifactTo && artifactFrom != artifactTo ) {
+                    if (artifactFrom && artifactTo && artifactFrom != artifactTo && ! (artifactFrom.hasLinkTo(artifactTo.id))) {
                         //ToDo: verifier si on peut supprimer cette partie
+                        //ToDo: normalement ce code devrait avoir ete déplace dans l'observer des artefacts...
                         // a priori la fixation de x1/y1/x2/y2 est inutile -- elle est faite dans la mise a jour de l'artefact
                         shape.setAttributeNS(null, 'x2', artifactTo.getX('px') );
                         shape.setAttributeNS(null, 'y2', artifactTo.getY('px') );
@@ -47,6 +46,8 @@ class ArtifactView extends View {
                         $shape.attr('data-to', artifactTo.id);
                         $shape.removeClass('temporary');
                         artifactFrom.addLinkTo(artifactTo.id);
+                    } else {
+                        $shape.remove();
                     }
                 }).bind(this),
                 ondropdeactivate: function (event) {
@@ -128,7 +129,8 @@ class ArtifactView extends View {
             target: '.ZP > .artifact.message, .ZP > .artifact.image',
             option: {
                 inertia: true,
-                restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
+                restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0.5, left: 0.5, bottom: 0.5, right: 0.5}},
+                //restrict: {restriction: 'parent', endOnly: true},
                 autoScroll: true,
                 onstart: (function (event) {
                     this._startArtifact(event);
@@ -229,8 +231,8 @@ class ArtifactView extends View {
         return [{
             target: '.ZP > .artifact.message, .ZP > .artifact.image',
             option: {
-                inertia: true,
-                restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0, left: 0, bottom: 1, right: 1}},
+                inertia: false,
+                restrict: {restriction: 'parent', endOnly: true, elementRect: {top: 0.5, left: 0.5, bottom: 0.5, right: 0.5}},
                 autoScroll: true,
                 onstart: (function (event) {
                     this._startArtifact(event);
@@ -250,7 +252,10 @@ class ArtifactView extends View {
     }
 
     _tap() {
-        return [{
+        return [
+            // suppression affichage de l'historique
+            /*
+            {
             //ToDo: verifier si on doit supprimer cette partie (cf. reunion du 29/11/2017)
             target: '.ZP > .artifact.message, .ZP > .artifact.image',
             action: (function (event) {
@@ -290,7 +295,9 @@ class ArtifactView extends View {
                     }
                 }
             }).bind(this)
-        }, {
+        },
+        */
+            {
             target: '.ZP > .artifact.point',
             action: (function (event) {
                 let $artifact = $(event.currentTarget);
