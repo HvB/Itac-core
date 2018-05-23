@@ -1,8 +1,8 @@
 # Changelog
 
-## Version 2.0 (2017-12-26)
+## Version 2.0 (2018-05-28)
 
-Types d'artefacts supportés :
+### Types d'artefacts supportés :
 * messages
 * images
 * points (dans les images)
