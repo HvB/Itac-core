@@ -1,4 +1,4 @@
-FROM stefanscherer/node-windows:10.1.0-nanoserver-1803
+FROM stefanscherer/node-windows:8.11.2-nanoserver-1803
 WORKDIR /usr/src/app
 ARG NODE_ENV
 ENV NODE_ENV $NODE_ENV
