@@ -3,16 +3,23 @@
  *
  * @author philippe pernelle
  */
+//utilisation logger
+const itacLogger = require('../utility/loggers').itacLogger;
+
+var logger = itacLogger.child({component: 'ZoneEchange'});
+
 
 module.exports = class ZoneEchange {
-    constructor(ZP, idZE, idZEP, visible, pseudo, posAvatar) {
+    constructor(ZP, idZE, idZEP, idSocket, visible, pseudo, posAvatar, login) {
         this.ZP = ZP;
         this.idZE = idZE;
         this.idZEP = idZEP;
+        this.idSocket =idSocket;
         this.visible = visible;
         this.pseudo = pseudo;
         this.posAvatar = posAvatar;
-        console.log('   	 +++ Zone Echange créée : ZP parent = ' + this.ZP.idZP + ' | idZE = ' + this.idZE + ' | idZEP associé = ' + this.idZEP + ' | visibility = ' + this.visible);
+        this.login= login;
+        logger.info(' Création d une ZE: ZP parent = ' + this.ZP.idZP + ' | idZE = ' + this.idZE +  ' | idSocket = ' + this.idSocket + ' | idZEP associé = ' + this.idZEP + ' | visibility = ' + this.visible);
     }
 
     getId() {
@@ -23,11 +30,19 @@ module.exports = class ZoneEchange {
         return this.idZEP;
     }
 
+    getIdSocket() {
+        return this.idSocket;
+    }
+
     getPseudo() {
         return this.pseudo;
     }
 
     getPosAvatar() {
         return this.posAvatar;
+    }
+
+    getLogin() {
+        return this.login;
     }
 };

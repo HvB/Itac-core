@@ -1,0 +1,300 @@
+.ZE {
+    position: absolute;
+}
+
+@media (max-width: 800px) {
+    .n1, .n2 {
+        width: 500px;
+        height: 150px;
+    }
+    .n3, .n4 {
+        width: 350px;
+        height: 100px;
+    }
+    .n5, .n6 {
+        width: 300px;
+        height: 80px;
+    }
+    .n7, .n8 {
+        width: 250px;
+        height: 80px;
+    }
+    .ZE1 {
+        top: 0;
+        left: calc(50% - (500px / 2));
+        transform: rotate(180deg);
+    }
+    .ZE1.n3, .ZE1.n4 {
+        left: calc(50% - (350px / 2));
+    }
+    .ZE1.n5, .ZE1.n6 {
+        left: calc(25% - (300px / 2));
+    }
+    .ZE1.n7, .ZE1.n8 {
+        left: calc(30% - (250px / 2));
+    }
+    .ZE2 {
+        bottom: 0;
+        right: calc(50% - (500px / 2));
+        transform: rotate(0deg);
+    }
+    .ZE2.n3, .ZE2.n4 {
+        right: calc(50% - (350px / 2));
+    }
+    .ZE2.n5, .ZE2.n6 {
+        right: calc(25% - (300px / 2));
+    }
+    .ZE2.n7, .ZE2.n8 {
+        right: calc(30% - (250px / 2));
+    }
+    .ZE3 {
+        top: calc(50% - (100px / 2));
+        right: calc((100px - 350px) / 2);
+        transform: rotate(270deg);
+    }
+    .ZE3.n5, .ZE3.n6 {
+        top: calc(50% - (80px / 2));
+        right: calc((80px - 300px) / 2);
+    }
+    .ZE3.n7, .ZE3.n8 {
+        top: calc(30% - (80px / 2));
+        right: calc((80px - 250px) / 2);
+    }
+    .ZE4 {
+        bottom: calc(50% - (100px / 2));
+        left: calc((100px - 350px) / 2);
+        transform: rotate(90deg);
+    }
+    .ZE4.n5, .ZE4.n6 {
+        bottom: calc(50% - (80px / 2));
+        left: calc((80px - 300px) / 2);
+    }
+    .ZE4.n7, .ZE4.n8 {
+        bottom: calc(30% - (80px / 2));
+        left: calc((80px - 250px) / 2);
+    }
+    .ZE5 {
+        top: 0;
+        right: calc(25% - (300px / 2));
+        transform: rotate(180deg);
+    }
+    .ZE5.n7, .ZE5.n8 {
+        right: calc(30% - (250px / 2));
+    }
+    .ZE6 {
+        bottom: 0;
+        left: calc(25% - (300px / 2));
+        transform: rotate(0deg);
+    }
+    .ZE6.n7, .ZE6.n8 {
+        left: calc(30% - (250px / 2));
+    }
+    .ZE7 {
+        bottom: calc(30% - (80px / 2));
+        right: calc((80px - 250px) / 2);
+        transform: rotate(270deg);
+    }
+    .ZE8 {
+        top: calc(30% - (80px / 2));
+        left: calc((80px - 250px) / 2);
+        transform: rotate(90deg);
+    }
+}
+
+@media (min-width: 801px) and (max-width: 1400px) {
+    .n1, .n2 {
+        width: 600px;
+        height: 150px;
+    }
+    .n3, .n4 {
+        width: 500px;
+        height: 120px;
+    }
+    .n5, .n6 {
+        width: 400px;
+        height: 100px;
+    }
+    .n7, .n8 {
+        width: 300px;
+        height: 80px;
+    }
+    .ZE1 {
+        top: 0;
+        left: calc(50% - (600px / 2));
+        transform: rotate(180deg);
+    }
+    .ZE1.n3, .ZE1.n4 {
+        left: calc(50% - (500px / 2));
+    }
+    .ZE1.n5, .ZE1.n6 {
+        left: calc(25% - (400px / 2));
+    }
+    .ZE1.n7, .ZE1.n8 {
+        left: calc(30% - (300px / 2));
+    }
+    .ZE2 {
+        bottom: 0;
+        right: calc(50% - (600px / 2));
+        transform: rotate(0deg);
+    }
+    .ZE2.n3, .ZE2.n4 {
+        right: calc(50% - (500px / 2));
+    }
+    .ZE2.n5, .ZE2.n6 {
+        right: calc(25% - (400px / 2));
+    }
+    .ZE2.n7, .ZE2.n8 {
+        right: calc(30% - (300px / 2));
+    }
+    .ZE3 {
+        top: calc(50% - (120px / 2));
+        right: calc((120px - 500px) / 2);
+        transform: rotate(270deg);
+    }
+    .ZE3.n5, .ZE3.n6 {
+        top: calc(50% - (100px / 2));
+        right: calc((100px - 400px) / 2);
+    }
+    .ZE3.n7, .ZE3.n8 {
+        top: calc(30% - (80px / 2));
+        right: calc((80px - 300px) / 2);
+    }
+    .ZE4 {
+        bottom: calc(50% - (120px / 2));
+        left: calc((120px - 500px) / 2);
+        transform: rotate(90deg);
+    }
+    .ZE4.n5, .ZE4.n6 {
+        bottom: calc(50% - (100px / 2));
+        left: calc((100px - 400px) / 2);
+    }
+    .ZE4.n7, .ZE4.n8 {
+        bottom: calc(30% - (80px / 2));
+        left: calc((80px - 300px) / 2);
+    }
+    .ZE5 {
+        top: 0;
+        right: calc(25% - (400px / 2));
+        transform: rotate(180deg);
+    }
+    .ZE5.n7, .ZE5.n8 {
+        right: calc(30% - (300px / 2));
+    }
+    .ZE6 {
+        bottom: 0;
+        left: calc(25% - (400px / 2));
+        transform: rotate(0deg);
+    }
+    .ZE6.n7, .ZE6.n8 {
+        left: calc(30% - (300px / 2));
+    }
+    .ZE7 {
+        bottom: calc(30% - (80px / 2));
+        right: calc((80px - 300px) / 2);
+        transform: rotate(270deg);
+    }
+    .ZE8 {
+        top: calc(30% - (80px / 2));
+        left: calc((80px - 300px) / 2);
+        transform: rotate(90deg);
+    }
+}
+
+@media (min-width: 1401px) {
+    .n1, .n2 {
+        width: 600px;
+        height: 150px;
+    }
+    .n3, .n4 {
+        width: 600px;
+        height: 150px;
+    }
+    .n5, .n6 {
+        width: 500px;
+        height: 120px;
+    }
+    .n7, .n8 {
+        width: 400px;
+        height: 100px;
+    }
+    .ZE1 {
+        top: 0;
+        left: calc(50% - (600px / 2));
+        transform: rotate(180deg);
+    }
+    .ZE1.n3, .ZE1.n4 {
+        left: calc(50% - (600px / 2));
+    }
+    .ZE1.n5, .ZE1.n6 {
+        left: calc(25% - (500px / 2));
+    }
+    .ZE1.n7, .ZE1.n8 {
+        left: calc(15% - (400px / 2));
+    }
+    .ZE2 {
+        bottom: 0;
+        right: calc(50% - (600px / 2));
+        transform: rotate(0deg);
+    }
+    .ZE2.n3, .ZE2.n4 {
+        right: calc(50% - (600px / 2));
+    }
+    .ZE2.n5, .ZE2.n6 {
+        right: calc(25% - (500px / 2));
+    }
+    .ZE2.n7, .ZE2.n8 {
+        right: calc(15% - (400px / 2));
+    }
+    .ZE3 {
+        top: calc(50% - (150px / 2));
+        right: calc((150px - 600px) / 2);
+        transform: rotate(270deg);
+    }
+    .ZE3.n5, .ZE3.n6 {
+        top: calc(50% - (120px / 2));
+        right: calc((120px - 500px) / 2);
+    }
+    .ZE3.n7, .ZE3.n8 {
+        top: calc(50% - (100px / 2));
+        right: calc((100px - 400px) / 2);
+    }
+    .ZE4 {
+        bottom: calc(50% - (150px / 2));
+        left: calc((150px - 600px) / 2);
+        transform: rotate(90deg);
+    }
+    .ZE4.n5, .ZE4.n6 {
+        bottom: calc(50% - (120px / 2));
+        left: calc((120px - 500px) / 2);
+    }
+    .ZE4.n7, .ZE4.n8 {
+        bottom: calc(50% - (100px / 2));
+        left: calc((100px - 400px) / 2);
+    }
+    .ZE5 {
+        top: 0;
+        right: calc(25% - (500px / 2));
+        transform: rotate(180deg);
+    }
+    .ZE5.n7, .ZE5.n8 {
+        right: calc(50% - (400px / 2));
+    }
+    .ZE6 {
+        bottom: 0;
+        left: calc(25% - (500px / 2));
+        transform: rotate(0deg);
+    }
+    .ZE6.n7, .ZE6.n8 {
+        left: calc(50% - (400px / 2));
+    }
+    .ZE7 {
+        top: 0;
+        right: calc(15% - (400px / 2));
+        transform: rotate(180deg);
+    }
+    .ZE8 {
+        bottom: 0;
+        left: calc(15% - (400px / 2));
+        transform: rotate(0deg);
+    }
+}

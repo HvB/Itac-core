@@ -8,6 +8,7 @@
 <div class="infoZP">
     <h2>Lanceur d'application sur le périphérique de destination </h2>
     <p>
+        Nom de la session = <%= sessionName %> </br>
         Adresse IP du Serveur ITAC = <%= ipserver %> </br>
         Nom de votre zone collaborative ITAC ZoCo = <%= zonecollab.idZC %> </br>
         Nombre d'espaces de travail de votre zone = <%= zonecollab.nbZP %>
@@ -21,13 +22,28 @@
         %>
         <li>
             Type d'espace de travail : <%= zonecollab.ZP[i].typeZP %> Lien URL :
+            <!--<a target='_blank'-->
+               <!--href='/collab/<%= zonecollab.idZC %>/espacetravail/<%= i %>/<%= zonecollab.ZP[i].idZP %>/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>'>-->
+                <!--/collab/<%= zonecollab.idZC %>/espacetravail/<%= zonecollab.ZP[i].idZP %>-->
+                <!--/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>-->
+            <!--</a>-->
+<!--
             <a target='_blank'
-               href='/collab/<%= zonecollab.idZC %>/espacetravail/<%= i %>/<%= zonecollab.ZP[i].idZP %>/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>'>
-                /collab/<%= zonecollab.idZC %>/espacetravail/<%= zonecollab.ZP[i].idZP %>
-                /<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>
+               href='/collab/session/<%= sessionName %>/<%= zonecollab.ZP[i].idZP %>'>
+                /collabenmarche/<%= zonecollab.idZC %>/espacetravaildeburnos/<%= zonecollab.ZP[i].idZP %>
+                /<%= zonecollab.ZP[i].portWebSocket %>/vivemacron/<%= minmax %>
+            </a>
+-->
+            <a target='_blank'
+               href='/collab/session/<%= sessionName %>/<%= zonecollab.ZP[i].idZP %>'>/<%= zonecollab.idZC %>/<%= zonecollab.ZP[i].idZP %>/<%= zonecollab.ZP[i].portWebSocket %>/<%= minmax %>
             </a>
         </li>
         <% } %>
+    </ul>
+    <p>Sauvegarde / fermeture : </p>
+    <ul>
+        <li>Sauvegarde de la session : <a href="/collab/session/<%= sessionName %>/save">/collab/session/<%= sessionName %>/save</a></li>
+        <li>Fermeture de la session : <a href="/collab/session/<%= sessionName %>/close">/collab/session/<%= sessionName %>/close</a></li>
     </ul>
 </div>
 <script>

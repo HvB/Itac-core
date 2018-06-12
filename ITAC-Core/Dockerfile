@@ -1,2 +1,0 @@
-FROM node:onbuild
-EXPOSE 3000 8080-8085

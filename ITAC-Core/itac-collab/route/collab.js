@@ -17,7 +17,7 @@ module.exports = function (router) {
             var splithost = host.split(":");
             var url = 'http://' + splithost[0];
 
-            console.log('CLIENT configcollab.js -> routage GET , preconfig = ' + numconfig + ' avec URL=' + url);
+            console.log('CLIENT collab.js -> routage GET , preconfig = ' + numconfig + ' avec URL=' + url);
 
             var paramZC = {};
 
@@ -49,7 +49,7 @@ module.exports = function (router) {
                 };
             }
 
-            console.log('CLIENT configcollab.js -> routage GET,  lancement creation de la ZC \n');
+            console.log('CLIENT collab.js -> routage GET,  lancement creation de la ZC \n');
             var ZC = new ZoneCollaborative(paramZC);
 
 

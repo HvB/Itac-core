@@ -318,12 +318,44 @@ class LoginPwdDB {
     }
 }
 
+
 /**
- * Authentificateur associe a une base de type login/mot de passe.
+ * Authentificateur associe a une une authentification de type login/mot de passe.
  *
  * @augments {Authenticator}
  */
-class LoginPwdAuthenticator extends Authenticator {
+class AbstractLoginPwdAuthenticator extends Authenticator {
+    /**
+     * Constructeur par defaut.
+     *
+     * @throws {TypeError} c'est une classe abstraite.
+     */
+    constructor(){
+        super();
+        if (this.constructor === AbstractLoginPwdAuthenticator) {
+            logger.error("constructor called on abstract class AbstractLoginPwdAuthenticator");
+            throw new TypeError('Abstract class "AbstractLoginPwdAuthenticator" cannot be instantiated directly.');
+        }
+    }
+    /**
+     * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications.
+     *
+     * @method
+     * @override
+     * @param login - the login
+     * @param password - the password
+     * @returns {LoginPwdCredential} un credential adapté
+     */
+    createCredential(login, password){
+        return new LoginPwdCredential(login, password);
+    }
+}
+/**
+ * Authentificateur associe a une base de type login/mot de passe.
+ *
+ * @augments {AbstractLoginPwdAuthenticator}
+ */
+class LoginPwdAuthenticator extends AbstractLoginPwdAuthenticator {
     /**
      * Constructeur par defaut.
      *
@@ -331,7 +363,7 @@ class LoginPwdAuthenticator extends Authenticator {
      */
     constructor(userDB){
         super();
-        if ( ! userDB instanceof LoginPwdDB) {
+        if ( !(userDB instanceof LoginPwdDB)) {
             logger.error("LoginPwdAuthenticator : invalid list of login/password");
             throw new TypeError('Invalid user DB : '+userDB);
         } else {
@@ -387,18 +419,6 @@ class LoginPwdAuthenticator extends Authenticator {
             throw new TypeError('Invalid credential: '+credential);
         }
     }
-    /**
-     * Methode permettant de creer des informations d'authentification adaptées a la methodes d'authentifications.
-     *
-     * @method
-     * @override
-     * @param login - the login
-     * @param password - the password
-     * @returns {LoginPwdCredential} un credential adapté
-     */
-    createCredential(login, password){
-        return new LoginPwdCredential(login, password);
-    }
 }
 
 /**
@@ -450,7 +470,7 @@ Authenticator.registerFactory(factory);
 logger.trace('Authenticators: '+Authenticator.registredAuthenticators());
 logger.trace('Factories: '+Authenticator.registredFactories());
 
-module.exports = {Authenticator, YesAuthenticator, NoAuthenticator, Credential, LoginPwdCredential,
+module.exports = {Authenticator, YesAuthenticator, NoAuthenticator, Credential, LoginPwdCredential, AbstractLoginPwdAuthenticator,
     LoginPwdAuthenticator, LoginPwdDB, FileLoginPwdAuthenticator};
 
 /*

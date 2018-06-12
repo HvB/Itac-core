@@ -84,6 +84,22 @@ module.exports = {
         NewArtefactInZE: 'EVT_NewArtefactInZE',
 
         /**
+         * evenement envoyé pour modifier un artefact (maj complete de l'artefact)
+         */
+        ArtifactFullUpdate: 'EVT_ArtifactFullUpdate',
+
+        /**
+         * evenement envoyé pour modifier un artefact (maj partielle via un patch JSON)
+         */
+        ArtifactPartialUpdate: 'EVT_ArtifactPartialUpdate',
+
+        /**
+         * evenement envoyé pour modifier plusieur artefacts (maj partielle via un ensemble de patch JSON)
+         */
+        ArtifactsPartialUpdates: 'EVT_ArtifactsPartialUpdates',
+
+
+        /**
          * cet evenement est envoyé par le serveur de socket à la ZA quand un artefact est déposé dans la ZE
          * il est aussi renvoyé à la tablette comme acquittement à EVT_NewArtefactInZE
          */
@@ -125,7 +141,11 @@ module.exports = {
     },
     error: {
         ConnexionZEP_Erreur1: 'Pas de zone affichage valide',
-        ConnexionZEP_Erreur2: 'Nb de connexion maximum atteinte',
+        // ToDo : permetre au client de faire la disctinction entre l'erreur 2 et l'erreur 4
+        ConnexionZEP_Erreur2: 'Nb de connexion maximum atteint',
+        //ConnexionZEP_Erreur2: 'Nb de connexion maximum atteinte',
+        ConnexionZEP_Erreur3: 'Authentification invalide',
+        ConnexionZEP_Erreur4: 'Client déjà connecté'
     },
     type: {
         artifact: {
@@ -136,7 +156,11 @@ module.exports = {
             EP: 'EP',
             ZE: 'ZE',
             ZP: 'ZP'
-        }
+        },
+        repeuplement: {
+            uniquementZP: 'ZP',
+            ZPetZE: 'ZPetZE'
+        },
     },
     log: {
         level : {

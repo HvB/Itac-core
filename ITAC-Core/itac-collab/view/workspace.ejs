@@ -3,44 +3,76 @@
 <head>
     <title><%= title %></title>
     <link rel="stylesheet" href="/collab/css/style.css">
+    <link rel="stylesheet" href="/collab/css/rule.css">
 </head>
-<body id="ZP">
-<ul class="menu">
-    <li class="hand"></li>
-    <li class="trash"></li>
-    <li class="background"></li>
-</ul>
-<!-- TC: Petite subtilité pour changer le fond: bouton invisible qui permet d'ouvrir une sélection de fichier lorsqu'on est sur le menu change-->
-<input id="file" style="display:none;" type="file" multiple/>
+<body oncontextmenu="return false;">
+<div class="ZP">
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+    <ul class="menu">
+        <li class="hand"></li>
+        <li class="qr-code"></li>
+        <li class="trash"></li>
+        <li class="background"></li>
+        <li class="save"></li>
+    </ul>
+</div>
+<div class="overlay">En cours de connexion...</div>
+<div class="template">
+    <ul class="menu">
+        <li class="send"></li>
+    </ul>
+    <div class="ZE">
+        <div class="user">
+            <img class="avatar"/>
+            <span class="login"></span>
+        </div>
+        <div class="container"></div>
+        <div class="tool">
+            <div class="scissors" ></div>
+        </div>
+    </div>
+    <div class="artifact message">
+        <h1></h1>
+        <p></p>
+        <div class="historic">
+            <p>Créateur : <span class="creator"></span><br/><span class="dateCreation"></span></p>
+            <p>Dernier possesseur : <span class="owner"></span></p>
+            <p class="modification"><span class="modifier"></span> - <span class="dateModification"></span></p>
+        </div>
+        <div class="artifact point pinned"></div>
+    </div>
+    <div class="artifact image">
+        <div class="historic">
+            <p>Créateur : <span class="creator"></span><br/><span class="dateCreation"></span></p>
+            <p>Dernier possesseur : <span class="owner"></span></p>
+            <p class="modification"><span class="modifier"></span> - <span class="dateModification"></span></p>
+        </div>
+        <div class="artifact point pinned"></div>
+    </div>
+    <div class="artifact point pinned"></div>
+</div>
 <script type="text/javascript" src="/js/lib/jquery.min.js"></script>
-<script type="text/javascript" src="/js/lib/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/js/lib/interact.min.js"></script>
 <script type="text/javascript" src="/collab/js/lib/socket.io.js"></script>
-<script type="text/javascript" src="/collab/js/lib/interact.min.js"></script>
-<script type="text/javascript" src="/collab/js/lib/html2canvas.js"></script>
-<script type="text/javascript" src="/collab/js/lib/filesaver.min.js"></script>
-<script type="text/javascript" src="/collab/js/lib/key-event.js"></script>
+<script type="text/javascript" src="/collab/js/lib/qrious.min.js"></script>
 <script type="text/javascript" src="/collab/js/lib/circle-menu.min.js"></script>
-<script type="text/javascript" src="/collab/js/toolsITAC.js"></script>
-<script type="text/javascript" src="/collab/js/menuCollabArea.js"></script>
-<!-- PP : extrait les parametre passe  -->
-<script>
-    var urldemande = '<%= urldemande %>';
-    var zpdemande = '<%= myZP %>';
-    var rang = '<%= rangZP %>';
-    var myZC = {};
-    var ZEmax = '<%= NbZEMax %>';
-</script>
-<!-- PP : le code suivant gere la connexion au serveur et les traitement des evenements echange avec le serveur -->
-<script type="text/javascript" src="/collab/js/connexionCollabArea.js"></script>
-<!-- TC: Script javascript qui se charge de la gestion des artefacts -->
-<script type="text/javascript" src="/collab/js/artefactsCollabArea.js"></script>
-<!-- TC: Script javascript qui se charge de la gestion des zones d échanges -->
-<script type="text/javascript" src="/collab/js/zoneEchangeCollabArea.js"></script>
-<!-- PP: Script javascript qui se charge de la gestion des zones de partage -->
-<script type="text/javascript" src="/collab/js/zonePartageCollabArea.js"></script>
+<script type="text/javascript" src="/collab/js/util.js"></script>
+<script type="text/javascript" src="/collab/js/model/artifact/abstract.js"></script>
+<script type="text/javascript" src="/collab/js/model/artifact/message.js"></script>
+<script type="text/javascript" src="/collab/js/model/artifact/image.js"></script>
+<script type="text/javascript" src="/collab/js/model/artifact/point.js"></script>
+<script type="text/javascript" src="/collab/js/model/tool.js"></script>
+<script type="text/javascript" src="/collab/js/model/ze.js"></script>
+<script type="text/javascript" src="/collab/js/model/menu.js"></script>
+<script type="text/javascript" src="/collab/js/model/zp.js"></script>
+<script type="text/javascript" src="/collab/js/view/abstract.js"></script>
+<script type="text/javascript" src="/collab/js/view/line.js"></script>
+<script type="text/javascript" src="/collab/js/view/artifact.js"></script>
+<script type="text/javascript" src="/collab/js/view/tool.js"></script>
+<script type="text/javascript" src="/collab/js/view/ze.js"></script>
+<script type="text/javascript" src="/collab/js/view/menu.js"></script>
+<script type="text/javascript" src="/collab/js/view/zp.js"></script>
+<script type="text/javascript" src="/collab/js/connection.js"></script>
+<script type="text/javascript" src="/collab/js/main.js"></script>
 </body>
 </html>
-
- 	
-  
-  

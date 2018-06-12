@@ -1,0 +1,58 @@
+image: node:8-stretch
+pipelines:
+  branches:
+    develop:
+      - step:
+          services:
+            - docker
+          script: # Modify the commands below to build your repository.
+            # Set $DOCKER_HUB_USERNAME and $DOCKER_HUB_PASSWORD as environment variables in repository settings
+            - export IMAGE_NAME=stalb/itac:$BITBUCKET_BRANCH
+            # build the Docker image (this will use the Dockerfile in the root of the repo)
+            - docker build -t $IMAGE_NAME -f Dockerfile.linux .
+            - docker run --name itac_core $IMAGE_NAME npm install-test
+            - docker container cp itac_core:/usr/src/app/test-reports .
+            - docker container rm itac_core
+            # authenticate with the Docker Hub registry
+            #- docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+            # push the new Docker image to the Docker registry
+            #- docker push $IMAGE_NAME
+
+    feature/*:
+      - step:
+          name: install
+          image: node:8-stretch
+          caches:
+            - node
+          script:
+            - cd ITAC-Core
+            - npm install --only=production
+      - step:
+          name: test
+          image: node:8-stretch
+          caches:
+            - node
+          script:
+            - cd ITAC-Core
+            - npm install
+            - npm test
+# pas d'acces au autre branche dans les pipeline bitbucket
+#      - step:
+#          name: install_merged
+#          image: node:8-stretch
+#          caches:
+#            - node
+#          script:
+#            - git merge origin/develop --no-ff --no-commit
+#            - cd ITAC-Core
+#            - npm install --only=production
+#      - step:
+#          name: test_merged
+#          image: node:8-stretch
+#          caches:
+#            - node
+#          script:
+#            - git merge origin/develop --no-ff --no-commit
+#            - cd ITAC-Core
+#            - npm install
+#            - npm test

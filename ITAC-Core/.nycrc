@@ -1,0 +1,13 @@
+{
+  "exclude": [
+    "coverage/**", "test-reports/**", "test/**", "**/node_modules/**", "**/lib/**", "build/**"
+  ],
+  "reporter": [
+    "text",
+    "text-summary",
+    "lcov"
+  ],
+  "cache": true,
+  "all": true,
+  "report-dir": "./coverage"
+}
