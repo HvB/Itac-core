@@ -1,0 +1,62 @@
+/**
+ *     Copyright © 2016-2018 AIP Primeca RAO
+ *     Copyright © 2016-2018 Université Savoie Mont Blanc
+ *     Copyright © 2017 David Wayntal
+ *
+ *     This file is part of ITAC-Core.
+ *
+ *     ITAC-Core is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+plugins {
+    id "com.github.hierynomus.license" version "0.14.0"
+}
+
+task licenseFormatSrc(type: com.hierynomus.gradle.license.tasks.LicenseFormat) {
+    source = fileTree(dir: '.').include('**/*.*')
+}
+
+licenseFormat.dependsOn licenseFormatSrc
+
+license {
+    header = rootProject.file('Header_GPLv3.txt')
+    include('**/*.js')
+    include('**/*.html')
+    include('**/*.ejs')
+    include('**/*.css')
+    include('**/*.gradle')
+    include('**/*.properties')
+    //include('bin/www')
+    exclude('**/license-gpl-3.0.html')
+    exclude('node_modules')
+    exclude('**/lib')
+    exclude('session')
+    exclude('itac-domotique')
+    exclude('itac-morpion')
+    exclude('build')
+    exclude('coverage')
+    exclude('test-reports')
+    exclude('sonar-project.properties')
+    exclude('.*')
+    exclude('gradle')
+    ext.yearsAIP = '2016-'+Calendar.getInstance().get(Calendar.YEAR)
+    ext.yearsUSMB = '2016-'+Calendar.getInstance().get(Calendar.YEAR)
+    ext.yearsJJ = 2017
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.authorAIP = "AIP Primeca RAO"
+    ext.authorUSMB = "Université Savoie Mont Blanc"
+    ext.authorJJ = "David Wayntal"
+    //sourceSets = project.sourceSets
+    mapping('ejs', 'XML_STYLE')
+}
